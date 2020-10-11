@@ -2,7 +2,6 @@
 
 import style from "./home.css";
 
-import $ from "jquery";
 import ui from "soonui";
 
 const h1 = document.createElement("h1");

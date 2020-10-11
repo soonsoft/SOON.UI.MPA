@@ -3,9 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title><%= htmlWebpackPlugin.options.title %></title>
-    <script src="/vendor/soon-ui/soonui.dll.js"></script>
+
+    <link href="/vendor/soon-ui/theme/light/site-light.css" rel="stylesheet" />
+    <link href="/vendor/soon-ui/theme/light/metro-light.all.css" rel="stylesheet" />
+    <link href="/vendor/soon-ui/theme/viewpage/viewpage.all.css" rel="stylesheet" />
+    <link href="/vendor/soon-ui/theme/color/ui.metro.SeaBlue.css" rel="stylesheet" id="highlight" />
 </head>
 <body>
+    <header id="head" class="head-color clear"></header>
+    <section id="body" style="visibility:hidden"></section>
+
+    <script src="/vendor/soon-ui/soonui.dll.js"></script>
 </body>
 </html>

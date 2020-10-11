@@ -14,7 +14,7 @@ module.exports = {
         extensions: [".js", ".jsx"]
     },
     entry: {
-       soonui: ["jquery", "core-js", "soonui"]
+       soonui: ["core-js", "soonui"]
     },
     output: {
         path: outputPath,

@@ -1,5 +1,5 @@
 {
-  "name": "front-app",
+  "name": "soonui-mpa",
   "version": "1.0.0",
   "description": "",
   "scripts": {
@@ -31,7 +31,6 @@
     "webpack-merge": "^5.1.1"
   },
   "dependencies": {
-    "core-js": "^3.6.5",
-    "jquery": "^3.5.1"
+    "core-js": "^3.6.5"
   }
 }

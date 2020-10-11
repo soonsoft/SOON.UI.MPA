@@ -46,10 +46,6 @@
 "use strict";
 
 var ui = {};
-var jQuery = window.jQuery;
-if(!jQuery) {
-    jQuery = require("jquery");
-}
 
 // 常规的浏览器导入
 if(noGlobal) {
@@ -57,11 +53,19 @@ if(noGlobal) {
 	window.SOONUI = ui;
 }
 
+var $ = null;
+function init_$() {
+	$ = ui.$ || window.$;
+	if(!window.$) {
+		window.$ = $ || undefined;
+	}
+}
+
 ui.version = '3.5.0';
 
-// Source: src/core.js
+// Source: src/core/core.js
 
-(function($, ui) {
+(function(ui, $) {
 // core
 
 /*
@@ -260,11 +264,11 @@ core.isTouchAvailable = function() {
 
 
 
-})(jQuery, ui);
+})(ui, $);
 
-// Source: src/i18n.js
+// Source: src/core/i18n.js
 
-(function($, ui) {
+(function(ui, $) {
 // Internationalization
 
 var locale = "zh-CN",
@@ -336,11 +340,1386 @@ ui.i18n.language.control["ui.ctrls.CalendarView"] = {
 // language of viewpage
 
 
-})(jQuery, ui);
+})(ui, $);
 
-// Source: src/array-like.js
+// Source: src/shims/ES5-Array-shims.js
 
-(function($, ui) {
+(function(ui, $) {
+// 为ECMAScript3 添加ECMAScript6的方法
+
+function isFunction(fn) {
+    return ui.core.isFunction(fn);
+}
+
+// Array.prototype
+// isArray
+if(!isFunction(Array.isArray)) {
+    Array.isArray = function(obj) {
+        return ui.core.type(obj) === "array";
+    };
+}
+// forEach
+if(!isFunction(Array.prototype.forEach)) {
+    Array.prototype.forEach = function(fn, caller) {
+        var i, len;
+        if(!isFunction(fn)) {
+            return;
+        }
+        for(i = 0, len = this.length; i < len; i++) {
+            if(!(i in this)) continue;
+            fn.call(caller, this[i], i, this);
+        }
+    };
+}
+// map
+if(!isFunction(Array.prototype.map)) {
+    Array.prototype.map = function(fn, caller) {
+        var i, len,
+            result;
+        if(!isFunction(fn)) {
+            return;
+        }
+        result = new Array(this.length);
+        for(i = 0, len = this.length; i < len; i++) {
+            if(!(i in this)) continue;
+            result[i] = fn.call(caller, this[i], i, this);
+        }
+        return result;
+    };
+}
+// filter
+if(!isFunction(Array.prototype.filter)) {
+    Array.prototype.filter = function(fn, caller) {
+        var i, len,
+            result;
+        if(!isFunction(fn)) {
+            return;
+        }
+        result = [];
+        for(i = 0, len = this.length; i < len; i++) {
+            if(!(i in this)) continue;
+            if(fn.call(caller, this[i], i, this)) {
+                result.push(this[i]);
+            }
+        }
+        return result;
+    };
+}
+// every
+if(!isFunction(Array.prototype.every)) {
+    Array.prototype.every = function(fn, caller) {
+        var i, len;
+        if(!isFunction(fn)) {
+            return;
+        }
+        for(i = 0, len = this.length; i < len; i++) {
+            if(!(i in this)) continue;
+            if(!fn.call(caller, this[i], i, this)) {
+                return false;
+            }
+        }
+        return true;
+    };
+}
+// some
+if(!isFunction(Array.prototype.some)) {
+    Array.prototype.some = function(fn, caller) {
+        var i, len;
+        if(!isFunction(fn)) {
+            return;
+        }
+        for(i = 0, len = this.length; i < len; i++) {
+            if(!(i in this)) continue;
+            if(fn.call(caller, this[i], i, this)) {
+                return true;
+            }
+        }
+        return false;
+    };
+}
+// reduce
+if(!isFunction(Array.prototype.reduce)) {
+    Array.prototype.reduce = function(fn, defaultValue) {
+        var i, len,
+            result;
+
+        if(!isFunction(fn)) {
+            return;
+        }
+        
+        i = 0;
+        len = this.length;
+        if(arguments.length < 2) {
+            if(len === 0) {
+                throw new TypeError("Reduce of empty array with no initial value");
+            }
+            result = this[i];
+            i++;
+        } else {
+            result = defaultValue;
+        }
+        for(; i < len; i++) {
+            if(!(i in this)) continue;
+            result = fn.call(null, result, this[i], i, this);
+        }
+        return result;
+    };
+}
+// reduceRight
+if(!isFunction(Array.prototype.reduceRight)) {
+    Array.prototype.reduceRight = function(fn, defaultValue) {
+        var i, len,
+            result;
+
+        if(!isFunction(fn)) {
+            return;
+        }
+
+        len = this.length;
+        i = len - 1;
+        if(arguments.length < 2) {
+            if(len === 0) {
+                throw new TypeError("Reduce of empty array with no initial value");
+            }
+            result = this[i];
+            i--;
+        } else {
+            result = defaultValue;
+        }
+        for(; i >= 0; i--) {
+            if(!(i in this)) continue;
+            result = fn.call(null, result, this[i], i, this);
+        }
+        return result;
+    };
+}
+// indexOf
+if(!isFunction(Array.prototype.indexOf)) {
+    Array.prototype.indexOf = function(value, startIndex) {
+        var i, len,
+            index;
+        if(!startIndex) {
+            startIndex = 0;
+        }
+        
+        len = this.length;
+        index = -1;
+        if(len > 0) {
+            while(startIndex < 0) {
+                startIndex = len + startIndex;
+            }
+            
+            for(i = startIndex; i < len; i++) {
+                if(this[i] === value) {
+                    index = i;
+                    break;
+                }
+            }
+        }
+        return index;
+    };
+}
+// lastIndexOf
+if(!isFunction(Array.prototype.lastIndexOf)) {
+    Array.prototype.lastIndexOf = function(value, startIndex) {
+        var i, len,
+            index;
+
+        if(!startIndex) {
+            startIndex = 0;
+        }
+        
+        len = this.length;
+        i = len - 1;
+        index = -1;
+        if(len > 0) {
+            while(startIndex < 0)
+                startIndex = len + startIndex;
+            
+            for(i = startIndex; i >= 0; i--) {
+                if(this[i] === value) {
+                    index = i;
+                    break;
+                }
+            }
+        }
+        return index;
+    };
+}
+
+
+})(ui, $);
+
+// Source: src/shims/ES6-Array-shims.js
+
+(function(ui, $) {
+// 为ECMAScript3 添加ECMAScript6的方法
+
+function isFunction(fn) {
+    return ui.core.isFunction(fn);
+}
+
+// find
+if(!isFunction(Array.prototype.find)) {
+    Array.prototype.find = function(fn, caller) {
+        var i, len;
+        if(!isFunction(fn)) {
+            return;
+        }
+        for(i = 0, len = this.length; i < len; i++) {
+            if(!(i in this)) continue;
+            if(fn.call(caller, this[i], i, this)) {
+                return this[i];
+            }
+        }
+    };
+}
+// findIndex
+if(!isFunction(Array.prototype.findIndex)) {
+    Array.prototype.findIndex = function(fn, caller) {
+        var i, len;
+        if(!isFunction(fn)) {
+            return -1;
+        }
+        for(i = 0, len = this.length; i < len; i++) {
+            if(!(i in this)) continue;
+            if(fn.call(caller, this[i], i, this)) {
+                return i;
+            }
+        }
+        return -1;
+    };
+}
+// fill
+if(!isFunction(Array.prototype.fill)) {
+    Array.prototype.fill = function(value) {
+        var i, len;
+        for(i = 0, len = this.length; i < len; i++) {
+            this[i] = value;
+        }
+    };
+}
+// includes
+if(!isFunction(Array.prototype.includes)) {
+    Array.prototype.includes = function(value) {
+        return this.some(function(item) {
+            return item === value;
+        });
+    };
+}
+
+// Array.from
+if(!isFunction(Array.from)) {
+    Array.from = function(arrayLike, fn) {
+        var i, len,
+            itemFn,
+            result = [];
+
+        if(arrayLike && arrayLike.length) {
+            itemFn = fn;
+            if(!isFunction(itemFn)) {
+                itemFn = function(item) { 
+                    return item; 
+                };
+            }
+            for(i = 0, len = arrayLike.length; i < len; i++) {
+                result.push(itemFn.call(null, arrayLike[i], i));
+            }
+        }
+        return result;
+    };
+}
+
+// Array.of
+if(!isFunction(Array.of)) {
+    Array.of = function() {
+        return [].slice.call(arguments);
+    };
+}
+
+
+})(ui, $);
+
+// Source: src/shims/ES5-String-shims.js
+
+(function(ui, $) {
+// 为ECMAScript3 添加ECMAScript5的方法
+
+var rtrim;
+
+function isFunction(fn) {
+    return ui.core.isFunction(fn);
+}
+
+// String.prototype
+// trim
+if(!isFunction(String.prototype.trim)) {
+    // Support: Android<4.1, IE<9
+    // Make sure we trim BOM and NBSP
+    rtrim = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g;
+    String.protocol.trim = function() {
+        return text == null ? "" : (text + "").replace(rtrim, "");
+    };
+}
+
+
+
+})(ui, $);
+
+// Source: src/shims/ES6-String-shims.js
+
+(function(ui, $) {
+// 为String对象添加ES6的一些方法
+
+var toString = Object.prototype.toString;
+
+function isFunction(fn) {
+    return ui.core.isFunction(fn);
+}
+
+function ensureInteger(position) {
+	var index = position ? Number(position) : 0;
+	if(isNaN(index)) {
+		index = 0;
+	}
+	return index;
+}
+
+// at
+if(!isFunction(String.prototype.at)) {
+	String.prototype.at = function(position) {
+		var str,
+			index,
+			endIndex,
+			len,
+			firstChar, secondChar;
+
+		if(this === null || this === undefined) {
+			throw new TypeError("String.prototype.indexOf called on null or undefined");
+		}
+
+		index = ensureInteger(position);
+		index = Math.max(index, 0);
+
+		str = toString.call(this);
+		len = str.length;
+		if(index <= -1 || index >= len) {
+			return "";
+		}
+
+		firstChar = str.charCodeAt(index);
+		endIndex = index + 1;
+		if (firstChar >= 0xD800 && firstChar <= 0xDBFF && endIndex < len) {
+			secondChar = str.charCodeAt(endIndex);
+			if(secondChar >= 0xDC00 && secondChar <= 0xDFFF) {
+				endIndex = index + 2;
+			}
+		}
+
+		return str.slice(index, endIndex);
+	};
+}
+
+// includes
+if(!isFunction(String.prototype.includes)) {
+	String.prototype.includes = function() {
+		return String.prototype.indexOf.apply(this, arguments) !== -1;
+	};
+}
+
+// startsWith
+if(!isFunction(String.prototype.startsWith)) {
+	String.prototype.startsWith = function(searchStr) {
+		var str,
+			search,
+			startIndex;
+
+		if(ui.core.isRegExp(searchStr)) {
+			throw new TypeError("Cannot call method \"startsWith\" with a regex");
+		}
+
+		if(this === null || this === undefined) {
+			throw new TypeError("String.prototype.indexOf called on null or undefined");
+		}
+
+		str = toString.call(this);
+		search = toString.call(searchStr);
+
+		if(arguments.length > 1) {
+			startIndex = ensureInteger(arguments[1]);
+		} else {
+			startIndex = 0;
+		}
+		startIndex = Math.max(startIndex, 0);
+		
+		return str.slice(startIndex, startIndex + search.length) === search;
+	};
+}
+
+// endsWith
+if(!isFunction(String.prototype.endsWith)) {
+	String.prototype.endsWith = function(searchStr) {
+		var str,
+			search,
+			endIndex;
+
+		if(ui.core.isRegExp(searchStr)) {
+			throw new TypeError("Cannot call method \"startsWith\" with a regex");
+		}
+
+		if(this === null || this === undefined) {
+			throw new TypeError("String.prototype.indexOf called on null or undefined");
+		}
+
+		str = toString.call(this);
+		search = toString.call(searchStr);
+
+		if(arguments.length > 1) {
+			endIndex = ensureInteger(arguments[1]);
+		} else {
+			endIndex = str.length;
+		}
+		endIndex = Math.min(Math.max(endIndex, 0), str.length);
+		
+		return str.slice(endIndex - search.length, endIndex) === search;
+	};
+}
+
+
+})(ui, $);
+
+// Source: src/shims/ES5-Function-shims.js
+
+(function(ui, $) {
+// 为ECMAScript3 添加ECMAScript5的方法
+
+function isFunction(fn) {
+    return ui.core.isFunction(fn);
+}
+
+// Function.prototype
+// bind
+if(!isFunction(Function.prototype.bind)) {
+    Function.prototype.bind = function(o) {
+        var self = this,
+            boundArgs = arguments;
+        return function() {
+            var args = [],
+                i;
+            for(i = 1; i < boundArgs.length; i++) {
+                args.push(boundArgs[i]);
+            }
+            for(i = 0; i < arguments.length; i++) {
+                args.push(arguments[i]);
+            }
+            return self.apply(o, args);
+        };
+    };
+}
+
+
+})(ui, $);
+
+// Source: src/shims/ES5-JSON-shims.js
+
+(function(ui, $) {
+// json2
+
+// 判断浏览器是否原生支持JSON对象
+var hasJSON = (Object.prototype.toString.call(window.JSON) === "[object JSON]" && 
+        ui.core.isFunction(window.JSON.parse) && 
+        ui.core.isFunction(window.JSON.stringify));
+if (hasJSON) {
+    return;
+}
+
+var JSON = {
+    fake: true
+};
+
+var rx_one = /^[\],:{}\s]*$/;
+var rx_two = /\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g;
+var rx_three = /"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g;
+var rx_four = /(?:^|:|,)(?:\s*\[)+/g;
+var rx_escapable = /[\\\"\u0000-\u001f\u007f-\u009f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g;
+var rx_dangerous = /[\u0000\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g;
+
+function f(n) {
+    return n < 10 ? "0" + n : n;
+}
+function this_value() {
+    return this.valueOf();
+}
+if (typeof Date.prototype.toJSON !== "function") {
+    Date.prototype.toJSON = function () {
+        return (isFinite(this.valueOf()) ? (this.getUTCFullYear() + "-" + 
+                    f(this.getUTCMonth() + 1) + "-" + 
+                    f(this.getUTCDate()) + "T" + 
+                    f(this.getUTCHours()) + ":" + 
+                    f(this.getUTCMinutes()) + ":" + 
+                    f(this.getUTCSeconds()) + "Z") : null);
+    };
+    Boolean.prototype.toJSON = this_value;
+    Number.prototype.toJSON = this_value;
+    String.prototype.toJSON = this_value;
+}
+
+var gap;
+var indent;
+var meta;
+var rep;
+
+function quote(string) {
+    rx_escapable.lastIndex = 0;
+    return rx_escapable.test(string) ? 
+        ("\"" + string.replace(rx_escapable, function (a) {
+            var c = meta[a];
+            return (typeof c === "string" ? c : "\\u" + ("0000" + a.charCodeAt(0).toString(16)).slice(-4));
+        }) + "\"") : 
+        ("\"" + string + "\"");
+}
+function str(key, holder) {
+    var i;          // The loop counter.
+    var k;          // The member key.
+    var v;          // The member value.
+    var length;
+    var mind = gap;
+    var partial;
+    var value = holder[key];
+    if (value && typeof value === "object" &&
+            typeof value.toJSON === "function") {
+        value = value.toJSON(key);
+    }
+    if (typeof rep === "function") {
+        value = rep.call(holder, key, value);
+    }
+    switch (typeof value) {
+        case "string":
+            return quote(value);
+
+        case "number":
+            return isFinite(value) ? String(value) : "null";
+
+        case "boolean":
+
+        case "null":
+            return String(value);
+
+        case "object":
+            if (!value) {
+                return "null";
+            }
+            gap += indent;
+            partial = [];
+            if (Object.prototype.toString.apply(value) === "[object Array]") {
+                length = value.length;
+                for (i = 0; i < length; i += 1) {
+                    partial[i] = str(i, value) || "null";
+                }
+                v = (partial.length === 0 ? "[]" : gap) ? 
+                        "[\n" + gap + partial.join(",\n" + gap) + "\n" + mind + "]" : 
+                        "[" + partial.join(",") + "]";
+                gap = mind;
+                return v;
+            }
+            if (rep && typeof rep === "object") {
+                length = rep.length;
+                for (i = 0; i < length; i += 1) {
+                    if (typeof rep[i] === "string") {
+                        k = rep[i];
+                        v = str(k, value);
+                        if (v) {
+                            partial.push(quote(k) + (gap ? ": " : ":") + v);
+                        }
+                    }
+                }
+            } else {
+                for (k in value) {
+                    if (Object.prototype.hasOwnProperty.call(value, k)) {
+                        v = str(k, value);
+                        if (v) {
+                            partial.push(quote(k) + (gap ? ": " : ":") + v);
+                        }
+                    }
+                }
+            }
+            v = (partial.length === 0 ? "{}" : gap) ? 
+                    "{\n" + gap + partial.join(",\n" + gap) + "\n" + mind + "}" : 
+                    "{" + partial.join(",") + "}";
+            gap = mind;
+            return v;
+    }
+}
+
+// JSON.stringify & JSON.parse
+meta = {
+    "\b": "\\b",
+    "\t": "\\t",
+    "\n": "\\n",
+    "\f": "\\f",
+    "\r": "\\r",
+    "\"": "\\\"",
+    "\\": "\\\\"
+};
+JSON.stringify = function (value, replacer, space) {
+    var i;
+    gap = "";
+    indent = "";
+    if (typeof space === "number") {
+        for (i = 0; i < space; i += 1) {
+            indent += " ";
+        }
+    } else if (typeof space === "string") {
+        indent = space;
+    }
+    rep = replacer;
+    if (replacer && typeof replacer !== "function" &&
+            (typeof replacer !== "object" ||
+            typeof replacer.length !== "number")) {
+        throw new Error("JSON.stringify");
+    }
+    return str("", {"": value});
+};
+JSON.parse = function (text, reviver) {
+    var j;
+    function walk(holder, key) {
+        var k;
+        var v;
+        var value = holder[key];
+        if (value && typeof value === "object") {
+            for (k in value) {
+                if (Object.prototype.hasOwnProperty.call(value, k)) {
+                    v = walk(value, k);
+                    if (v !== undefined) {
+                        value[k] = v;
+                    } else {
+                        delete value[k];
+                    }
+                }
+            }
+        }
+        return reviver.call(holder, key, value);
+    }
+    text = String(text);
+    rx_dangerous.lastIndex = 0;
+    if (rx_dangerous.test(text)) {
+        text = text.replace(rx_dangerous, function (a) {
+            return "\\u" +
+                    ("0000" + a.charCodeAt(0).toString(16)).slice(-4);
+        });
+    }
+    if (
+        rx_one.test(
+            text
+                .replace(rx_two, "@")
+                .replace(rx_three, "]")
+                .replace(rx_four, "")
+        )
+    ) {
+        j = eval("(" + text + ")");
+        return (typeof reviver === "function") ? walk({"": j}, "") : j;
+    }
+    throw new SyntaxError("JSON.parse");
+};
+
+})(ui, $);
+
+// Source: src/shims/ES6-Number-shims.js
+
+(function(ui, $) {
+// 为Number对象添加ES6的一些方法
+
+function isFunction(fn) {
+    return ui.core.isFunction(fn);
+}
+
+function isNumber(value) {
+    return ui.core.type(value) === "number";
+}
+
+// Number.isFinite
+if(!isFunction(Number.isFinite)) {
+    Number.isFinite = function(num) {
+        return isNumber(num) && (num > -Infinity && num < Infinity);
+    };
+}
+
+// Number.isNaN
+if(!isFunction(Number.isNaN)) {
+    Number.isNaN = isNaN;
+}
+
+// Number.parseInt
+if(!isFunction(Number.parseInt)) {
+    Number.parseInt = parseInt;
+}
+
+// Number.parseFloat
+if(!isFunction(Number.parseFloat)) {
+    Number.parseFloat = parseFloat;
+}
+
+
+})(ui, $);
+
+// Source: src/shims/ES5-Object-shims.js
+
+(function(ui, $) {
+// 为String对象添加ES6的一些方法
+
+var prototypeOfObject = Object.prototype,
+	hasOwnProperty = prototypeOfObject.hasOwnProperty,
+	isEnumerable = prototypeOfObject.propertyIsEnumerable,
+
+	supportsAccessors,
+	defineGetter,
+	defineSetter,
+	lookupGetter,
+	lookupSetter;
+
+supportsAccessors = hasOwnProperty.call(prototypeOfObject, "__defineGetter__");
+if(supportsAccessors) {
+	defineGetter = prototypeOfObject.__defineGetter__;
+	defineSetter = prototypeOfObject.__defineSetter__;
+	lookupGetter = prototypeOfObject.__lookupGetter__;
+	lookupSetter = prototypeOfObject.__lookupSetter__;
+}
+	
+
+function isFunction(fn) {
+	return ui.core.isFunction(fn);
+}
+
+function isPrimitive(obj) {
+	return typeof obj !== 'object' && typeof obj !== 'function' || obj === null;
+}
+
+// 返回一个由一个给定对象的自身可枚举属性组成的数组
+if(!isFunction(Object.keys)) {
+	Object.keys = function(obj) {
+		var result,
+			property;
+
+		if (isPrimitive(obj)) {
+			throw new TypeError('Object.keys called on non-object');
+		}
+
+		result = [];
+		for(property in obj) {
+			if(hasOwnProperty.call(obj, property)) {
+				result.push(property);
+			}
+		}
+		return result;
+	};
+}
+
+// 获取原型
+if(!isFunction(Object.getPrototypeOf)) {
+	Object.getPrototypeOf = function(obj) {
+		var type,
+			proto;
+
+		type = ui.core.type(obj);
+		if(type === "null" || type === "undefined") {
+			throw new TypeError("Cannot convert undefined or null to object");
+		}
+
+		proto = obj.__proto__;
+		if(proto || proto === null) {
+			return proto;
+		} else if(isFunction(obj.constructor)) {
+			return obj.constructor.prototype;
+		} else if(obj instanceof Object) {
+			return prototypeOfObject;
+		} else {
+			// Object.create(null) or { __proto__: null }
+			return null;
+		}
+	};
+}
+
+// 返回一个由指定对象的所有自身属性的属性名（包括不可枚举属性
+if(!isFunction(Object.getOwnPropertyNames)) {
+	Object.getOwnPropertyNames = function(obj) {
+		return Object.keys(obj);
+	};
+}
+
+// 检查getOwnPropertyDescriptor是否需要修复
+var getOwnPropertyDescriptorFallback = null;
+function doesGetOwnPropertyDescriptorWork(obj) {
+	try {
+		object.sentinel = 0;
+		return Object.getOwnPropertyDescriptor(object, 'sentinel').value === 0;
+	} catch (e) {
+		return false;
+	}
+}
+if(Object.getOwnPropertyDescriptor) {
+	if(!doesGetOwnPropertyDescriptorWork({}) || 
+		!(typeof document === "undefined" || doesGetOwnPropertyDescriptorWork(document.createElement("div")))) {
+		getOwnPropertyDescriptorFallback = Object.getOwnPropertyDescriptor;
+	}
+}
+if(!isFunction(Object.getOwnPropertyDescriptor) || getOwnPropertyDescriptorFallback) {
+	Object.getOwnPropertyDescriptor = function(obj, property) {
+		var descriptor,
+			originalPrototype,
+			notPrototypeOfObject,
+			getter,
+			setter;
+
+		if(isPrimitive(obj)) {
+			throw new TypeError("Object.getOwnPropertyDescriptor called on non-object");
+		}
+
+		// 尝试使用原始的getOwnPropertyDescriptor方法 for IE8
+		if(getOwnPropertyDescriptorFallback) {
+			try {
+				return getOwnPropertyDescriptorFallback.call(Object, obj, property);
+			} catch(e) {
+				// 如果没用，那就用模拟方法
+			}
+		}
+
+		if(!hasOwnProperty.call(obj, property)) {
+			return descriptor;
+		}
+
+		descriptor = {
+            enumerable: isEnumerable.call(obj, property),
+            value: obj[property],
+            configurable: true,
+            writable: true
+        };
+		
+		if(supportsAccessors) {
+			originalPrototype = obj.__proto__;
+
+			notPrototypeOfObject = originalPrototype !== prototypeOfObject;
+			if(notPrototypeOfObject) {
+				obj.__proto__ = prototypeOfObject;
+			}
+
+			getter = lookupSetter.call(obj, property);
+			setter = lookupSetter.call(obj, property);
+
+			if(notPrototypeOfObject) {
+				obj.__proto__ = originalPrototype;
+			}
+
+			if(getter || setter) {
+				if(getter) {
+					descriptor.get = getter;
+				}
+				if(setter) {
+					descriptor.set = setter;
+				}
+			}
+		}
+
+        return descriptor;
+	};
+}
+
+// 检查defineProperty是否需要修复
+var definePropertyFallback = null,
+	definePropertiesFallback = null;
+function doesDefinePropertyWork(object) {
+	try {
+		Object.defineProperty(object, 'sentinel', {});
+		return 'sentinel' in object;
+	} catch (exception) {
+		return false;
+	}
+}
+if(Object.defineProperty) {
+	if(!doesDefinePropertyWork({}) || 
+		!(typeof document === "undefined" || doesDefinePropertyWork(document.createElement("div")))) {
+		definePropertyFallback = Object.defineProperty;
+		definePropertiesFallback = Object.defineProperties;
+	}
+}
+if(!isFunction(Object.defineProperty) || definePropertyFallback) {
+	Object.defineProperty = function(obj, property, descriptor) {
+		var originalPrototype,
+			notPrototypeOfObject,
+			hasGetter,
+			hasSetter;
+
+		if(isPrimitive(obj) || isPrimitive(property)) {
+			throw new TypeError("Object.defineProperty called on non-object");
+		}
+
+		// 尝试使用原始的defineProperty方法 for IE8
+		if(definePropertyFallback) {
+			try {
+				return definePropertyFallback.call(Object, obj, property, descriptor);
+			} catch(e) {
+				// 如果没用，那就用模拟方法
+			}
+		}
+
+		if("value" in descriptor) {
+			if(supportsAccessors && (lookupGetter.call(obj, property) || lookupSetter.call(obj, property))) {
+				originalPrototype = obj.__proto__;
+				obj.__proto__ = prototypeOfObject;
+				
+				delete obj[prototype];
+				obj[prototype] = descriptor.value;
+
+				obj.__proto__ = originalPrototype;
+			} else {
+				obj[prototype] = descriptor.value;
+			}
+		} else {
+			hasGetter = "get" in descriptor && isFunction(descriptor.get);
+			hasSetter = "set" in descriptor && isFunction(descriptor.set);
+			if(!supportsAccessors && (hasGetter || hasSetter)) {
+				throw new TypeError("getters & setters can not be defined on this javascript engine");
+			}
+
+			if(hasGetter) {
+				defineGetter.call(obj, property, descriptor.get);
+			}
+			if(hasSetter) {
+				defineSetter.call(obj, property, descriptor.set);
+			}
+		}
+	};
+}
+
+// 检查defineProperties是否需要修复
+if(!isFunction(Object.defineProperties) || definePropertiesFallback) {
+	Object.defineProperties = function(obj, properties) {
+		if(definePropertiesFallback) {
+			try {
+				return definePropertiesFallback.call(obj, properties);
+			} catch(e) {
+				// 如果没用，那就用模拟方法
+			}
+		}
+
+		Object.keys(obj).forEach(function(prop) {
+			if(prop !== "__proto__") {
+				Object.defineProperty(obj, prop);
+			}
+		});
+		return obj;
+	};
+}
+
+// 检查isExtensible是否需要修复
+if(!isFunction(Object.isExtensible)) {
+	Object.isExtensible = function(obj) {
+		var tmpPropertyName,
+			returnValue;
+		if(ui.core.isObject(obj)) {
+			throw new TypeError("Object.isExtensible can only be called on Objects.");
+		}
+
+		tmpPropertyName = "_tmp";
+		while(hasOwnProperty(obj, tmpPropertyName)) {
+			tmpPropertyName += "_";
+		}
+
+		obj[tmpPropertyName] = true;
+		returnValue = hasOwnProperty(obj, tmpPropertyName);
+		delete obj[tmpPropertyName];
+
+		return returnValue;
+	};
+}
+
+// 检查getPrototypeOf是否需要修复
+if(!isFunction(Object.getPrototypeOf)) {
+	Object.getPrototypeOf = function(obj) {
+		var type,
+			prototype;
+		
+		type = ui.core.type(obj);
+		if(type === "null" || type === "undefined") {
+			throw new TypeError("Cannot convert undefined or null to object");
+		}
+
+		prototype = obj.__proto__;
+		if(property || prototype === null) {
+			return prototype;
+		} else if(ui.core.isFunction(property.constructor)) {
+			return prototype.constructor.prototype;
+		} else if(obj instanceof Object) {
+			return prototypeOfObject;
+		} else {
+			return null;
+		}
+	};
+}
+
+// 检查create是否需要修复
+var createEmpty,
+	supportsProto,
+	shouldUseActiveX,
+	getEmptyViaActiveX,
+	getEmptyViaIFrame;
+if(!isFunction(Object.create)) {
+	supportsProto = !({ __proto__: null } instanceof Object);
+	shouldUseActiveX = function () {
+		if (!document.domain) {
+			return false;
+		}
+		try {
+			return !!new ActiveXObject('htmlfile');
+		} catch (e) {
+			return false;
+		}
+	};
+	getEmptyViaActiveX = function() {
+		var empty,
+			script,
+			xDoc;
+
+        xDoc = new ActiveXObject('htmlfile');
+		script = 'script';
+		xDoc.write('<' + script + '></' + script + '>');
+		xDoc.close();
+		empty = xDoc.parentWindow.Object.prototype;
+		xDoc = null;
+		return empty;
+	};
+	getEmptyViaIFrame = function() {
+		var iframe = document.createElement('iframe'),
+			parent = document.body || document.documentElement,
+			empty;
+
+		iframe.style.display = 'none';
+		parent.appendChild(iframe);
+
+		// eslint-disable-next-line no-script-url
+		iframe.src = 'javascript:';
+		empty = iframe.contentWindow.Object.prototype;
+		parent.removeChild(iframe);
+		iframe = null;
+		return empty;
+	};
+
+	if(supportsProto || typeof document === "undefined") {
+		createEmpty = function () {
+			return {
+				__proto__: null
+			};	
+		};
+	} else {
+		createEmpty = (function() {
+			var emptyPrototype = shouldUseActiveX() ? getEmptyViaActiveX() : getEmptyViaIFrame();
+
+			delete emptyPrototype.constructor;
+			delete emptyPrototype.hasOwnProperty;
+			delete emptyPrototype.propertyIsEnumerable;
+			delete emptyPrototype.isPrototypeOf;
+			delete emptyPrototype.toLocalString;
+			delete emptyPrototype.toString;
+			delete emptyPrototype.valueOf;
+
+			function Empty() {}
+			Empty.prototype = empty;
+
+			return function() {
+				return new Empty();
+			};
+		})();
+	}
+
+	Object.create = function(prototype, properties) {
+		var obj;
+
+		function Type() {}
+
+		if(prototype === null) {
+			return createEmpty();
+		} else {
+			if(isPrimitive(prototype)) {
+				throw TypeError("Object prototype may only be an Object or null");
+			}
+			Type.prototype = prototype;
+			obj = new Type();
+			obj.__proto__ = prototype;
+		}
+
+		if(properties !== undefined) {
+			Object.defineProperties(obj, properties);
+		}
+
+		return obj;
+	};
+}
+
+
+})(ui, $);
+
+// Source: src/shims/ES6-Promise.shims.js
+
+(function(ui, $) {
+
+var PromiseShim = null,
+    isFunction,
+    global;
+
+isFunction = ui.core.isFunction;
+
+function noop() {}
+
+function _finally(onFinally) {
+    var P;
+    onFinally = isFunction(onFinally) ? onFinally : noop;
+
+    P = this.constructor;
+
+    return this.then(
+        function(value) {
+            P.resolve(onFinally()).then(function() {
+                return value;
+            });
+        },
+        function (reason) {
+            P.resolve(onFinally()).then(function() {
+                throw reason;
+            });
+        }
+    );
+}
+
+// 提案，暂不实现
+function _try() {}
+
+ui.PromiseEmpty = {
+    then: noop,
+    catch: noop
+};
+
+if(typeof Promise !== "undefined" && ui.core.isNative(Promise)) {
+    // 原生支持Promise
+    if(!isFunction(Promise.prototype.finally)) {
+        Promise.prototype.finally = _finally;
+    }
+    if(!isFunction(Promise.prototype.try)) {
+        // 增加Promise.try提案的方法
+        Promise.prototype.try = _try;
+    }
+    return;
+}
+
+// 生成Promise垫片
+
+// 确定Promise对象的状态，并且执行回调函数
+function fire(promise, value, isResolved) {
+    promise._result = value;
+    promise._state = isResolved ? "resolved" : "rejected";
+    ui.setMicroTask(function() {
+        var data, i, len;
+        for(i = 0, len = promise._callbacks.length; i < len; i++) {
+            data = promise._callbacks[i];
+            promise._fire(data.onSuccess, data.onFail);
+        }
+    });
+}
+
+function some(any, iterable) {
+    var n = 0, 
+        result = [], 
+        end,
+        i, len;
+    
+    iterable = ui.core.type(iterable) === "array" ? iterable : [];
+    return new PromiseShim(function (resolve, reject) {
+        // 空数组直接resolve
+        if (!iterable.length) {
+            resolve();
+        }
+        function loop(promise, index) {
+            promise.then(
+                function (ret) {
+                    if (!end) {
+                        result[index] = ret;
+                        //保证回调的顺序
+                        n++;
+                        if (any || n >= iterable.length) {
+                            resolve(any ? ret : result);
+                            end = true;
+                        }
+                    }
+                }, 
+                function (e) {
+                    end = true;
+                    reject(e);
+                }
+            );
+        }
+        for (i = 0, len = iterable.length; i < len; i++) {
+            loop(iterable[i], i);
+        }
+    });
+}
+
+function success(value) {
+    return value;
+}
+
+function failed(reason) {
+    throw reason;
+}
+
+PromiseShim = function(executor) {
+    var promise;
+
+    if (typeof this !== "object") {
+        throw new TypeError("Promises must be constructed via new");
+    }
+    if (!isFunction(executor)) {
+        throw new TypeError("the executor is not a function");
+    }
+
+    // Promise共有三个状态
+    // 'pending' 还处在等待状态，并没有明确最终结果
+    // 'resolved' 任务已经完成，处在成功状态
+    // 'rejected' 任务已经完成，处在失败状态
+    this._state = "pending";
+    this._callbacks = [];
+
+    promise = this;
+    executor(
+        // resolve
+        function (value) {
+            var method;
+            if (promise._state !== "pending") {
+                return;
+            }
+            if (value && isFunction(value.then)) {
+                // thenable对象使用then，Promise实例使用_then
+                method = value instanceof PromiseShim ? "_then" : "then";
+                // 如果value是Promise对象则把callbacks转移到value的then当中
+                value[method](
+                    function (val) {
+                        fire(promise, val, true);
+                    },
+                    function (reason) {
+                        fire(promise, reason, false);
+                    }
+                );
+            } else {
+                fire(promise, value, true);
+            }
+        }, 
+        // reject
+        function (reason) {
+            if (promise._state !== "pending") {
+                return;
+            }
+            fire(promise, reason, false);
+        }
+    );
+};
+PromiseShim.prototype = {
+    constructor: PromiseShim,
+    // 处理then方法的回调函数
+    _then: function(onSuccess, onFail) {
+        var that = this;
+        if (this._state !== "pending") {
+            // 如果Promise状态已经确定则异步触发回调
+            ui.setMicroTask(function() {
+                that._fire(onSuccess, onFail);
+            });
+        } else {
+            this._callbacks.push({
+                onSuccess: onSuccess, 
+                onFail: onFail
+            });
+        }
+    },
+    _fire: function(onSuccess, onFail) {
+        if (this._state === "rejected") {
+            if (typeof onFail === "function") {
+                onFail(this._result);
+            } else {
+                throw this._result;
+            }
+        } else {
+            if (typeof onSuccess === "function") {
+                onSuccess(this._result);
+            }
+        }
+    },
+    then: function(onSuccess, onFail) {
+        var that = this,
+            nextPromise;
+
+        onSuccess = isFunction(onSuccess) ? onSuccess : success;
+        onFail = isFunction(onFail) ? onFail : failed;
+
+        // 用于衔接then，实现promise.then().catch()
+        nextPromise = new PromiseShim(function (resolve, reject) {
+            that._then(
+                function (value) {
+                    try {
+                        value = onSuccess(value);
+                    } catch (e) {
+                        // https://promisesaplus.com/#point-55
+                        reject(e);
+                        return;
+                    }
+                    resolve(value);
+                }, 
+                function (value) {
+                    try {
+                        value = onFail(value);
+                    } catch (e) {
+                        reject(e);
+                        return;
+                    }
+                    resolve(value);
+                }
+            );
+        });
+
+        return nextPromise;
+    },
+    catch: function(onFail) {
+        //添加出错回调
+        return this.then(success, onFail);
+    },
+    finally: _finally,
+    try: _try
+};
+
+PromiseShim.all = function(iterable) {
+    return some(false, iterable);
+};
+
+PromiseShim.race = function(iterable) {
+    return some(true, iterable);
+};
+
+PromiseShim.resolve = function(value) {
+    return new PromiseShim(function (resolve) {
+        resolve(value);
+    });
+};
+
+PromiseShim.reject = function(reason) {
+    return new PromiseShim(function (resolve, reject) {
+        reject(reason);
+    });
+};
+
+global = ui.core.global();
+global.Promise = PromiseShim;
+
+
+})(ui, $);
+
+// Source: src/core/array-like.js
+
+(function(ui, $) {
 // ArrayLike
 
 var arrayInstance = [];
@@ -414,11 +1793,11 @@ ArrayLike.prototype = {
 ui.ArrayLike = ArrayLike;
 
 
-})(jQuery, ui);
+})(ui, $);
 
-// Source: src/keyarray.js
+// Source: src/core/keyarray.js
 
-(function($, ui) {
+(function(ui, $) {
 /*
     字典数组，同时支持索引和hash访问数组元素
  */
@@ -538,11 +1917,11 @@ KeyArray.prototype.clear = function () {
 ui.KeyArray = KeyArray;
 
 
-})(jQuery, ui);
+})(ui, $);
 
-// Source: src/linked-list.js
+// Source: src/core/linked-list.js
 
-(function($, ui) {
+(function(ui, $) {
 // LinkedList
 
 function Node(element) {
@@ -702,11 +2081,1657 @@ function getAndRemove(atTheEnd) {
 
 ui.LinkedList = LinkedList;
 
-})(jQuery, ui);
+})(ui, $);
 
-// Source: src/util.js
+// Source: src/shims/jQuery/zepto.js
 
-(function($, ui) {
+(function(ui, $) {
+//     Zepto.js
+//     (c) 2010-2017 Thomas Fuchs
+//     Zepto.js may be freely distributed under the MIT license.
+
+var Zepto = (function() {
+  var undefined, key, $, classList, emptyArray = [], concat = emptyArray.concat, filter = emptyArray.filter, slice = emptyArray.slice,
+    document = window.document,
+    elementDisplay = {}, classCache = {},
+    cssNumber = { 'column-count': 1, 'columns': 1, 'font-weight': 1, 'line-height': 1,'opacity': 1, 'z-index': 1, 'zoom': 1 },
+    fragmentRE = /^\s*<(\w+|!)[^>]*>/,
+    singleTagRE = /^<(\w+)\s*\/?>(?:<\/\1>|)$/,
+    tagExpanderRE = /<(?!area|br|col|embed|hr|img|input|link|meta|param)(([\w:]+)[^>]*)\/>/ig,
+    rootNodeRE = /^(?:body|html)$/i,
+    capitalRE = /([A-Z])/g,
+
+    // special attributes that should be get/set via method calls
+    methodAttributes = ['val', 'css', 'html', 'text', 'data', 'width', 'height', 'offset'],
+
+    adjacencyOperators = [ 'after', 'prepend', 'before', 'append' ],
+    table = document.createElement('table'),
+    tableRow = document.createElement('tr'),
+    containers = {
+      'tr': document.createElement('tbody'),
+      'tbody': table, 'thead': table, 'tfoot': table,
+      'td': tableRow, 'th': tableRow,
+      '*': document.createElement('div')
+    },
+    simpleSelectorRE = /^[\w-]*$/,
+    class2type = {},
+    toString = class2type.toString,
+    zepto = {},
+    camelize, uniq,
+    tempParent = document.createElement('div'),
+    propMap = {
+      'tabindex': 'tabIndex',
+      'readonly': 'readOnly',
+      'for': 'htmlFor',
+      'class': 'className',
+      'maxlength': 'maxLength',
+      'cellspacing': 'cellSpacing',
+      'cellpadding': 'cellPadding',
+      'rowspan': 'rowSpan',
+      'colspan': 'colSpan',
+      'usemap': 'useMap',
+      'frameborder': 'frameBorder',
+      'contenteditable': 'contentEditable'
+    },
+    isArray = Array.isArray ||
+      function(object){ return object instanceof Array }
+
+  zepto.matches = function(element, selector) {
+    if (!selector || !element || element.nodeType !== 1) return false
+    var matchesSelector = element.matches || element.webkitMatchesSelector ||
+                          element.mozMatchesSelector || element.oMatchesSelector ||
+                          element.matchesSelector
+    if (matchesSelector) return matchesSelector.call(element, selector)
+    // fall back to performing a selector:
+    var match, parent = element.parentNode, temp = !parent
+    if (temp) (parent = tempParent).appendChild(element)
+    match = ~zepto.qsa(parent, selector).indexOf(element)
+    temp && tempParent.removeChild(element)
+    return match
+  }
+
+  function type(obj) {
+    return obj == null ? String(obj) :
+      class2type[toString.call(obj)] || "object"
+  }
+
+  function isFunction(value) { return type(value) == "function" }
+  function isWindow(obj)     { return obj != null && obj == obj.window }
+  function isDocument(obj)   { return obj != null && obj.nodeType == obj.DOCUMENT_NODE }
+  function isObject(obj)     { return type(obj) == "object" }
+  function isPlainObject(obj) {
+    return isObject(obj) && !isWindow(obj) && Object.getPrototypeOf(obj) == Object.prototype
+  }
+
+  function likeArray(obj) {
+    var length = !!obj && 'length' in obj && obj.length,
+      type = $.type(obj)
+
+    return 'function' != type && !isWindow(obj) && (
+      'array' == type || length === 0 ||
+        (typeof length == 'number' && length > 0 && (length - 1) in obj)
+    )
+  }
+
+  function compact(array) { return filter.call(array, function(item){ return item != null }) }
+  function flatten(array) { return array.length > 0 ? $.fn.concat.apply([], array) : array }
+  camelize = function(str){ return str.replace(/-+(.)?/g, function(match, chr){ return chr ? chr.toUpperCase() : '' }) }
+  function dasherize(str) {
+    return str.replace(/::/g, '/')
+           .replace(/([A-Z]+)([A-Z][a-z])/g, '$1_$2')
+           .replace(/([a-z\d])([A-Z])/g, '$1_$2')
+           .replace(/_/g, '-')
+           .toLowerCase()
+  }
+  uniq = function(array){ return filter.call(array, function(item, idx){ return array.indexOf(item) == idx }) }
+
+  function classRE(name) {
+    return name in classCache ?
+      classCache[name] : (classCache[name] = new RegExp('(^|\\s)' + name + '(\\s|$)'))
+  }
+
+  function maybeAddPx(name, value) {
+    return (typeof value == "number" && !cssNumber[dasherize(name)]) ? value + "px" : value
+  }
+
+  function defaultDisplay(nodeName) {
+    var element, display
+    if (!elementDisplay[nodeName]) {
+      element = document.createElement(nodeName)
+      document.body.appendChild(element)
+      display = getComputedStyle(element, '').getPropertyValue("display")
+      element.parentNode.removeChild(element)
+      display == "none" && (display = "block")
+      elementDisplay[nodeName] = display
+    }
+    return elementDisplay[nodeName]
+  }
+
+  function children(element) {
+    return 'children' in element ?
+      slice.call(element.children) :
+      $.map(element.childNodes, function(node){ if (node.nodeType == 1) return node })
+  }
+
+  function Z(dom, selector) {
+    var i, len = dom ? dom.length : 0
+    for (i = 0; i < len; i++) this[i] = dom[i]
+    this.length = len
+    this.selector = selector || ''
+  }
+
+  // `$.zepto.fragment` takes a html string and an optional tag name
+  // to generate DOM nodes from the given html string.
+  // The generated DOM nodes are returned as an array.
+  // This function can be overridden in plugins for example to make
+  // it compatible with browsers that don't support the DOM fully.
+  zepto.fragment = function(html, name, properties) {
+    var dom, nodes, container
+
+    // A special case optimization for a single tag
+    if (singleTagRE.test(html)) dom = $(document.createElement(RegExp.$1))
+
+    if (!dom) {
+      if (html.replace) html = html.replace(tagExpanderRE, "<$1></$2>")
+      if (name === undefined) name = fragmentRE.test(html) && RegExp.$1
+      if (!(name in containers)) name = '*'
+
+      container = containers[name]
+      container.innerHTML = '' + html
+      dom = $.each(slice.call(container.childNodes), function(){
+        container.removeChild(this)
+      })
+    }
+
+    if (isPlainObject(properties)) {
+      nodes = $(dom)
+      $.each(properties, function(key, value) {
+        if (methodAttributes.indexOf(key) > -1) nodes[key](value)
+        else nodes.attr(key, value)
+      })
+    }
+
+    return dom
+  }
+
+  // `$.zepto.Z` swaps out the prototype of the given `dom` array
+  // of nodes with `$.fn` and thus supplying all the Zepto functions
+  // to the array. This method can be overridden in plugins.
+  zepto.Z = function(dom, selector) {
+    return new Z(dom, selector)
+  }
+
+  // `$.zepto.isZ` should return `true` if the given object is a Zepto
+  // collection. This method can be overridden in plugins.
+  zepto.isZ = function(object) {
+    return object instanceof zepto.Z
+  }
+
+  // `$.zepto.init` is Zepto's counterpart to jQuery's `$.fn.init` and
+  // takes a CSS selector and an optional context (and handles various
+  // special cases).
+  // This method can be overridden in plugins.
+  zepto.init = function(selector, context) {
+    var dom
+    // If nothing given, return an empty Zepto collection
+    if (!selector) return zepto.Z()
+    // Optimize for string selectors
+    else if (typeof selector == 'string') {
+      selector = selector.trim()
+      // If it's a html fragment, create nodes from it
+      // Note: In both Chrome 21 and Firefox 15, DOM error 12
+      // is thrown if the fragment doesn't begin with <
+      if (selector[0] == '<' && fragmentRE.test(selector))
+        dom = zepto.fragment(selector, RegExp.$1, context), selector = null
+      // If there's a context, create a collection on that context first, and select
+      // nodes from there
+      else if (context !== undefined) return $(context).find(selector)
+      // If it's a CSS selector, use it to select nodes.
+      else dom = zepto.qsa(document, selector)
+    }
+    // If a function is given, call it when the DOM is ready
+    else if (isFunction(selector)) return $(document).ready(selector)
+    // If a Zepto collection is given, just return it
+    else if (zepto.isZ(selector)) return selector
+    else {
+      // normalize array if an array of nodes is given
+      if (isArray(selector)) dom = compact(selector)
+      // Wrap DOM nodes.
+      else if (isObject(selector))
+        dom = [selector], selector = null
+      // If it's a html fragment, create nodes from it
+      else if (fragmentRE.test(selector))
+        dom = zepto.fragment(selector.trim(), RegExp.$1, context), selector = null
+      // If there's a context, create a collection on that context first, and select
+      // nodes from there
+      else if (context !== undefined) return $(context).find(selector)
+      // And last but no least, if it's a CSS selector, use it to select nodes.
+      else dom = zepto.qsa(document, selector)
+    }
+    // create a new Zepto collection from the nodes found
+    return zepto.Z(dom, selector)
+  }
+
+  // `$` will be the base `Zepto` object. When calling this
+  // function just call `$.zepto.init, which makes the implementation
+  // details of selecting nodes and creating Zepto collections
+  // patchable in plugins.
+  $ = function(selector, context){
+    return zepto.init(selector, context)
+  }
+
+  function extend(target, source, deep) {
+    for (key in source)
+      if (deep && (isPlainObject(source[key]) || isArray(source[key]))) {
+        if (isPlainObject(source[key]) && !isPlainObject(target[key]))
+          target[key] = {}
+        if (isArray(source[key]) && !isArray(target[key]))
+          target[key] = []
+        extend(target[key], source[key], deep)
+      }
+      else if (source[key] !== undefined) target[key] = source[key]
+  }
+
+  // Copy all but undefined properties from one or more
+  // objects to the `target` object.
+  $.extend = function(target){
+    var deep, args = slice.call(arguments, 1)
+    if (typeof target == 'boolean') {
+      deep = target
+      target = args.shift()
+    }
+    args.forEach(function(arg){ extend(target, arg, deep) })
+    return target
+  }
+
+  // `$.zepto.qsa` is Zepto's CSS selector implementation which
+  // uses `document.querySelectorAll` and optimizes for some special cases, like `#id`.
+  // This method can be overridden in plugins.
+  zepto.qsa = function(element, selector){
+    var found,
+        maybeID = selector[0] == '#',
+        maybeClass = !maybeID && selector[0] == '.',
+        nameOnly = maybeID || maybeClass ? selector.slice(1) : selector, // Ensure that a 1 char tag name still gets checked
+        isSimple = simpleSelectorRE.test(nameOnly)
+    return (element.getElementById && isSimple && maybeID) ? // Safari DocumentFragment doesn't have getElementById
+      ( (found = element.getElementById(nameOnly)) ? [found] : [] ) :
+      (element.nodeType !== 1 && element.nodeType !== 9 && element.nodeType !== 11) ? [] :
+      slice.call(
+        isSimple && !maybeID && element.getElementsByClassName ? // DocumentFragment doesn't have getElementsByClassName/TagName
+          maybeClass ? element.getElementsByClassName(nameOnly) : // If it's simple, it could be a class
+          element.getElementsByTagName(selector) : // Or a tag
+          element.querySelectorAll(selector) // Or it's not simple, and we need to query all
+      )
+  }
+
+  function filtered(nodes, selector) {
+    return selector == null ? $(nodes) : $(nodes).filter(selector)
+  }
+
+  $.contains = document.documentElement.contains ?
+    function(parent, node) {
+      return parent !== node && parent.contains(node)
+    } :
+    function(parent, node) {
+      while (node && (node = node.parentNode))
+        if (node === parent) return true
+      return false
+    }
+
+  function funcArg(context, arg, idx, payload) {
+    return isFunction(arg) ? arg.call(context, idx, payload) : arg
+  }
+
+  function setAttribute(node, name, value) {
+    value == null ? node.removeAttribute(name) : node.setAttribute(name, value)
+  }
+
+  // access className property while respecting SVGAnimatedString
+  function className(node, value){
+    var klass = node.className || '',
+        svg   = klass && klass.baseVal !== undefined
+
+    if (value === undefined) return svg ? klass.baseVal : klass
+    svg ? (klass.baseVal = value) : (node.className = value)
+  }
+
+  // "true"  => true
+  // "false" => false
+  // "null"  => null
+  // "42"    => 42
+  // "42.5"  => 42.5
+  // "08"    => "08"
+  // JSON    => parse if valid
+  // String  => self
+  function deserializeValue(value) {
+    try {
+      return value ?
+        value == "true" ||
+        ( value == "false" ? false :
+          value == "null" ? null :
+          +value + "" == value ? +value :
+          /^[\[\{]/.test(value) ? $.parseJSON(value) :
+          value )
+        : value
+    } catch(e) {
+      return value
+    }
+  }
+
+  $.type = type
+  $.isFunction = isFunction
+  $.isWindow = isWindow
+  $.isArray = isArray
+  $.isPlainObject = isPlainObject
+
+  $.isEmptyObject = function(obj) {
+    var name
+    for (name in obj) return false
+    return true
+  }
+
+  $.isNumeric = function(val) {
+    var num = Number(val), type = typeof val
+    return val != null && type != 'boolean' &&
+      (type != 'string' || val.length) &&
+      !isNaN(num) && isFinite(num) || false
+  }
+
+  $.inArray = function(elem, array, i){
+    return emptyArray.indexOf.call(array, elem, i)
+  }
+
+  $.camelCase = camelize
+  $.trim = function(str) {
+    return str == null ? "" : String.prototype.trim.call(str)
+  }
+
+  // plugin compatibility
+  $.uuid = 0
+  $.support = { }
+  $.expr = { }
+  $.noop = function() {}
+
+  $.map = function(elements, callback){
+    var value, values = [], i, key
+    if (likeArray(elements))
+      for (i = 0; i < elements.length; i++) {
+        value = callback(elements[i], i)
+        if (value != null) values.push(value)
+      }
+    else
+      for (key in elements) {
+        value = callback(elements[key], key)
+        if (value != null) values.push(value)
+      }
+    return flatten(values)
+  }
+
+  $.each = function(elements, callback){
+    var i, key
+    if (likeArray(elements)) {
+      for (i = 0; i < elements.length; i++)
+        if (callback.call(elements[i], i, elements[i]) === false) return elements
+    } else {
+      for (key in elements)
+        if (callback.call(elements[key], key, elements[key]) === false) return elements
+    }
+
+    return elements
+  }
+
+  $.grep = function(elements, callback){
+    return filter.call(elements, callback)
+  }
+
+  if (window.JSON) $.parseJSON = JSON.parse
+
+  // Populate the class2type map
+  $.each("Boolean Number String Function Array Date RegExp Object Error".split(" "), function(i, name) {
+    class2type[ "[object " + name + "]" ] = name.toLowerCase()
+  })
+
+  // Define methods that will be available on all
+  // Zepto collections
+  $.fn = {
+    constructor: zepto.Z,
+    length: 0,
+
+    // Because a collection acts like an array
+    // copy over these useful array functions.
+    forEach: emptyArray.forEach,
+    reduce: emptyArray.reduce,
+    push: emptyArray.push,
+    sort: emptyArray.sort,
+    splice: emptyArray.splice,
+    indexOf: emptyArray.indexOf,
+    concat: function(){
+      var i, value, args = []
+      for (i = 0; i < arguments.length; i++) {
+        value = arguments[i]
+        args[i] = zepto.isZ(value) ? value.toArray() : value
+      }
+      return concat.apply(zepto.isZ(this) ? this.toArray() : this, args)
+    },
+
+    // `map` and `slice` in the jQuery API work differently
+    // from their array counterparts
+    map: function(fn){
+      return $($.map(this, function(el, i){ return fn.call(el, i, el) }))
+    },
+    slice: function(){
+      return $(slice.apply(this, arguments))
+    },
+
+    ready: function(callback){
+      // don't use "interactive" on IE <= 10 (it can fired premature)
+      if (document.readyState === "complete" ||
+          (document.readyState !== "loading" && !document.documentElement.doScroll))
+        setTimeout(function(){ callback($) }, 0)
+      else {
+        var handler = function() {
+          document.removeEventListener("DOMContentLoaded", handler, false)
+          window.removeEventListener("load", handler, false)
+          callback($)
+        }
+        document.addEventListener("DOMContentLoaded", handler, false)
+        window.addEventListener("load", handler, false)
+      }
+      return this
+    },
+    get: function(idx){
+      return idx === undefined ? slice.call(this) : this[idx >= 0 ? idx : idx + this.length]
+    },
+    toArray: function(){ return this.get() },
+    size: function(){
+      return this.length
+    },
+    remove: function(){
+      return this.each(function(){
+        if (this.parentNode != null)
+          this.parentNode.removeChild(this)
+      })
+    },
+    each: function(callback){
+      emptyArray.every.call(this, function(el, idx){
+        return callback.call(el, idx, el) !== false
+      })
+      return this
+    },
+    filter: function(selector){
+      if (isFunction(selector)) return this.not(this.not(selector))
+      return $(filter.call(this, function(element){
+        return zepto.matches(element, selector)
+      }))
+    },
+    add: function(selector,context){
+      return $(uniq(this.concat($(selector,context))))
+    },
+    is: function(selector){
+      return typeof selector == 'string' ? this.length > 0 && zepto.matches(this[0], selector) : 
+          selector && this.selector == selector.selector
+    },
+    not: function(selector){
+      var nodes=[]
+      if (isFunction(selector) && selector.call !== undefined)
+        this.each(function(idx){
+          if (!selector.call(this,idx)) nodes.push(this)
+        })
+      else {
+        var excludes = typeof selector == 'string' ? this.filter(selector) :
+          (likeArray(selector) && isFunction(selector.item)) ? slice.call(selector) : $(selector)
+        this.forEach(function(el){
+          if (excludes.indexOf(el) < 0) nodes.push(el)
+        })
+      }
+      return $(nodes)
+    },
+    has: function(selector){
+      return this.filter(function(){
+        return isObject(selector) ?
+          $.contains(this, selector) :
+          $(this).find(selector).size()
+      })
+    },
+    eq: function(idx){
+      return idx === -1 ? this.slice(idx) : this.slice(idx, + idx + 1)
+    },
+    first: function(){
+      var el = this[0]
+      return el && !isObject(el) ? el : $(el)
+    },
+    last: function(){
+      var el = this[this.length - 1]
+      return el && !isObject(el) ? el : $(el)
+    },
+    find: function(selector){
+      var result, $this = this
+      if (!selector) result = $()
+      else if (typeof selector == 'object')
+        result = $(selector).filter(function(){
+          var node = this
+          return emptyArray.some.call($this, function(parent){
+            return $.contains(parent, node)
+          })
+        })
+      else if (this.length == 1) result = $(zepto.qsa(this[0], selector))
+      else result = this.map(function(){ return zepto.qsa(this, selector) })
+      return result
+    },
+    closest: function(selector, context){
+      var nodes = [], collection = typeof selector == 'object' && $(selector)
+      this.each(function(_, node){
+        while (node && !(collection ? collection.indexOf(node) >= 0 : zepto.matches(node, selector)))
+          node = node !== context && !isDocument(node) && node.parentNode
+        if (node && nodes.indexOf(node) < 0) nodes.push(node)
+      })
+      return $(nodes)
+    },
+    parents: function(selector){
+      var ancestors = [], nodes = this
+      while (nodes.length > 0)
+        nodes = $.map(nodes, function(node){
+          if ((node = node.parentNode) && !isDocument(node) && ancestors.indexOf(node) < 0) {
+            ancestors.push(node)
+            return node
+          }
+        })
+      return filtered(ancestors, selector)
+    },
+    parent: function(selector){
+      return filtered(uniq(this.pluck('parentNode')), selector)
+    },
+    children: function(selector){
+      return filtered(this.map(function(){ return children(this) }), selector)
+    },
+    contents: function() {
+      return this.map(function() { return this.contentDocument || slice.call(this.childNodes) })
+    },
+    siblings: function(selector){
+      return filtered(this.map(function(i, el){
+        return filter.call(children(el.parentNode), function(child){ return child!==el })
+      }), selector)
+    },
+    empty: function(){
+      return this.each(function(){ this.innerHTML = '' })
+    },
+    // `pluck` is borrowed from Prototype.js
+    pluck: function(property){
+      return $.map(this, function(el){ return el[property] })
+    },
+    show: function(){
+      return this.each(function(){
+        this.style.display == "none" && (this.style.display = '')
+        if (getComputedStyle(this, '').getPropertyValue("display") == "none")
+          this.style.display = defaultDisplay(this.nodeName)
+      })
+    },
+    replaceWith: function(newContent){
+      return this.before(newContent).remove()
+    },
+    wrap: function(structure){
+      var func = isFunction(structure)
+      if (this[0] && !func)
+        var dom   = $(structure).get(0),
+            clone = dom.parentNode || this.length > 1
+
+      return this.each(function(index){
+        $(this).wrapAll(
+          func ? structure.call(this, index) :
+            clone ? dom.cloneNode(true) : dom
+        )
+      })
+    },
+    wrapAll: function(structure){
+      if (this[0]) {
+        $(this[0]).before(structure = $(structure))
+        var children
+        // drill down to the inmost element
+        while ((children = structure.children()).length) structure = children.first()
+        $(structure).append(this)
+      }
+      return this
+    },
+    wrapInner: function(structure){
+      var func = isFunction(structure)
+      return this.each(function(index){
+        var self = $(this), contents = self.contents(),
+            dom  = func ? structure.call(this, index) : structure
+        contents.length ? contents.wrapAll(dom) : self.append(dom)
+      })
+    },
+    unwrap: function(){
+      this.parent().each(function(){
+        $(this).replaceWith($(this).children())
+      })
+      return this
+    },
+    clone: function(){
+      return this.map(function(){ return this.cloneNode(true) })
+    },
+    hide: function(){
+      return this.css("display", "none")
+    },
+    toggle: function(setting){
+      return this.each(function(){
+        var el = $(this)
+        ;(setting === undefined ? el.css("display") == "none" : setting) ? el.show() : el.hide()
+      })
+    },
+    prev: function(selector){ return $(this.pluck('previousElementSibling')).filter(selector || '*') },
+    next: function(selector){ return $(this.pluck('nextElementSibling')).filter(selector || '*') },
+    html: function(html){
+      return 0 in arguments ?
+        this.each(function(idx){
+          var originHtml = this.innerHTML
+          $(this).empty().append( funcArg(this, html, idx, originHtml) )
+        }) :
+        (0 in this ? this[0].innerHTML : null)
+    },
+    text: function(text){
+      return 0 in arguments ?
+        this.each(function(idx){
+          var newText = funcArg(this, text, idx, this.textContent)
+          this.textContent = newText == null ? '' : ''+newText
+        }) :
+        (0 in this ? this.pluck('textContent').join("") : null)
+    },
+    attr: function(name, value){
+      var result
+      return (typeof name == 'string' && !(1 in arguments)) ?
+        (0 in this && this[0].nodeType == 1 && (result = this[0].getAttribute(name)) != null ? result : undefined) :
+        this.each(function(idx){
+          if (this.nodeType !== 1) return
+          if (isObject(name)) for (key in name) setAttribute(this, key, name[key])
+          else setAttribute(this, name, funcArg(this, value, idx, this.getAttribute(name)))
+        })
+    },
+    removeAttr: function(name){
+      return this.each(function(){ this.nodeType === 1 && name.split(' ').forEach(function(attribute){
+        setAttribute(this, attribute)
+      }, this)})
+    },
+    prop: function(name, value){
+      name = propMap[name] || name
+      return (typeof name == 'string' && !(1 in arguments)) ?
+        (this[0] && this[0][name]) :
+        this.each(function(idx){
+          if (isObject(name)) for (key in name) this[propMap[key] || key] = name[key]
+          else this[name] = funcArg(this, value, idx, this[name])
+        })
+    },
+    removeProp: function(name){
+      name = propMap[name] || name
+      return this.each(function(){ delete this[name] })
+    },
+    data: function(name, value){
+      var attrName = 'data-' + name.replace(capitalRE, '-$1').toLowerCase()
+
+      var data = (1 in arguments) ?
+        this.attr(attrName, value) :
+        this.attr(attrName)
+
+      return data !== null ? deserializeValue(data) : undefined
+    },
+    val: function(value){
+      if (0 in arguments) {
+        if (value == null) value = ""
+        return this.each(function(idx){
+          this.value = funcArg(this, value, idx, this.value)
+        })
+      } else {
+        return this[0] && (this[0].multiple ?
+           $(this[0]).find('option').filter(function(){ return this.selected }).pluck('value') :
+           this[0].value)
+      }
+    },
+    offset: function(coordinates){
+      if (coordinates) return this.each(function(index){
+        var $this = $(this),
+            coords = funcArg(this, coordinates, index, $this.offset()),
+            parentOffset = $this.offsetParent().offset(),
+            props = {
+              top:  coords.top  - parentOffset.top,
+              left: coords.left - parentOffset.left
+            }
+
+        if ($this.css('position') == 'static') props['position'] = 'relative'
+        $this.css(props)
+      })
+      if (!this.length) return null
+      if (document.documentElement !== this[0] && !$.contains(document.documentElement, this[0]))
+        return {top: 0, left: 0}
+      var obj = this[0].getBoundingClientRect()
+      return {
+        left: obj.left + window.pageXOffset,
+        top: obj.top + window.pageYOffset,
+        width: Math.round(obj.width),
+        height: Math.round(obj.height)
+      }
+    },
+    css: function(property, value){
+      if (arguments.length < 2) {
+        var element = this[0]
+        if (typeof property == 'string') {
+          if (!element) return
+          return element.style[camelize(property)] || getComputedStyle(element, '').getPropertyValue(property)
+        } else if (isArray(property)) {
+          if (!element) return
+          var props = {}
+          var computedStyle = getComputedStyle(element, '')
+          $.each(property, function(_, prop){
+            props[prop] = (element.style[camelize(prop)] || computedStyle.getPropertyValue(prop))
+          })
+          return props
+        }
+      }
+
+      var css = ''
+      if (type(property) == 'string') {
+        if (!value && value !== 0)
+          this.each(function(){ this.style.removeProperty(dasherize(property)) })
+        else
+          css = dasherize(property) + ":" + maybeAddPx(property, value)
+      } else {
+        for (key in property)
+          if (!property[key] && property[key] !== 0)
+            this.each(function(){ this.style.removeProperty(dasherize(key)) })
+          else
+            css += dasherize(key) + ':' + maybeAddPx(key, property[key]) + ';'
+      }
+
+      return this.each(function(){ this.style.cssText += ';' + css })
+    },
+    index: function(element){
+      return element ? this.indexOf($(element)[0]) : this.parent().children().indexOf(this[0])
+    },
+    hasClass: function(name){
+      if (!name) return false
+      return emptyArray.some.call(this, function(el){
+        return this.test(className(el))
+      }, classRE(name))
+    },
+    addClass: function(name){
+      if (!name) return this
+      return this.each(function(idx){
+        if (!('className' in this)) return
+        classList = []
+        var cls = className(this), newName = funcArg(this, name, idx, cls)
+        newName.split(/\s+/g).forEach(function(klass){
+          if (!$(this).hasClass(klass)) classList.push(klass)
+        }, this)
+        classList.length && className(this, cls + (cls ? " " : "") + classList.join(" "))
+      })
+    },
+    removeClass: function(name){
+      return this.each(function(idx){
+        if (!('className' in this)) return
+        if (name === undefined) return className(this, '')
+        classList = className(this)
+        funcArg(this, name, idx, classList).split(/\s+/g).forEach(function(klass){
+          classList = classList.replace(classRE(klass), " ")
+        })
+        className(this, classList.trim())
+      })
+    },
+    toggleClass: function(name, when){
+      if (!name) return this
+      return this.each(function(idx){
+        var $this = $(this), names = funcArg(this, name, idx, className(this))
+        names.split(/\s+/g).forEach(function(klass){
+          (when === undefined ? !$this.hasClass(klass) : when) ?
+            $this.addClass(klass) : $this.removeClass(klass)
+        })
+      })
+    },
+    scrollTop: function(value){
+      if (!this.length) return
+      var hasScrollTop = 'scrollTop' in this[0]
+      if (value === undefined) return hasScrollTop ? this[0].scrollTop : this[0].pageYOffset
+      return this.each(hasScrollTop ?
+        function(){ this.scrollTop = value } :
+        function(){ this.scrollTo(this.scrollX, value) })
+    },
+    scrollLeft: function(value){
+      if (!this.length) return
+      var hasScrollLeft = 'scrollLeft' in this[0]
+      if (value === undefined) return hasScrollLeft ? this[0].scrollLeft : this[0].pageXOffset
+      return this.each(hasScrollLeft ?
+        function(){ this.scrollLeft = value } :
+        function(){ this.scrollTo(value, this.scrollY) })
+    },
+    position: function() {
+      if (!this.length) return
+
+      var elem = this[0],
+        // Get *real* offsetParent
+        offsetParent = this.offsetParent(),
+        // Get correct offsets
+        offset       = this.offset(),
+        parentOffset = rootNodeRE.test(offsetParent[0].nodeName) ? { top: 0, left: 0 } : offsetParent.offset()
+
+      // Subtract element margins
+      // note: when an element has margin: auto the offsetLeft and marginLeft
+      // are the same in Safari causing offset.left to incorrectly be 0
+      offset.top  -= parseFloat( $(elem).css('margin-top') ) || 0
+      offset.left -= parseFloat( $(elem).css('margin-left') ) || 0
+
+      // Add offsetParent borders
+      parentOffset.top  += parseFloat( $(offsetParent[0]).css('border-top-width') ) || 0
+      parentOffset.left += parseFloat( $(offsetParent[0]).css('border-left-width') ) || 0
+
+      // Subtract the two offsets
+      return {
+        top:  offset.top  - parentOffset.top,
+        left: offset.left - parentOffset.left
+      }
+    },
+    offsetParent: function() {
+      return this.map(function(){
+        var parent = this.offsetParent || document.body
+        while (parent && !rootNodeRE.test(parent.nodeName) && $(parent).css("position") == "static")
+          parent = parent.offsetParent
+        return parent
+      })
+    }
+  }
+
+  // for now
+  $.fn.detach = $.fn.remove
+
+  // Generate the `width` and `height` functions
+  ;['width', 'height'].forEach(function(dimension){
+    var dimensionProperty =
+      dimension.replace(/./, function(m){ return m[0].toUpperCase() })
+
+    $.fn[dimension] = function(value){
+      var offset, el = this[0]
+      if (value === undefined) return isWindow(el) ? el['inner' + dimensionProperty] :
+        isDocument(el) ? el.documentElement['scroll' + dimensionProperty] :
+        (offset = this.offset()) && offset[dimension]
+      else return this.each(function(idx){
+        el = $(this)
+        el.css(dimension, funcArg(this, value, idx, el[dimension]()))
+      })
+    }
+  })
+
+  function traverseNode(node, fun) {
+    fun(node)
+    for (var i = 0, len = node.childNodes.length; i < len; i++)
+      traverseNode(node.childNodes[i], fun)
+  }
+
+  // Generate the `after`, `prepend`, `before`, `append`,
+  // `insertAfter`, `insertBefore`, `appendTo`, and `prependTo` methods.
+  adjacencyOperators.forEach(function(operator, operatorIndex) {
+    var inside = operatorIndex % 2 //=> prepend, append
+
+    $.fn[operator] = function(){
+      // arguments can be nodes, arrays of nodes, Zepto objects and HTML strings
+      var argType, nodes = $.map(arguments, function(arg) {
+            var arr = []
+            argType = type(arg)
+            if (argType == "array") {
+              arg.forEach(function(el) {
+                if (el.nodeType !== undefined) return arr.push(el)
+                else if ($.zepto.isZ(el)) return arr = arr.concat(el.get())
+                arr = arr.concat(zepto.fragment(el))
+              })
+              return arr
+            }
+            return argType == "object" || arg == null ?
+              arg : zepto.fragment(arg)
+          }),
+          parent, copyByClone = this.length > 1
+      if (nodes.length < 1) return this
+
+      return this.each(function(_, target){
+        parent = inside ? target : target.parentNode
+
+        // convert all methods to a "before" operation
+        target = operatorIndex == 0 ? target.nextSibling :
+                 operatorIndex == 1 ? target.firstChild :
+                 operatorIndex == 2 ? target :
+                 null
+
+        var parentInDocument = $.contains(document.documentElement, parent)
+
+        nodes.forEach(function(node){
+          if (copyByClone) node = node.cloneNode(true)
+          else if (!parent) return $(node).remove()
+
+          parent.insertBefore(node, target)
+          if (parentInDocument) traverseNode(node, function(el){
+            if (el.nodeName != null && el.nodeName.toUpperCase() === 'SCRIPT' &&
+               (!el.type || el.type === 'text/javascript') && !el.src){
+              var target = el.ownerDocument ? el.ownerDocument.defaultView : window
+              target['eval'].call(target, el.innerHTML)
+            }
+          })
+        })
+      })
+    }
+
+    // after    => insertAfter
+    // prepend  => prependTo
+    // before   => insertBefore
+    // append   => appendTo
+    $.fn[inside ? operator+'To' : 'insert'+(operatorIndex ? 'Before' : 'After')] = function(html){
+      $(html)[operator](this)
+      return this
+    }
+  })
+
+  zepto.Z.prototype = Z.prototype = $.fn
+
+  // Export internal API functions in the `$.zepto` namespace
+  zepto.uniq = uniq
+  zepto.deserializeValue = deserializeValue
+  $.zepto = zepto
+
+  return $
+})()
+
+// If `$` is not yet defined, point it to `Zepto`
+window.Zepto = Zepto
+// window.$ === undefined && (window.$ = Zepto)
+
+// jQuery initialize
+ui.$ = Zepto
+// 兼容 isJQueryObject
+ui.$.fn.jquery = "zepto"
+init_$(ui.$)
+
+
+})(ui, $);
+
+// Source: src/shims/jQuery/style.js
+
+(function(ui, $) {
+$.fn.getBoundingClientRect = function() {
+  if(this.length === 0) {
+    return undefined;
+  }
+
+  return this[0].getBoundingClientRect();
+};
+
+ui.core.each("Width, Height", function(name) {
+  $.fn["outer" + name] = function() {
+    var elem, docElem;
+    if(this.length === 0) {
+      return 0;
+    }
+    elem = this[0];
+    if(ui.core.isWindow(elem)) {
+      return elem["inner" + name];
+    }
+    if(elem.nodeType === 9) {
+      docElem = elem.documentElement;
+      return Math.max(
+        elem.body["scroll" + name], 
+        docElem["scroll" + name],
+        elem.body["offset" + name], 
+        docElem["offset" + name],
+        docElem["client" + name]
+      );
+    }
+
+    return this.getBoundingClientRect()[name.toLowerCase()];
+  };
+});
+
+
+})(ui, $);
+
+// Source: src/shims/jQuery/event.js
+
+(function(ui, $) {
+//     Zepto.js
+//     (c) 2010-2016 Thomas Fuchs
+//     Zepto.js may be freely distributed under the MIT license.
+
+var _zid = 1, undefined,
+    slice = Array.prototype.slice,
+    isFunction = $.isFunction,
+    isString = function(obj){ return typeof obj == 'string' },
+    handlers = {},
+    specialEvents={},
+    focusinSupported = 'onfocusin' in window,
+    focus = { focus: 'focusin', blur: 'focusout' },
+    hover = { mouseenter: 'mouseover', mouseleave: 'mouseout' }
+
+specialEvents.click = specialEvents.mousedown = specialEvents.mouseup = specialEvents.mousemove = 'MouseEvents'
+
+function zid(element) {
+  return element._zid || (element._zid = _zid++)
+}
+function findHandlers(element, event, fn, selector) {
+  event = parse(event)
+  if (event.ns) var matcher = matcherFor(event.ns)
+  return (handlers[zid(element)] || []).filter(function(handler) {
+    return handler
+      && (!event.e  || handler.e == event.e)
+      && (!event.ns || matcher.test(handler.ns))
+      && (!fn       || zid(handler.fn) === zid(fn))
+      && (!selector || handler.sel == selector)
+  })
+}
+function parse(event) {
+  var parts = ('' + event).split('.')
+  return {e: parts[0], ns: parts.slice(1).sort().join(' ')}
+}
+function matcherFor(ns) {
+  return new RegExp('(?:^| )' + ns.replace(' ', ' .* ?') + '(?: |$)')
+}
+
+function eventCapture(handler, captureSetting) {
+  return handler.del &&
+    (!focusinSupported && (handler.e in focus)) ||
+    !!captureSetting
+}
+
+function realEvent(type) {
+  return hover[type] || (focusinSupported && focus[type]) || type
+}
+
+function add(element, events, fn, data, selector, delegator, capture){
+  var id = zid(element), set = (handlers[id] || (handlers[id] = []))
+  events.split(/\s/).forEach(function(event){
+    if (event == 'ready') return $(document).ready(fn)
+    var handler   = parse(event)
+    handler.fn    = fn
+    handler.sel   = selector
+    // emulate mouseenter, mouseleave
+    if (handler.e in hover) fn = function(e){
+      var related = e.relatedTarget
+      if (!related || (related !== this && !$.contains(this, related)))
+        return handler.fn.apply(this, arguments)
+    }
+    handler.del   = delegator
+    var callback  = delegator || fn
+    handler.proxy = function(e){
+      e = compatible(e)
+      if (e.isImmediatePropagationStopped()) return
+      e.data = data
+      var result = callback.apply(element, e._args == undefined ? [e] : [e].concat(e._args))
+      if (result === false) e.preventDefault(), e.stopPropagation()
+      return result
+    }
+    handler.i = set.length
+    set.push(handler)
+    if ('addEventListener' in element)
+      element.addEventListener(realEvent(handler.e), handler.proxy, eventCapture(handler, capture))
+  })
+}
+function remove(element, events, fn, selector, capture){
+  var id = zid(element)
+  ;(events || '').split(/\s/).forEach(function(event){
+    findHandlers(element, event, fn, selector).forEach(function(handler){
+      delete handlers[id][handler.i]
+    if ('removeEventListener' in element)
+      element.removeEventListener(realEvent(handler.e), handler.proxy, eventCapture(handler, capture))
+    })
+  })
+}
+
+$.event = { add: add, remove: remove }
+
+$.proxy = function(fn, context) {
+  var args = (2 in arguments) && slice.call(arguments, 2)
+  if (isFunction(fn)) {
+    var proxyFn = function(){ return fn.apply(context, args ? args.concat(slice.call(arguments)) : arguments) }
+    proxyFn._zid = zid(fn)
+    return proxyFn
+  } else if (isString(context)) {
+    if (args) {
+      args.unshift(fn[context], fn)
+      return $.proxy.apply(null, args)
+    } else {
+      return $.proxy(fn[context], fn)
+    }
+  } else {
+    throw new TypeError("expected function")
+  }
+}
+
+$.fn.bind = function(event, data, callback){
+  return this.on(event, data, callback)
+}
+$.fn.unbind = function(event, callback){
+  return this.off(event, callback)
+}
+$.fn.one = function(event, selector, data, callback){
+  return this.on(event, selector, data, callback, 1)
+}
+
+var returnTrue = function(){return true},
+    returnFalse = function(){return false},
+    ignoreProperties = /^([A-Z]|returnValue$|layer[XY]$|webkitMovement[XY]$)/,
+    eventMethods = {
+      preventDefault: 'isDefaultPrevented',
+      stopImmediatePropagation: 'isImmediatePropagationStopped',
+      stopPropagation: 'isPropagationStopped'
+    }
+
+function compatible(event, source) {
+  if (source || !event.isDefaultPrevented) {
+    source || (source = event)
+
+    $.each(eventMethods, function(name, predicate) {
+      var sourceMethod = source[name]
+      event[name] = function(){
+        this[predicate] = returnTrue
+        return sourceMethod && sourceMethod.apply(source, arguments)
+      }
+      event[predicate] = returnFalse
+    })
+
+    try {
+      event.timeStamp || (event.timeStamp = Date.now())
+    } catch (ignored) { }
+
+    if (source.defaultPrevented !== undefined ? source.defaultPrevented :
+        'returnValue' in source ? source.returnValue === false :
+        source.getPreventDefault && source.getPreventDefault())
+      event.isDefaultPrevented = returnTrue
+  }
+  return event
+}
+
+function createProxy(event) {
+  var key, proxy = { originalEvent: event }
+  for (key in event)
+    if (!ignoreProperties.test(key) && event[key] !== undefined) proxy[key] = event[key]
+
+  return compatible(proxy, event)
+}
+
+$.fn.delegate = function(selector, event, callback){
+  return this.on(event, selector, callback)
+}
+$.fn.undelegate = function(selector, event, callback){
+  return this.off(event, selector, callback)
+}
+
+$.fn.live = function(event, callback){
+  $(document.body).delegate(this.selector, event, callback)
+  return this
+}
+$.fn.die = function(event, callback){
+  $(document.body).undelegate(this.selector, event, callback)
+  return this
+}
+
+$.fn.on = function(event, selector, data, callback, one){
+  var autoRemove, delegator, $this = this
+  if (event && !isString(event)) {
+    $.each(event, function(type, fn){
+      $this.on(type, selector, data, fn, one)
+    })
+    return $this
+  }
+
+  if (!isString(selector) && !isFunction(callback) && callback !== false)
+    callback = data, data = selector, selector = undefined
+  if (callback === undefined || data === false)
+    callback = data, data = undefined
+
+  if (callback === false) callback = returnFalse
+
+  return $this.each(function(_, element){
+    if (one) autoRemove = function(e){
+      remove(element, e.type, callback)
+      return callback.apply(this, arguments)
+    }
+
+    if (selector) delegator = function(e){
+      var evt, match = $(e.target).closest(selector, element).get(0)
+      if (match && match !== element) {
+        evt = $.extend(createProxy(e), {currentTarget: match, liveFired: element})
+        return (autoRemove || callback).apply(match, [evt].concat(slice.call(arguments, 1)))
+      }
+    }
+
+    add(element, event, callback, data, selector, delegator || autoRemove)
+  })
+}
+$.fn.off = function(event, selector, callback){
+  var $this = this
+  if (event && !isString(event)) {
+    $.each(event, function(type, fn){
+      $this.off(type, selector, fn)
+    })
+    return $this
+  }
+
+  if (!isString(selector) && !isFunction(callback) && callback !== false)
+    callback = selector, selector = undefined
+
+  if (callback === false) callback = returnFalse
+
+  return $this.each(function(){
+    remove(this, event, callback, selector)
+  })
+}
+
+$.fn.trigger = function(event, args){
+  event = (isString(event) || $.isPlainObject(event)) ? $.Event(event) : compatible(event)
+  event._args = args
+  return this.each(function(){
+    // handle focus(), blur() by calling them directly
+    if (event.type in focus && typeof this[event.type] == "function") this[event.type]()
+    // items in the collection might not be DOM elements
+    else if ('dispatchEvent' in this) this.dispatchEvent(event)
+    else $(this).triggerHandler(event, args)
+  })
+}
+
+// triggers event handlers on current element just as if an event occurred,
+// doesn't trigger an actual event, doesn't bubble
+$.fn.triggerHandler = function(event, args){
+  var e, result
+  this.each(function(i, element){
+    e = createProxy(isString(event) ? $.Event(event) : event)
+    e._args = args
+    e.target = element
+    $.each(findHandlers(element, event.type || event), function(i, handler){
+      result = handler.proxy(e)
+      if (e.isImmediatePropagationStopped()) return false
+    })
+  })
+  return result
+}
+
+// shortcut methods for `.bind(event, fn)` for each event type
+;('focusin focusout focus blur load resize scroll unload click dblclick '+
+'mousedown mouseup mousemove mouseover mouseout mouseenter mouseleave '+
+'change select keydown keypress keyup error').split(' ').forEach(function(event) {
+  $.fn[event] = function(callback) {
+    return (0 in arguments) ?
+      this.bind(event, callback) :
+      this.trigger(event)
+  }
+})
+
+$.Event = function(type, props) {
+  if (!isString(type)) props = type, type = props.type
+  var event = document.createEvent(specialEvents[type] || 'Events'), bubbles = true
+  if (props) for (var name in props) (name == 'bubbles') ? (bubbles = !!props[name]) : (event[name] = props[name])
+  event.initEvent(type, bubbles, true)
+  return compatible(event)
+}
+
+
+})(ui, $);
+
+// Source: src/shims/jQuery/ie.js
+
+(function(ui, $) {
+//     Zepto.js
+//     (c) 2010-2016 Thomas Fuchs
+//     Zepto.js may be freely distributed under the MIT license.
+
+;(function(){
+  // getComputedStyle shouldn't freak out when called
+  // without a valid element as argument
+  try {
+    getComputedStyle(undefined)
+  } catch(e) {
+    var nativeGetComputedStyle = getComputedStyle
+    window.getComputedStyle = function(element, pseudoElement){
+      try {
+        return nativeGetComputedStyle(element, pseudoElement)
+      } catch(e) {
+        return null
+      }
+    }
+  }
+})()
+
+
+})(ui, $);
+
+// Source: src/shims/jQuery/data.js
+
+(function(ui, $) {
+//     Zepto.js
+//     (c) 2010-2016 Thomas Fuchs
+//     Zepto.js may be freely distributed under the MIT license.
+
+// The following code is heavily inspired by jQuery's $.fn.data()
+
+var data = {}, 
+    dataAttr = $.fn.data, 
+    camelize = $.camelCase,
+    exp = $.expando = 'Zepto' + (+new Date()), 
+    emptyArray = []
+
+  // Get value from node:
+  // 1. first try key as given,
+  // 2. then try camelized key,
+  // 3. fall back to reading "data-*" attribute.
+  function getData(node, name) {
+    var id = node[exp], store = id && data[id]
+    if (name === undefined) return store || setData(node)
+    else {
+      if (store) {
+        if (name in store) return store[name]
+        var camelName = camelize(name)
+        if (camelName in store) return store[camelName]
+      }
+      return dataAttr.call($(node), name)
+    }
+  }
+
+  // Store value under camelized key on node
+  function setData(node, name, value) {
+    var id = node[exp] || (node[exp] = ++$.uuid),
+      store = data[id] || (data[id] = attributeData(node))
+    if (name !== undefined) store[camelize(name)] = value
+    return store
+  }
+
+  // Read all "data-*" attributes from a node
+  function attributeData(node) {
+    var store = {}
+    $.each(node.attributes || emptyArray, function(i, attr){
+      if (attr.name.indexOf('data-') == 0)
+        store[camelize(attr.name.replace('data-', ''))] =
+          $.zepto.deserializeValue(attr.value)
+    })
+    return store
+  }
+
+  $.fn.data = function(name, value) {
+    return value === undefined ?
+      // set multiple values via object
+      $.isPlainObject(name) ?
+        this.each(function(i, node){
+          $.each(name, function(key, value){ setData(node, key, value) })
+        }) :
+        // get value from first element
+        (0 in this ? getData(this[0], name) : undefined) :
+      // set value on all elements
+      this.each(function(){ setData(this, name, value) })
+  }
+
+  $.data = function(elem, name, value) {
+    return $(elem).data(name, value)
+  }
+
+  $.hasData = function(elem) {
+    var id = elem[exp], store = id && data[id]
+    return store ? !$.isEmptyObject(store) : false
+  }
+
+  $.fn.removeData = function(names) {
+    if (typeof names == 'string') names = names.split(/\s+/)
+    return this.each(function(){
+      var id = this[exp], store = id && data[id]
+      if (store) $.each(names || store, function(key){
+        delete store[names ? camelize(this) : key]
+      })
+    })
+  }
+
+  // Generate extended `remove` and `empty` functions
+  ;['remove', 'empty'].forEach(function(methodName){
+    var origFn = $.fn[methodName]
+    $.fn[methodName] = function() {
+      var elements = this.find('*')
+      if (methodName === 'remove') elements = elements.add(this)
+      elements.removeData()
+      return origFn.call(this)
+    }
+  })
+
+
+})(ui, $);
+
+// Source: src/shims/jQuery/jQuery-extend.js
+
+(function(ui, $) {
+// jQuery extends
+
+var rword = /[^, ]+/g,
+    ieVersion,
+    DOC = document;
+//判断IE版本
+function IE() {
+    if (window.VBArray) {
+        var mode = DOC.documentMode;
+        return mode ? mode : (window.XMLHttpRequest ? 7 : 6);
+    } else {
+        return 0;
+    }
+}
+ieVersion = IE();
+
+/** 为jquery添加一个获取元素标签类型的方法 */
+$.fn.nodeName = function () {
+    var nodeName = this.prop("nodeName");
+    if(this.length === 0 || !nodeName) {
+        return null;
+    }
+    return nodeName;
+};
+
+/** 判断元素的tagName，不区分大小写 */
+$.fn.isNodeName = function(nodeName) {
+    return this.nodeName() === (nodeName + "").toUpperCase();
+};
+
+/** 判断一个元素是否出现了横向滚动条 */
+$.fn.hasHorizontalScroll = function() {
+    var overflowValue = this.css("overflow");
+    if(overflowValue === "visible" || overflowValue === "hidden") {
+        return false;
+    } else if(overflowValue === "scroll") {
+        return true;
+    } else {
+        return this.get(0).scrollWidth > this.width();
+    }
+};
+
+/** 判断一个元素是否出现了纵向滚动条 */
+$.fn.hasVerticalScroll = function() {
+    var overflowValue = this.css("overflow");
+    if(overflowValue === "visible" || overflowValue === "hidden") {
+        return false;
+    } else if(overflowValue === "scroll") {
+        return true;
+    } else {
+        return this.get(0).scrollHeight > this.height();
+    }
+};
+
+/** 填充select下拉框的选项 */
+$.fn.bindOptions = function (arr, valueField, textField) {
+    if (this.nodeName() !== "SELECT") {
+        return this;
+    }
+    if (!valueField) {
+        valueField = "value";
+    }
+    if (!textField) {
+        textField = "text";
+    }
+    if (!arr.length) {
+        return this;
+    }
+    var i, len = arr.length,
+        item, options = [];
+    for (i = 0; i < len; i++) {
+        item = arr[i];
+        if (!item) {
+            continue;
+        }
+        options.push("<option value='", item[valueField], "'>", item[textField], "</option>");
+    }
+    this.html(options.join(""));
+    return this;
+};
+
+/** 获取一个select元素当前选中的value和text */
+$.fn.selectOption = function () {
+    if (this.nodeName() !== "SELECT") {
+        return null;
+    }
+    var option = {
+        value: this.val(),
+        text: null
+    };
+    option.text = this.children("option[value='" + option.value + "']").text();
+    return option;
+};
+
+/** 为jquery添加鼠标滚轮事件 */
+/*
+$.fn.mousewheel = function (data, fn) {
+    var mouseWheelEventName = eventSupported("mousewheel", this) ? "mousewheel" : "DOMMouseScroll";
+    return arguments.length > 0 ?
+        this.on(mouseWheelEventName, null, data, fn) :
+        this.trigger(mouseWheelEventName);
+};
+if($.fn.jquery >= "3.0.0") {
+    "mousewheel DOMMouseScroll".replace(rword, function (name) {
+        $.event.special[ name ] = {
+            delegateType: name,
+            bindType: name,
+            handle: function( event ) {
+                var delta = 0,
+                    originalEvent = event.originalEvent,
+                    ret,
+                    handleObj = event.handleObj;
+
+                fixMousewheelDelta(event, originalEvent);
+                ret = handleObj.handler.apply( this, arguments );
+                return ret;
+            }
+        };
+    });
+} else {
+    "mousewheel DOMMouseScroll".replace(rword, function (name) {
+        $.event.fixHooks[name] = {
+            filter: fixMousewheelDelta
+        };
+    });
+}
+function fixMousewheelDelta(event, originalEvent) {
+    var delta = 0;
+    if (originalEvent.wheelDelta) {
+        delta = originalEvent.wheelDelta / 120;
+        //opera 9x系列的滚动方向与IE保持一致，10后修正 
+        if (window.opera && window.opera.version() < 10)
+            delta = -delta;
+    } else if (originalEvent.detail) {
+        delta = -originalEvent.detail / 3;
+    }
+    event.delta = Math.round(delta);
+    return event;
+}
+function eventSupported(eventName, elem) {
+    if (ui.core.isDomObject(elem)) {
+        elem = $(elem);
+    } else if (ui.core.isJQueryObject(elem) && elem.length === 0) {
+        return false;
+    }
+    eventName = "on" + eventName;
+    var isSupported = (eventName in elem[0]);
+    if (!isSupported) {
+        elem.attr(eventName, "return;");
+        isSupported = ui.core.type(elem[eventName]) === "function";
+    }
+    return isSupported;
+}
+*/
+
+if(ieVersion) {
+    $(DOC).on("selectionchange", function(e) {
+        var el = DOC.activeElement;
+        if (el && typeof el.uiEventSelectionChange === "function") {
+            el.uiEventSelectionChange();
+        }
+    });
+}
+/** 为jquery添加文本框输入事件 */
+$.fn.textinput = function(data, fn) {
+    var eventData,
+        composing,
+        eventMock,
+        nodeName;
+
+    if(this.length === 0) {
+        return;
+    }
+    if(ui.core.isFunction(data)) {
+        fn = data;
+        data = null;
+    }
+    if(!ui.core.isFunction(fn)) {
+        return;
+    }
+
+    eventMock = { data: data, target: this[0] };
+    composing = false;
+    nodeName = this.nodeName();
+    if(nodeName !== "INPUT" && nodeName !== "TEXTAREA") {
+        return;
+    }
+
+    if(ieVersion) {
+        //监听IE点击input右边的X的清空行为
+        if(ieVersion === 9) {
+            //IE9下propertychange不监听粘贴，剪切，删除引发的变动
+            this[0].uiEventSelectionChange = function() {
+                fn(eventMock);
+            };
+        }
+        if (ieVersion > 8) {
+            //IE9使用propertychange无法监听中文输入改动
+            this.on("input", null, data, fn);
+        } else {
+            //IE6-8下第一次修改时不会触发,需要使用keydown或selectionchange修正
+            this.on("propertychange", function(e) {
+                var propertyName = e.originalEvent ? e.originalEvent.propertyName : e.propertyName;
+                if (propertyName === "value") {
+                    fn(eventMock);
+                }
+            });
+            this.on("dragend", null, data, function (e) {
+                setTimeout(function () {
+                    fn(e);
+                });
+            });
+        }
+    } else {
+        this.on("input", null, data, function(e) {
+            //处理中文输入法在maxlengh下引发的BUG
+            if(composing) {
+                return;
+            }
+            fn(e);
+        });
+        //非IE浏览器才用这个
+        this.on("compositionstart", function(e) {
+            composing = true;
+        });
+        this.on("compositionend", function(e) {
+            composing = false;
+            fn(e);
+        });
+    }
+    return this;
+};
+
+
+})(ui, $);
+
+// Source: src/core/utils/util.js
+
+(function(ui, $) {
 // util
 
 //获取浏览器滚动条的宽度
@@ -715,9 +3740,9 @@ ui.tempDiv = $("<div style='position:absolute;left:-1000px;top:-100px;width:100p
 ui.tempInnerDiv = $("<div style='width:100%;height:50px;' />");
 ui.tempDiv.append(ui.tempInnerDiv);
 document.documentElement.appendChild(ui.tempDiv.get(0));
-ui.tempWidth = ui.tempInnerDiv.width();
+ui.tempWidth = ui.tempInnerDiv[0].clientWidth;
 ui.tempInnerDiv.css("height", "120px");
-ui.scrollbarHeight = ui.scrollbarWidth = ui.tempWidth - ui.tempInnerDiv.width();
+ui.scrollbarHeight = ui.scrollbarWidth = ui.tempWidth - ui.tempInnerDiv[0].clientWidth;
 ui.tempInnerDiv.remove();
 ui.tempDiv.remove();
 delete ui.tempWidth;
@@ -963,14 +3988,17 @@ function setLocation(fn, target, panel) {
     var width, 
         height,
         location,
+        rect,
         css = {};
     
     if (!target || !panel) {
         return;
     }
+
+    rect = panel.getBoundingClientRect();
     
-    width = panel.outerWidth();
-    height = panel.outerHeight();
+    width = rect.width;
+    height = rect.height;
     
     location = fn.call(ui, target, width, height);
     css.top = location.top + "px";
@@ -991,7 +4019,7 @@ ui.setLeft = function (target, panel) {
 //获取目标元素下方的坐标信息
 ui.getDownLocation = function (target, width, height) {
     var location,
-        position,
+        rect,
         documentElement,
         top, left;
 
@@ -1002,15 +4030,15 @@ ui.getDownLocation = function (target, width, height) {
     if (!target) {
         return location;
     }
-    position = target.offset();
+    rect = target.getBoundingClientRect();
     documentElement = document.documentElement;
-    top = position.top + target.outerHeight();
-    left = position.left;
+    top = rect.top + rect.height;
+    left = rect.left;
     if ((top + height) > (documentElement.clientHeight + documentElement.scrollTop)) {
-        top -= height + target.outerHeight();
+        top -= height + rect.height;
     }
     if ((left + width) > documentElement.clientWidth + documentElement.scrollLeft) {
-        left = left - (width - target.outerWidth());
+        left = left - (width - rect.width);
     }
     location.top = top;
     location.left = left;
@@ -1020,7 +4048,7 @@ ui.getDownLocation = function (target, width, height) {
 //获取目标元素左边的坐标信息
 ui.getLeftLocation = function (target, width, height) {
     var location,
-        position,
+        rect,
         documentElement,
         top, left;
     
@@ -1031,15 +4059,15 @@ ui.getLeftLocation = function (target, width, height) {
     if (!target) {
         return location;
     }
-    position = target.offset();
+    rect = target.getBoundingClientRect();
     documentElement = document.documentElement;
-    top = position.top;
-    left = position.left + target.outerWidth();
+    top = rect.top;
+    left = rect.left + rect.width;
     if ((top + height) > (documentElement.clientHeight + documentElement.scrollTop)) {
         top -= (top + height) - (documentElement.clientHeight + documentElement.scrollTop);
     }
     if ((left + width) > documentElement.clientWidth + documentElement.scrollLeft) {
-        left = position.left - width;
+        left = rect.left - width;
     }
     location.top = top;
     location.left = left;
@@ -1047,11 +4075,11 @@ ui.getLeftLocation = function (target, width, height) {
 };
 
 
-})(jQuery, ui);
+})(ui, $);
 
-// Source: src/util-string.js
+// Source: src/core/utils/util-string.js
 
-(function($, ui) {
+(function(ui, $) {
 // string util
 
 var textEmpty = "";
@@ -1380,11 +4408,11 @@ ui.str = {
 };
 
 
-})(jQuery, ui);
+})(ui, $);
 
-// Source: src/util-date.js
+// Source: src/core/utils/util-date.js
 
-(function($, ui) {
+(function(ui, $) {
 // ISO 8601日期和时间表示法 https://en.wikipedia.org/wiki/ISO_8601
 
 /*
@@ -1869,11 +4897,11 @@ ui.date = {
 };
 
 
-})(jQuery, ui);
+})(ui, $);
 
-// Source: src/util-object.js
+// Source: src/core/utils/util-object.js
 
-(function($, ui) {
+(function(ui, $) {
 //object
 
 function _ignore(ignore) {
@@ -1958,11 +4986,11 @@ ui.obj = {
 };
 
 
-})(jQuery, ui);
+})(ui, $);
 
-// Source: src/util-url.js
+// Source: src/core/utils/util-url.js
 
-(function($, ui) {
+(function(ui, $) {
 //url
 
 var url_rquery = /\?/,
@@ -2069,11 +5097,11 @@ ui.url = {
     }
 };
 
-})(jQuery, ui);
+})(ui, $);
 
-// Source: src/util-structure-transform.js
+// Source: src/core/utils/util-structure-transform.js
 
-(function($, ui) {
+(function(ui, $) {
 // 数据结构转换
 
 var flagFieldKey = "_from-list";
@@ -2217,11 +5245,11 @@ ui.trans = {
 };
 
 
-})(jQuery, ui);
+})(ui, $);
 
-// Source: src/util-random.js
+// Source: src/core/utils/util-random.js
 
-(function($, ui) {
+(function(ui, $) {
 
 var random = {
     /** 获取一定范围内的随机数 */
@@ -2360,11 +5388,11 @@ random.vivid = function(ranges) {
 ui.random = random;
 
 
-})(jQuery, ui);
+})(ui, $);
 
-// Source: src/parser.js
+// Source: src/core/parser.js
 
-(function($, ui) {
+(function(ui, $) {
 var open = "{",
     close = "}",
     formatterOperator = "|";
@@ -2521,11 +5549,11 @@ ui.parseXML = parseXML;
 ui.parseHTML = parseHTML;
 ui.parseJSON = JSON.parse;
 
-})(jQuery, ui);
+})(ui, $);
 
-// Source: src/task.js
+// Source: src/core/task.js
 
-(function($, ui) {
+(function(ui, $) {
 /*
 
 JavaScript中分为MacroTask和MicroTask
@@ -2682,278 +5710,11 @@ ui.clearMicroTask = function(index) {
 };
 
 
-})(jQuery, ui);
+})(ui, $);
 
-// Source: src/jquery-extend.js
+// Source: src/core/cookie.js
 
-(function($, ui) {
-// jquery extends
-
-var rword = /[^, ]+/g,
-    ieVersion,
-    DOC = document;
-//判断IE版本
-function IE() {
-    if (window.VBArray) {
-        var mode = DOC.documentMode;
-        return mode ? mode : (window.XMLHttpRequest ? 7 : 6);
-    } else {
-        return 0;
-    }
-}
-ieVersion = IE();
-
-/** 为jquery添加一个获取元素标签类型的方法 */
-$.fn.nodeName = function () {
-    var nodeName = this.prop("nodeName");
-    if(this.length === 0 || !nodeName) {
-        return null;
-    }
-    return nodeName;
-};
-
-/** 判断元素的tagName，不区分大小写 */
-$.fn.isNodeName = function(nodeName) {
-    return this.nodeName() === (nodeName + "").toUpperCase();
-};
-
-/** 判断一个元素是否出现了横向滚动条 */
-$.fn.hasHorizontalScroll = function() {
-    var overflowValue = this.css("overflow");
-    if(overflowValue === "visible" || overflowValue === "hidden") {
-        return false;
-    } else if(overflowValue === "scroll") {
-        return true;
-    } else {
-        return this.get(0).scrollWidth > this.width();
-    }
-};
-
-/** 判断一个元素是否出现了纵向滚动条 */
-$.fn.hasVerticalScroll = function() {
-    var overflowValue = this.css("overflow");
-    if(overflowValue === "visible" || overflowValue === "hidden") {
-        return false;
-    } else if(overflowValue === "scroll") {
-        return true;
-    } else {
-        return this.get(0).scrollHeight > this.height();
-    }
-};
-
-/** 获取对象的z-index值 */
-$.fn.zIndex = function (zIndex) {
-    if (zIndex !== undefined) {
-        return this.css("zIndex", zIndex);
-    }
-
-    if (this.length) {
-        var elem = $(this[0]), position, value;
-        while (elem.length && elem[0] !== document) {
-            // Ignore z-index if position is set to a value where z-index is ignored by the browser
-            // This makes behavior of this function consistent across browsers
-            // WebKit always returns auto if the element is positioned
-            position = elem.css("position");
-            if (position === "absolute" || position === "relative" || position === "fixed") {
-                // IE returns 0 when zIndex is not specified
-                // other browsers return a string
-                // we ignore the case of nested elements with an explicit value of 0
-                // <div style="z-index: -10;"><div style="z-index: 0;"></div></div>
-                value = parseInt(elem.css("zIndex"), 10);
-                if (!isNaN(value) && value !== 0) {
-                    return value;
-                }
-            }
-            elem = elem.parent();
-        }
-    }
-    return 0;
-};
-
-/** 填充select下拉框的选项 */
-$.fn.bindOptions = function (arr, valueField, textField) {
-    if (this.nodeName() !== "SELECT") {
-        return this;
-    }
-    if (!valueField) {
-        valueField = "value";
-    }
-    if (!textField) {
-        textField = "text";
-    }
-    if (!arr.length) {
-        return this;
-    }
-    var i, len = arr.length,
-        item, options = [];
-    for (i = 0; i < len; i++) {
-        item = arr[i];
-        if (!item) {
-            continue;
-        }
-        options.push("<option value='", item[valueField], "'>", item[textField], "</option>");
-    }
-    this.html(options.join(""));
-    return this;
-};
-
-/** 获取一个select元素当前选中的value和text */
-$.fn.selectOption = function () {
-    if (this.nodeName() !== "SELECT") {
-        return null;
-    }
-    var option = {
-        value: this.val(),
-        text: null
-    };
-    option.text = this.children("option[value='" + option.value + "']").text();
-    return option;
-};
-
-/** 为jquery添加鼠标滚轮事件 */
-$.fn.mousewheel = function (data, fn) {
-    var mouseWheelEventName = eventSupported("mousewheel", this) ? "mousewheel" : "DOMMouseScroll";
-    return arguments.length > 0 ?
-        this.on(mouseWheelEventName, null, data, fn) :
-        this.trigger(mouseWheelEventName);
-};
-if($.fn.jquery >= "3.0.0") {
-    "mousewheel DOMMouseScroll".replace(rword, function (name) {
-        jQuery.event.special[ name ] = {
-            delegateType: name,
-            bindType: name,
-            handle: function( event ) {
-                var delta = 0,
-                    originalEvent = event.originalEvent,
-                    ret,
-                    handleObj = event.handleObj;
-
-                fixMousewheelDelta(event, originalEvent);
-                ret = handleObj.handler.apply( this, arguments );
-                return ret;
-            }
-        };
-    });
-} else {
-    "mousewheel DOMMouseScroll".replace(rword, function (name) {
-        jQuery.event.fixHooks[name] = {
-            filter: fixMousewheelDelta
-        };
-    });
-}
-function fixMousewheelDelta(event, originalEvent) {
-    var delta = 0;
-    if (originalEvent.wheelDelta) {
-        delta = originalEvent.wheelDelta / 120;
-        //opera 9x系列的滚动方向与IE保持一致，10后修正 
-        if (window.opera && window.opera.version() < 10)
-            delta = -delta;
-    } else if (originalEvent.detail) {
-        delta = -originalEvent.detail / 3;
-    }
-    event.delta = Math.round(delta);
-    return event;
-}
-function eventSupported(eventName, elem) {
-    if (ui.core.isDomObject(elem)) {
-        elem = $(elem);
-    } else if (ui.core.isJQueryObject(elem) && elem.length === 0) {
-        return false;
-    }
-    eventName = "on" + eventName;
-    var isSupported = (eventName in elem[0]);
-    if (!isSupported) {
-        elem.attr(eventName, "return;");
-        isSupported = ui.core.type(elem[eventName]) === "function";
-    }
-    return isSupported;
-}
-
-
-if(ieVersion) {
-    $(DOC).on("selectionchange", function(e) {
-        var el = DOC.activeElement;
-        if (el && typeof el.uiEventSelectionChange === "function") {
-            el.uiEventSelectionChange();
-        }
-    });
-}
-/** 为jquery添加文本框输入事件 */
-$.fn.textinput = function(data, fn) {
-    var eventData,
-        composing,
-        eventMock,
-        nodeName;
-
-    if(this.length === 0) {
-        return;
-    }
-    if(ui.core.isFunction(data)) {
-        fn = data;
-        data = null;
-    }
-    if(!ui.core.isFunction(fn)) {
-        return;
-    }
-
-    eventMock = { data: data, target: this[0] };
-    composing = false;
-    nodeName = this.nodeName();
-    if(nodeName !== "INPUT" && nodeName !== "TEXTAREA") {
-        return;
-    }
-
-    if(ieVersion) {
-        //监听IE点击input右边的X的清空行为
-        if(ieVersion === 9) {
-            //IE9下propertychange不监听粘贴，剪切，删除引发的变动
-            this[0].uiEventSelectionChange = function() {
-                fn(eventMock);
-            };
-        }
-        if (ieVersion > 8) {
-            //IE9使用propertychange无法监听中文输入改动
-            this.on("input", null, data, fn);
-        } else {
-            //IE6-8下第一次修改时不会触发,需要使用keydown或selectionchange修正
-            this.on("propertychange", function(e) {
-                var propertyName = e.originalEvent ? e.originalEvent.propertyName : e.propertyName;
-                if (propertyName === "value") {
-                    fn(eventMock);
-                }
-            });
-            this.on("dragend", null, data, function (e) {
-                setTimeout(function () {
-                    fn(e);
-                });
-            });
-        }
-    } else {
-        this.on("input", null, data, function(e) {
-            //处理中文输入法在maxlengh下引发的BUG
-            if(composing) {
-                return;
-            }
-            fn(e);
-        });
-        //非IE浏览器才用这个
-        this.on("compositionstart", function(e) {
-            composing = true;
-        });
-        this.on("compositionend", function(e) {
-            composing = false;
-            fn(e);
-        });
-    }
-    return this;
-};
-
-
-})(jQuery, ui);
-
-// Source: src/cookie.js
-
-(function($, ui) {
+(function(ui, $) {
 // cookie 操作
 
 function parseCookieValue(s) {
@@ -3043,11 +5804,11 @@ ui.cookie = {
     }
 };
 
-})(jQuery, ui);
+})(ui, $);
 
-// Source: src/style-sheet.js
+// Source: src/core/style-sheet.js
 
-(function($, ui) {
+(function(ui, $) {
 
 // 样式表操作
 function getRules() {
@@ -3207,11 +5968,11 @@ StyleSheet.createStyleSheet = function(id) {
 ui.StyleSheet = StyleSheet;
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/component/introsort.js
 
-(function($, ui) {
+(function(ui, $) {
 // sorter introsort
 var size_threshold = 16;
 
@@ -3412,11 +6173,11 @@ Introsort.prototype = {
 ui.Introsort = Introsort;
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/component/animation.js
 
-(function($, ui) {
+(function(ui, $) {
 /*
     animation javascript 动画引擎
  */
@@ -4065,11 +6826,11 @@ ui.animator.fadeOut = function(target) {
 };
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/component/selector-set.js
 
-(function($, ui) {
+(function(ui, $) {
 // SelectorSet
 // 参考 https://github.com/josh/selector-set/blob/master/selector-set.js
 // 针对SOON.UI的代码风格进行了重构
@@ -4418,11 +7179,11 @@ SelectorSet.prototype = {
 ui.SelectorSet = SelectorSet;
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/component/event-delegate.js
 
-(function($, ui) {
+(function(ui, $) {
 // EventDelegate
 // 参考 https://github.com/dgraham/delegated-events/blob/master/delegated-events.js
 // 针对SOON.UI的代码风格进行了重构
@@ -4606,11 +7367,11 @@ ui.on = on;
 ui.off = off;
 ui.fire = fire;
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/component/custom-event.js
 
-(function($, ui) {
+(function(ui, $) {
 // custom event
 
 function CustomEventArgs(args) {
@@ -4733,7 +7494,7 @@ CustomEvent.prototype = {
         target.off = function (type, callback) {
             that.removeEventListener(type, callback);
         };
-        target.fire = function (type) {
+        target.fire = target.trigger = function (type) {
             var args = Array.apply([], arguments);
             return that.dispatchEvent.apply(that, args);
         };
@@ -4755,11 +7516,11 @@ CustomEvent.prototype = {
 ui.CustomEvent = CustomEvent;
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/component/ajax.js
 
-(function($, ui) {
+(function(ui, $) {
 // ajax
 
 var msie = 0,
@@ -5596,11 +8357,11 @@ function extendHttpProcessor() {
 
 }
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/component/color.js
 
-(function($, ui) {
+(function(ui, $) {
 // color
 
 // 各种颜色格式的正则表达式
@@ -5736,11 +8497,11 @@ ui.color = {
 };
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/component/browser.js
 
-(function($, ui) {
+(function(ui, $) {
 // browser
 
 var pf = (navigator.platform || "").toLowerCase(),
@@ -5863,11 +8624,11 @@ ui.platform = platform;
 ui.browser = browser;
 ui.engine = engine;
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/component/image-loader.js
 
-(function($, ui) {
+(function(ui, $) {
 // image loader
 
 function ImageLoader() {
@@ -6055,481 +8816,11 @@ $.fn.setImage = function (src, width, height, fillMode) {
 };
 
 
-})(jQuery, ui);
-
-// Source: src/component/view-model.js
-
-(function($, ui) {
-// ViewModel 模型
-
-var arrayObserverPrototype = [],
-    overrideMethods = ["push", "pop", "shift", "unshift", "splice", "sort", "reverse"],
-    hasProto = '__proto__' in {},
-    updatePrototype,
-    binderQueue,
-    binderId = 0;
-
-// 劫持修改数组的API方法
-overrideMethods.forEach(function(methodName) {
-    var originalMethod = arrayObserverPrototype[methodName];
-
-    arrayObserverPrototype[methodName] = function() {
-        var result,
-            insertedItems,
-            args = arrayObserverPrototype.slice.call(arguments, 0),
-            notice;
-
-        result = originalMethod.apply(this, args);
-
-        switch(methodName) {
-            case "push":
-            case "unshift":
-                insertedItems = args;
-                break;
-            case "splice":
-                insertedItems = args.slice(2);
-                break;
-        }
-
-        notice = this.__notice__;
-        if(insertedItems) {
-            notice.arrayNotify(insertedItems);
-        }
-        notice.dependency.notify();
-        return result;
-    };
-});
-
-if(hasProto) {
-    updatePrototype = function(target, prototype, keys) {
-        target.__proto__ = prototype;
-    };
-} else {
-    updatePrototype = function(target, prototype, keys) {
-        var i, len, key;
-        for(i = 0, len = keys.length; i < len; i++) {
-            key = keys[i];
-            target[key] = prototype[key];
-        }
-    };
-}
-
-// 数据绑定执行队列
-binderQueue = {
-    queue: [],
-    queueElementMap: {},
-    // 是否正在执行队列中
-    isRunning: false,
-    // 是否已经注册了nextTick Task
-    isWaiting: false,
-    // 当前执行的队列索引
-    runIndex: 0,
-
-    enqueue: function(binder) {
-        var id = binder.id,
-            index;
-        if(this.queueElementMap[id]) {
-            return;
-        }
-
-        this.queueElementMap[id] = true;
-        if(this.isRunning) {
-            // 从后往前插入队列
-            index = this.queue.length - 1;
-            while(index > this.runIndex && this.queue[index].id > binder.id) {
-                index--;
-            }
-            this.queue.splice(index + 1, 0, binder);
-        } else {
-            this.queue.push(binder);
-        }
-
-        if(!this.isWaiting) {
-            this.isWaiting = true;
-            ui.setTask((function () {
-                this.run();
-            }).bind(this));
-        }
-    },
-    run: function() {
-        var i,
-            binder;
-        this.isRunning = true;
-
-        // 排序，让视图更新按照声明的顺序执行
-        this.queue.sort(function(a, b) {
-            return a.id - b.id;
-        });
-
-        // 这里的queue.length可能发生变化，不能缓存
-        for(i = 0; i < this.queue.length; i++) {
-            this.runIndex = i;
-            binder = this.queue[i];
-            this.queueElementMap[binder.id] = null;
-            binder.execute();
-        }
-
-        // 重置队列
-        this.reset();
-    },
-    reset: function() {
-        this.runIndex = 0;
-        this.queue.length = 0;
-        this.queueElementMap = {};
-        this.isRunning = this.isWaiting = false;
-    }
-};
-
-function noop() {}
-
-function defineNotifyProperty(obj, propertyName, val, shallow, path) {
-    var descriptor,
-        getter,
-        setter,
-        notice,
-        childNotice;
-
-    descriptor = Object.getOwnPropertyDescriptor(obj, propertyName);
-    if (descriptor && descriptor.configurable === false) {
-        return;
-    }
-
-    getter = descriptor.get;
-    setter = descriptor.set;
-
-    // 如果深度引用，则将子属性也转换为通知对象
-    if(!shallow  && (ui.core.isObject(val) || Array.isArray(val))) {
-        childNotice = new NotifyObject(val);
-    }
-
-    notice = obj.__notice__;
-    Object.defineProperty(obj, propertyName, {
-        enumerable: true,
-        configurable: true,
-        get: function () {
-            return getter ? getter.call(obj) : val;
-        },
-        set: function(newVal) {
-            var oldVal = getter ? getter.call(obj) : val,
-                newChildNotice;
-            if(oldVal === newVal || (newVal !== newVal && val !== val)) {
-                return;
-            }
-
-            if(setter) {
-                setter.call(obj, newVal);
-            } else {
-                val = newVal;
-            }
-
-            if(!shallow  && (ui.core.isObject(newVal) || Array.isArray(newVal))) {
-                newChildNotice = new NotifyObject(newVal);
-                newChildNotice.dependency.depMap = childNotice.dependency.depMap;
-                // 更新通知对象
-                childNotice = newChildNotice;
-            }
-            notice.dependency.notify(propertyName);
-        }
-    });
-}
-
-function createNotifyObject(obj) {
-    var isObject,
-        isArray,
-        notice;
-
-    isObject = ui.core.isObject(obj);
-    isArray = Array.isArray(obj);
-
-    if(!isObject && !isArray) {
-        return obj;
-    }
-    if(isObject && ui.core.isEmptyObject(obj)) {
-        return obj;
-    }
-
-    if(obj.hasOwnProperty("__notice__") && obj.__notice__ instanceof NotifyObject) {
-        notice = obj.__notice__;
-        // TODO notice.count++;
-    } else if((isArray || isObject) && Object.isExtensible(obj)) {
-        notice = new NotifyObject(obj);
-    }
-    // 添加一个手动刷新方法
-    obj.refresh = refresh;
-
-    return obj;
-}
-
-function refresh() {
-    notifyAll(this);
-}
-
-function notifyAll(viewModel) {
-    var keys = Object.keys(viewModel),
-        i, len,
-        propertyName,
-        value,
-        notice,
-        notifyProperties = [];
-
-    for(i = 0, len = keys.length; i < len; i++) {
-        propertyName = keys[i];
-        value = viewModel[propertyName];
-        if((ui.core.isObject(value) || Array.isArray(value)) && 
-                value.__notice__ instanceof NotifyObject) {
-            notifyAll(value);
-        } else {
-            notifyProperties.push(propertyName);
-        }
-    }
-
-    notice = viewModel.__notice__;
-    notice.dependency.notify.apply(notice.dependency, notifyProperties);
-}
-
-function NotifyObject(value) {
-    this.value = value;
-    this.dependency = new Dependency();
-    Object.defineProperty(value, "__notice__", {
-        value: this,
-        enumerable: false,
-        writable: true,
-        configurable: true
-    });
-    if(Array.isArray(value)) {
-        updatePrototype(value, arrayObserverPrototype, overrideMethods);
-        this.arrayNotify(value);
-    } else {
-        this.objectNotify(value);
-    }
-}
-NotifyObject.prototype = {
-    constructor: NotifyObject,
-    arrayNotify: function(array) {
-        var i, len;
-        for(i = 0, len = array.length; i < len; i++) {
-            createNotifyObject(array[i]);
-        }
-    },
-    objectNotify: function(obj) {
-        var keys = Object.keys(obj),
-            i, len;
-
-        for(i = 0, len = keys.length; i < len; i++) {
-            defineNotifyProperty(obj, keys[i], obj[keys[i]]);
-        }
-    }
-};
-
-// 依赖属性
-function Dependency() {
-    this.depMap = {};
-}
-Dependency.prototype = {
-    constructor: Dependency,
-    // 添加依赖处理
-    add: function(binder) {
-        var propertyName;
-        if(binder instanceof Binder) {
-            propertyName = binder.propertyName;
-            if(!this.depMap.hasOwnProperty(binder.propertyName)) {
-                this.depMap[propertyName] = [];
-            }
-            this.depMap[propertyName].push(binder);
-        }
-    },
-    // 移除依赖处理
-    remove: function(binder) {
-        var propertyName,
-            binderList,
-            i, len;
-        if(binder instanceof Binder) {
-            propertyName = binder.propertyName;
-            binderList = this.depMap[propertyName];
-
-            if(Array.isArray(binderList)) {
-                for(i = binderList.length - 1; i >= 0; i--) {
-                    if(binderList[i] === binder) {
-                        binderList.splice(i, 1);
-                        break;
-                    }
-                }
-            }
-        }
-    },
-    depend: function() {
-    },
-    // 变化通知
-    notify: function() {
-        var keys,
-            propertyName,
-            delegate,
-            errors,
-            i, len;
-        
-        if(arguments.length === 0) {
-            keys = Object.keys(this.depMap);
-        } else {
-            keys = [];
-            for(i = 0, len = arguments.length; i < len; i++) {
-                propertyName = arguments[i];
-                if(ui.core.isString(propertyName) && 
-                    propertyName.length > 0 && 
-                    this.depMap.hasOwnProperty(propertyName)) {
-                        
-                    keys.push(propertyName);
-                }
-            }
-        }
-
-        errors = [];
-        for(i = 0, len = keys.length; i < len; i++) {
-            delegate = this.depMap[keys[i]];
-            delegate.forEach(function(binder) {
-                try {
-                    binder.update();
-                } catch(e) {
-                    errors.push(e);
-                }
-            });
-        }
-        if(errors.length > 0) {
-            throw errors.toString();
-        }
-    }
-};
-
-function Binder(option) {
-    var propertyName = null; 
-
-    this.id = ++binderId;
-    this.viewModel = null;
-    this.isActive = true;
-
-    if(option) {
-        this.sync = !!option.sync;
-        this.lazy = !!option.lazy;
-    } else {
-        this.sync = this.lazy = false;
-    }
-    this.value = this.lazy ? null : this.get();
-
-    Object.defineProperty(this, "propertyName", {
-        configurable: false,
-        enumerable: true,
-        get: function() {
-            if(!propertyName) {
-                return "_";
-            }
-            return propertyName;
-        },
-        set: function(val) {
-            propertyName = val;
-        }
-    });
-}
-Binder.prototype = {
-    constructor: Binder,
-    update: function() {
-        if(!this.isActive) {
-            return;
-        }
-
-        if(this.sync) {
-            this.execute();
-        } else {
-            binderQueue.enqueue(this);
-        }
-    },
-    execute: function() {
-        var oldValue,
-            value;
-
-        oldValue = this.value;
-        value = this.get();
-
-        if(value !== oldValue) {
-            this.value = value;
-            try {
-                this.action(value, oldValue);
-            } catch(e) {
-                ui.handleError(e);
-            }
-        }
-    },
-    get: function() {
-        var value = null;
-
-        if(this.viewModel && this.viewModel.hasOwnProperty(this.propertyName)) {
-            value = this.viewModel[this.propertyName];
-        }
-
-        return value;
-    }
-};
-
-function createBinder(viewModel, propertyName, bindData, handler, option) {
-    var binder;
-    if(!viewModel || !viewModel.__notice__) {
-        throw new TypeError("the arguments 'viewModel' is invalid.");
-    }
-    if(!viewModel.hasOwnProperty(propertyName)) {
-        throw new TypeError("the property '" + propertyName + "' not belong to the viewModel.");
-    }
-    if(ui.core.isFunction(bindData)) {
-        handler = bindData;
-        bindData = null;
-    }
-    if(!ui.core.isFunction(handler)) {
-        return null;
-    }
-
-    binder = new Binder(option);
-    binder.propertyName = propertyName;
-    binder.viewModel = viewModel;
-    binder.action = function(value, oldValue) {
-        handler.call(viewModel, value, oldValue, bindData);
-    };
-
-    return binder;
-}
-
-ui.ViewModel = createNotifyObject;
-ui.ViewModel.bindOnce = function(viewModel, propertyName, bindData, fn) {
-    createBinder(viewModel, propertyName, bindData, fn);
-};
-ui.ViewModel.bindOneWay = function(viewModel, propertyName, bindData, fn, isSync) {
-    var binder,
-        option,
-        notice,
-        value;
-
-    option = {
-        sync: !!isSync
-    };
-    binder = createBinder(viewModel, propertyName, bindData, fn, option);
-    if(binder) {
-        notice = viewModel.__notice__;
-        notice.dependency.add(binder);
-        value = viewModel[propertyName];
-        if(Array.isArray(value)) {
-            notice = value.__notice__;
-            if(notice) {
-                notice.dependency.add(binder);
-            }
-        }
-    }
-};
-ui.ViewModel.bindTwoWay = function(option) {
-    // TODO: 双向绑定实际上只有在做表单的时候才有优势
-};
-
-
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/component/define.js
 
-(function($, ui) {
+(function(ui, $) {
 
 // JS类型化
 
@@ -6693,11 +8984,11 @@ ui.define = function(name, base, prototype) {
 };
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/component/draggable.js
 
-(function($, ui) {
+(function(ui, $) {
 
 var doc = $(document),
     body = $(document.body),
@@ -6828,14 +9119,13 @@ MouseDragger.prototype = {
                 "height": "100%",
                 "z-index": "999999",
                 "background-color": "#fff",
-                "filter": "Alpha(opacity=1)",
                 "opacity": ".01"    
             });
         }
 
-        this.onMouseDownHandler = $.proxy(mouseDown, this);
-        this.onMouseMoveHandler = $.proxy(mouseMove, this);
-        this.onMouseUpHandler = $.proxy(mouseUp, this);
+        this.onMouseDownHandler = mouseDown.bind(this);
+        this.onMouseMoveHandler = mouseMove.bind(this);
+        this.onMouseUpHandler = mouseUp.bind(this);
     },
     on: function() {
         var target = this.option.target,
@@ -6907,20 +9197,25 @@ $.fn.draggable = function(option) {
     }
     option.onBeginDrag = function(arg) {
         var option = this.option,
-            p = option.parent.offset();
+            p = option.parent.offset(),
+            targetRect,
+            parentRect;
         if(!p) p = { top: 0, left: 0 };
 
         if(oldBeginDrag) {
             oldBeginDrag.call(null, arg);
         }
 
+        parentRect = option.parent.getBoundingClientRect();
+        targetRect = option.target.getBoundingClientRect();
+
         option.topLimit = p.top + option.getParentCssNum("border-top") + option.getParentCssNum("padding-top");
         option.leftLimit = p.left + option.getParentCssNum("border-left") + option.getParentCssNum("padding-left");
-        option.rightLimit = p.left + (option.parent.outerWidth() || option.parent.width());
-        option.bottomLimit = p.top + (option.parent.outerHeight() || option.parent.height());
+        option.rightLimit = p.left + parentRect.width;
+        option.bottomLimit = p.top + parentRect.height;
         
-        option.targetWidth = option.target.outerWidth();
-        option.targetHeight = option.target.outerHeight();
+        option.targetWidth = targetRect.width;
+        option.targetHeight = targetRect.height;
 
         option.parentTop = p.top;
         option.parentLeft = p.left;
@@ -6979,11 +9274,11 @@ $.fn.undraggable = function() {
 };
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/component/theme.js
 
-(function($, ui) {
+(function(ui, $) {
 
 function setHighlight(highlight) {
     var sheet,
@@ -7063,11 +9358,11 @@ ui.theme = {
 };
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/component/page.js
 
-(function($, ui) {
+(function(ui, $) {
 // 事件优先级
 ui.eventPriority = {
     masterReady: 3,
@@ -7174,6 +9469,7 @@ page.init = function(config) {
 
         if(this.$errors) {
             this.$errors.forEach(function(e) {
+                console.log(e);
                 var errorMessage = ui.str.format("page init error. [{0}] {1}", e.cycleName, e.message);
                 if(ui.errorShow) {
                     ui.errorShow(errorMessage);
@@ -7238,6 +9534,9 @@ page.get = function(pluginName) {
 page.watch = function(property, fn) {
     var vm = this.model,
         props, propertyName, i;
+    if(!ui.ViewModel) {
+        return;
+    }
     if(!vm || !property || !ui.core.isFunction(fn)) {
         return;
     }
@@ -7260,6 +9559,9 @@ page.plugin({
     rank: 1,
     handler: function(arg) {
         var vm;
+        if(!ui.ViewModel) {
+            return;
+        }
         if(ui.core.isFunction(arg)) {
             vm = arg.call(this);
         } else {
@@ -7324,7 +9626,7 @@ $(document)
         page.fire("ready");
     })
     //注册全局click事件
-    .click(function (e) {
+    .on("click", function (e) {
         page.fire("htmlclick", e.target);
     })
 
@@ -7351,15 +9653,112 @@ $(window)
 ui.page = page;
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/control/base/control-define.js
 
-(function($, ui) {
+(function(ui, $) {
 
 // 创建命名空间
 ui.ctrls = {};
+
 function noop() {}
+
+// 事件代理
+function ClassEventDelegate(eventName) {
+    this.classEventMap = new ui.KeyArray();
+    this.exclusiveFlag = {};
+    this.length = this.classEventMap.length;
+    this.eventName = eventName || "NONE";
+}
+ClassEventDelegate.prototype = {
+    getClassNames: function() {
+        return this.classEventMap.keys();
+    },
+    call: function(className) {
+        var args = Array.prototype.slice.call(arguments, 1),
+            handler = this.classEventMap.get(className);
+        if(Array.isArray(handler)) {
+            handler.forEach(function(h) {
+                h.apply(null, args);
+            });
+        } else {
+            handler.apply(null, args);
+        }
+    },
+    add: function(className, handler, isMultiple, isExclusive) {
+        var old;
+        if(!ui.core.isFunction(handler)) {
+            throw new TypeError("the delegate event handler is not a function.");
+        }
+
+        old = this.classEventMap.get(className);
+        if(isMultiple) {
+            if(Array.isArray(old)) {
+                old.push(handler);
+                handler = old;
+            } else if(ui.core.isFunction(old)) {
+                handler = [old, handler];
+            }
+        }
+        this.classEventMap.set(className, handler);
+        this.exclusiveFlag[className] = typeof isExclusive === "undefined" ? true : !!isExclusive;
+        this.length = this.classEventMap.length;
+    },
+    remove: function(className, handler) {
+        var old;
+        if(ui.core.isFunction(handler)) {
+            old = this.classEventMap.get(className);
+            if(Array.isArray(old)) {
+                this.classEventMap.set(className, old.filter(function(item) {
+                    return item === handler;
+                }));
+            } else {
+                this.classEventMap.remove(className);
+            }
+        } else {
+            this.classEventMap.remove(className);
+        }
+        this.length = this.classEventMap.length;
+    },
+    has: function(className) {
+        return this.classEventMap.containsKey(className);
+    },
+    getDelegateHandler: function(cancelFn) {
+        var that = this;
+        if(!ui.core.isFunction(cancelFn)) {
+            cancelFn = function() {
+                return false;
+            };
+        }
+        return function(e) {
+            var elem = $(e.target),
+                classNames, className,
+                i, len = that.length;
+            
+            if(len === 0) {
+                return;
+            }
+            classNames = that.getClassNames();
+            while (true) {
+                if (elem.length === 0 || cancelFn(elem)) {
+                    return;
+                }
+                for(i = 0; i < len; i++) {
+                    className = classNames[i];
+                    if(elem.hasClass(className)) {
+                        that.call(className, e, elem);
+                        if(that.exclusiveFlag[className]) {
+                            return;
+                        }
+                    }
+                }
+                elem = elem.parent();
+            }
+        };
+    }
+};
+
 // 创建控件基础类
 ui.define("ui.ctrls.ControlBase", {
     version: ui.version,
@@ -7423,6 +9822,9 @@ ui.define("ui.ctrls.ControlBase", {
         config.enumerable = false;
         config.configurable = false;
         definePropertyFn(this, propertyName, config);
+    },
+    createClassEventDelegate: function(eventName) {
+        return new ClassEventDelegate();
     },
     /** 默认的toString方法实现，返回类名 */
     toString: function() {
@@ -7488,11 +9890,11 @@ function define(name, base, prototype) {
 
 ui.ctrls.define = define;
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/control/base/dropdown-base.js
 
-(function($, ui) {
+(function(ui, $) {
 var htmlClickHideHandler = [],
     dropdownPanelBorderWidth = 1,
     cancelHtmlClickFlag = "cancel-dropdown-html-click";
@@ -7545,7 +9947,8 @@ function getLayoutPanelLocation(layoutPanel, element, width, height, panelWidth,
     var location,
         elementPosition,
         layoutPanelWidth, 
-        layoutPanelHeight;
+        layoutPanelHeight,
+        layoutElement;
 
     location = {
         top: height,
@@ -7558,10 +9961,11 @@ function getLayoutPanelLocation(layoutPanel, element, width, height, panelWidth,
         layoutPanelWidth = layoutPanel.width();
         layoutPanelHeight = layoutPanel.height();
     } else {
-        layoutPanelWidth = layoutPanel[0].scrollWidth;
-        layoutPanelHeight = layoutPanel[0].scrollHeight;
-        layoutPanelWidth += layoutPanel.scrollLeft();
-        layoutPanelHeight += layoutPanel.scrollTop();
+        layoutElement = layoutPanel[0];
+        layoutPanelWidth = layoutElement.scrollWidth;
+        layoutPanelHeight = layoutElement.scrollHeight;
+        layoutPanelWidth += layoutElement.scrollLeft;
+        layoutPanelHeight += layoutElement.scrollTop;
     }
     if(elementPosition.top + height + panelHeight > layoutPanelHeight) {
         if(elementPosition.top - panelHeight > 0) {
@@ -7682,8 +10086,8 @@ ui.ctrls.define("ui.ctrls.DropDownBase", {
             "margin-top": elem.css("margin-top"),
             "margin-right": elem.css("margin-right"),
             "margin-bottom": elem.css("margin-bottom"),
-            width: elem.outerWidth() + "px",
-            height: elem.outerHeight() + "px"
+            width: elem[0].offsetWidth + "px",
+            height: elem[0].offsetHeight + "px"
         };
         if(currentCss.position === "relative" || currentCss.position === "absolute") {
             currentCss.top = elem.css("top");
@@ -7700,9 +10104,7 @@ ui.ctrls.define("ui.ctrls.DropDownBase", {
             currentCss.display = "block";
         }
         var wrapElem = $("<div class='dropdown-wrap cancel-dropdown-html-click' />").css(currentCss);
-        elem.css({
-            "margin": "0px"
-        }).wrap(wrapElem);
+        elem.css("margin", 0).wrap(wrapElem);
         
         wrapElem = elem.parent();
         if(panel) {
@@ -7737,7 +10139,7 @@ ui.ctrls.define("ui.ctrls.DropDownBase", {
     },
     initPanelWidth: function(width) {
         if(!ui.core.isNumber(width)) {
-            width = this.element ? this.element.outerWidth() : 100;
+            width = this.element ? this.element.getBoundingClientRect().width : 100;
         }
         this.panelWidth = width - dropdownPanelBorderWidth * 2;
         this._panel.css("width", this.panelWidth + "px");
@@ -7756,6 +10158,7 @@ ui.ctrls.define("ui.ctrls.DropDownBase", {
         ui.addHideHandler(this, this.hide);
         var panelWidth, panelHeight,
             width, height,
+            rect,
             location,
             offset;
 
@@ -7763,11 +10166,13 @@ ui.ctrls.define("ui.ctrls.DropDownBase", {
             this._panel.addClass(this._showClass);
             this._panel.css("opacity", "0");
             
-            width = this.element.outerWidth();
-            height = this.element.outerHeight();
+            rect = this.element.getBoundingClientRect();
+            width = rect.width;
+            height = rect.height;
 
-            panelWidth = this._panel.outerWidth();
-            panelHeight = this._panel.outerHeight();
+            rect = this._panel.getBoundingClientRect();
+            panelWidth = rect.width;
+            panelHeight = rect.height;
 
             if(this.hasLayoutPanel()) {
                 location = getLayoutPanelLocation(this.layoutPanel, this.element, width, height, panelWidth, panelHeight);
@@ -7876,11 +10281,11 @@ ui.ctrls.define("ui.ctrls.DropDownBase", {
 });
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/control/base/sidebar-base.js
 
-(function($, ui) {
+(function(ui, $) {
 //侧滑面板基类
 ui.ctrls.define("ui.ctrls.SidebarBase", {
     showTimeValue: 300,
@@ -7915,7 +10320,7 @@ ui.ctrls.define("ui.ctrls.SidebarBase", {
         if(this.option.hasCloseButton) {
             this._closeButton = $("<button class='ui-side-close-button font-highlight-hover' />");
             this._closeButton.append("<i class='fa fa-angle-right'></i>");
-            this._closeButton.click(function(e) {
+            this._closeButton.on("click", function(e) {
                 that.hide();
             });
         }
@@ -8073,11 +10478,11 @@ ui.ctrls.define("ui.ctrls.SidebarBase", {
 });
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/control/common/column-style.js
 
-(function($, ui) {
+(function(ui, $) {
 // column style 默认提供的GridView和ReportView的格式化器
 var spanKey = "_RowspanContext",
     hoverViewKey = "_HoverView";
@@ -8109,7 +10514,6 @@ columnFormatter = {
     /** 全选按钮 */
     checkAll: function (col) {
         var checkbox = $("<i class='fa fa-square grid-checkbox-all' />");
-        //checkbox.click(this.onCheckboxAllClickHandler);
         this.columnResetter.add(function () {
             checkbox.removeClass("fa-check-square").addClass("fa-square");
         });
@@ -8607,11 +11011,11 @@ ui.ColumnStyle = {
 };
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/control/common/mask.js
 
-(function($, ui) {
+(function(ui, $) {
 //全局遮罩
 ui.mask = {
     maskId: "#ui_mask_rectangle",
@@ -8621,7 +11025,7 @@ ui.mask = {
     open: function(target, option) {
         var mask = $(this.maskId),
             body = $(document.body),
-            offset;
+            rect;
         if(ui.core.isPlainObject(target)) {
             option = target;
             target = null;
@@ -8652,10 +11056,7 @@ ui.mask = {
             this._mask_animator = ui.animator({
                 target: mask,
                 onChange: function (op) {
-                    this.target.css({
-                        "opacity": op / 100,
-                        "filter": "Alpha(opacity=" + op + ")"
-                    });
+                    this.target.css("opacity", op / 100);
                 }
             });
             this._mask_animator.duration = 500;
@@ -8677,20 +11078,19 @@ ui.mask = {
                 height: document.documentElement.clientHeight + "px"
             });
         } else {
-            offset = target.offset();
+            rect = target.getBoundingClientRect();
             mask.css({
-                top: offset.top + "px",
-                left: offset.left + "px",
-                width: target.outerWidth() + "px",
-                height: target.outerHeight() + "px"
+                top: rect.top + "px",
+                left: rect.left + "px",
+                width: rect.width + "px",
+                height: rect.height + "px"
             });
         }
         
         if(option.animate) {
             mask.css({
                 "display": "block",
-                "opacity": "0",
-                "filter": "Alpha(opacity=0)"
+                "opacity": "0"
             });
             this._mask_animator[0].begin = 0;
             this._mask_animator[0].end = option.opacity * 100;
@@ -8698,7 +11098,6 @@ ui.mask = {
         } else {
             mask.css({
                 "display": "block",
-                "filter": "Alpha(opacity=" + (option.opacity * 100) + ")",
                 "opacity": option.opacity
             });
         }
@@ -8728,11 +11127,11 @@ ui.mask = {
     }
 };
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/control/common/pager.js
 
-(function($, ui) {
+(function(ui, $) {
 //控件分页逻辑，GridView, ReportView, flowView
 var pageHashPrefix = "page";
 function Pager(option) {
@@ -8877,7 +11276,7 @@ Pager.prototype = {
                     that.pageChangedHandler();
                 });
             }
-            this.pageNumPanel.click(function(e) {
+            this.pageNumPanel.on("click", function(e) {
                 var btn = $(e.target);
                 if (btn.nodeName() !== "A")
                     return;
@@ -8947,11 +11346,11 @@ Pager.prototype = {
 ui.ctrls.Pager = Pager;
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/control/box/dialog-box.js
 
-(function($, ui) {
+(function(ui, $) {
 var defaultWidth = 640,
     defaultHeight = 480,
     showStyles,
@@ -9192,7 +11591,7 @@ ctrlHandlers = {
         closeBtn = $("<a href='javascript:void(0)'>×</a>");
         closeBtn.attr("class", option.className || "closable-button font-highlight-hover");
 
-        closeBtn.click(function() {
+        closeBtn.on("click", function() {
             that.hide();
         });
 
@@ -9205,7 +11604,7 @@ ctrlHandlers = {
         maximizableButton = $("<a href='javascript:void(0)'><i class='fa fa-window-maximize'></i></a>");
         maximizableButton.attr("class", option.className || "maximizable-button font-highlight-hover");
 
-        maximizableButton.click(function() {
+        maximizableButton.on("click", function() {
             that._maximize(!that.isMaximizeState, maximizableButton);
         });
 
@@ -9789,19 +12188,33 @@ ui.ctrls.define("ui.ctrls.DialogBox", {
         }
     },
     /** 设置大小并居中显示 */
-    setSize: function(newWidth, newHeight, parentWidth, parentHeight) {
-        var parentSize = this.getParentSize();
-        if(!ui.core.isNumber(parentWidth)) {
+    setSize: function(newWidth, newHeight, parentWidth, parentHeight, cssFn) {
+        var parentSize = this.getParentSize(),
+            isParentWidthNumber = ui.core.isNumber(parentWidth),
+            isParentHeightNumber = ui.core.isNumber(parentHeight);
+        if(!isParentWidthNumber) {
             parentWidth = parentSize.width;
         }
-        if(!ui.core.isNumber(parentHeight)) {
+        if(!isParentHeightNumber) {
             parentHeight = parentSize.height;
         }
+        if(isParentWidthNumber && isParentHeightNumber) {
+            this.getParentSize = function() {
+                return {
+                    width: parentWidth,
+                    height: parentHeight
+                }
+            };
+        }
         this._setSize(newWidth, newHeight);
-        this.box.css({
-            "top": (parentHeight - this.offsetHeight) / 2 + "px",
-            "left": (parentWidth - this.offsetWidth) / 2 + "px"
-        });
+        this.box.css(
+            ui.core.isFunction(cssFn) 
+                ? cssFn.call(this, parentWidth, parentHeight) 
+                : {
+                    "top": (parentHeight - this.offsetHeight) / 2 + "px",
+                    "left": (parentWidth - this.offsetWidth) / 2 + "px"
+                }
+        );
         if (this.maskable()) {
             this.mask.css("height", parentHeight + "px");
         }
@@ -9833,11 +12246,11 @@ ui.ctrls.DialogBox.setHideStyle = function(name, fn) {
 };
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/control/box/loading-box.js
 
-(function($, ui) {
+(function(ui, $) {
 // 加载提示框
 var loadingBox,
     loadingClass = "c_dotsPlaying";
@@ -9916,11 +12329,11 @@ ui.loadingHide = function() {
 };
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/control/box/message-box.js
 
-(function($, ui) {
+(function(ui, $) {
 // MessageBox
 var MessageType = {
         message: 0,
@@ -9986,10 +12399,10 @@ MessageBox.prototype = {
             });
             var close = $("<a href='javascript:void(0)' class='closable-button'>×</a>");
             var that = this;
-            close.click(function (e) {
+            close.on("click", function (e) {
                 that.hide(true);
             });
-            this.box.mouseenter(function (e) {
+            this.box.on("mouseenter", function (e) {
                 if (that.isClosing) {
                     return;
                 }
@@ -9999,7 +12412,7 @@ MessageBox.prototype = {
                     clearTimeout(that.hideHandler);
                 }
             });
-            this.box.mouseleave(function (e) {
+            this.box.on("mouseleave", function (e) {
                 that.waitSeconds(defaultWaitSeconds);
             });
 
@@ -10135,11 +12548,11 @@ ui.failedShow = function(text) {
 };
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/control/box/option-box.js
 
-(function($, ui) {
+(function(ui, $) {
 // OptionBox
 var contentTop = 40,
     buttonTop = 0,
@@ -10263,11 +12676,11 @@ ui.ctrls.define("ui.ctrls.OptionBox", ui.ctrls.SidebarBase, {
 });
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/control/select/chooser.js
 
-(function($, ui) {
+(function(ui, $) {
 
 /**
  * 选择器
@@ -10490,15 +12903,17 @@ function onItemClick(e) {
 }
 function onMousewheel(e) {
     var div, index, item, 
-        val, change, direction;
+        val, change, direction,
+        delta;
     e.stopPropagation();
 
     div = e.data.target;
     index = parseInt(div.attr("data-index"), 10);
     item = this.scrollData[index];
     val = this.option.itemSize + this.option.margin;
-    change = (-e.delta) * val;
-    direction = -e.delta > 0;
+    delta = Math.trunc(e.deltaY || -(e.wheelDelta));
+    change = delta * val;
+    direction = delta > 0;
     if(item.lastDirection === null) {
         item.lastDirection = direction;
     }
@@ -10541,6 +12956,8 @@ ui.ctrls.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
         return ["changing", "changed", "cancel", "listChanged"];
     },
     _create: function() {
+        var rect;
+
         this._super();
 
         // 存放当前的选择数据
@@ -10559,14 +12976,15 @@ ui.ctrls.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
             this.option.itemSize = defaultItemSize;
         }
 
-        this.width = this.element.outerWidth() - borderWidth * 2;
+        rect = this.element.getBoundingClientRect();
+        this.width = rect.width - borderWidth * 2;
         if (this.width < this.itemSize + (this.margin * 2)) {
             this.width = minWidth;
         }
 
-        this.onFocusHandler = $.proxy(onFocus, this);
-        this.onItemClickHandler = $.proxy(onItemClick, this);
-        this.onMousewheelHandler = $.proxy(onMousewheel, this);
+        this.onFocusHandler = onFocus.bind(this);
+        this.onItemClickHandler = onItemClick.bind(this);
+        this.onMousewheelHandler = onMousewheel.bind(this);
     },
     _render: function() {
         this.chooserPanel = $("<div class='ui-chooser-panel border-highlight' />");
@@ -10591,7 +13009,7 @@ ui.ctrls.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
         this._super({
             focus: this.onFocusHandler
         });
-        this.chooserPanel.click(function (e) {
+        this.chooserPanel.on("click", function (e) {
             e.stopPropagation();
         });
     },
@@ -10679,8 +13097,8 @@ ui.ctrls.define("ui.ctrls.Chooser", ui.ctrls.DropDownBase, {
 
             sizeData.width += tempWidth + temp + this.option.margin;
 
-            div.mousewheel({ target: div }, this.onMousewheelHandler);
-            div.click(this.onItemClickHandler);
+            div.on("wheel", { target: div }, this.onMousewheelHandler);
+            div.on("click", this.onItemClickHandler);
             
             ul = this._createList(item);
             div.append(ul);
@@ -10948,11 +13366,11 @@ $.fn.chooser = function(option) {
 };
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/control/select/color-picker.js
 
-(function($, ui) {
+(function(ui, $) {
 
 /**
  * Farbtastic Color Picker 1.2
@@ -11330,7 +13748,7 @@ $.fn.colorPicker = function (option) {
     
     colorPicker = ui.ctrls.DropDownBase(option, this);
     colorPickerPanel = $("<div class='ui-color-picker border-highlight' />");
-    colorPickerPanel.click(function (e) {
+    colorPickerPanel.on("click", function (e) {
         e.stopPropagation();
     });
 
@@ -11360,11 +13778,11 @@ $.fn.colorPicker = function (option) {
 
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/control/select/date-chooser.js
 
-(function($, ui) {
+(function(ui, $) {
 var selectedClass = "date-selected",
     yearSelectedClass = "year-selected",
     monthSelectedClass = "month-selected",
@@ -11641,6 +14059,7 @@ function onTimeMousewheel(e) {
     var elem,
         max,
         val,
+        delta,
         h, m, s;
 
     elem = $(e.target);
@@ -11654,7 +14073,8 @@ function onTimeMousewheel(e) {
     }
     val = elem.val();
     val = parseFloat(val);
-    val += -e.delta;
+    delta = Math.trunc(e.deltaY || -(e.wheelDelta));
+    val += delta;
     if (val < 0) {
         val = max - 1;
     } else if (val >= max) {
@@ -11784,7 +14204,7 @@ ui.ctrls.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
         this._calendarPanel
             .addClass("ui-date-chooser-panel")
             .addClass("border-highlight")
-            .click(function (e) {
+            .on("click", function (e) {
                 e.stopPropagation();
             });
 
@@ -11816,12 +14236,10 @@ ui.ctrls.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
     },
     _initCalendarChangeAnimator: function() {
         this.mcAnimator = ui.animator({
-            ease: ui.AnimationStyle.easeTo,
             onChange: function(val) {
                 this.target.css("left", val + "px");
             }
         }).add({
-            ease: ui.AnimationStyle.easeTo,
             onChange: function(val) {
                 this.target.css("left", val + "px");
             }
@@ -11839,14 +14257,14 @@ ui.ctrls.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
         this._settingPanel.append(yearTitle);
         // 后退
         prev = $("<div class='date-chooser-prev'/>");
-        prev.click({ value: -10 }, this.onYearChangedHandler);
+        prev.on("click", { value: -10 }, this.onYearChangedHandler);
         yearTitle.append(prev);
         this._yearPrev = prev;
         // 标题文字
         yearTitle.append("<div class='date-chooser-title'><span id='yearTitle'>" + this._language.year + "</span></div>");
         // 前进
         next = $("<div class='date-chooser-next'/>");
-        next.click({ value: 10 }, this.onYearChangedHandler);
+        next.on("click", { value: 10 }, this.onYearChangedHandler);
         yearTitle.append(next);
         this._yearNext = next;
         // 清除浮动
@@ -11874,7 +14292,7 @@ ui.ctrls.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
 
         yearPanel = $("<div class='date-chooser-year-panel' />");
         this._yearsTable = $("<table class='date-chooser-table' cellpadding='0' cellspacing='0' />");
-        this._yearsTable.click(this.onYearSelectedHandler);
+        this._yearsTable.on("click", this.onYearSelectedHandler);
         tbody = $("<tbody />");
         for(i = 0; i < 3; i++) {
             tr = $("<tr />");
@@ -11896,7 +14314,7 @@ ui.ctrls.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
 
         monthPanel = $("<div class='date-chooser-month-panel' />");
         this._monthsTable = $("<table class='date-chooser-table' cellpadding='0' cellspacing='0' />");
-        this._monthsTable.click(this.onMonthSelectedHandler);
+        this._monthsTable.on("click", this.onMonthSelectedHandler);
         tbody = $("<tbody />");
         index = 0;
         for (i = 0; i < 3; i++) {
@@ -11944,19 +14362,19 @@ ui.ctrls.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
         titlePanel = $("<div class='date-chooser-calendar-title' />");
         // 后退
         prev = $("<div class='date-chooser-prev' />");
-        prev.click({ value: -1 }, this.onMonthChangedHandler);
+        prev.on("click", { value: -1 }, this.onMonthChangedHandler);
         titlePanel.append(prev);
         this._monthPrev = prev;
         // 标题
         dateTitle = $("<div class='date-chooser-title' />");
         this._linkBtn = $("<a href='javascript:void(0)' class='date-chooser-title-text font-highlight' />");
-        this._linkBtn.click(this.onCalendarTitleClickHandler);
+        this._linkBtn.on("click", this.onCalendarTitleClickHandler);
         this._updateCalendarTitle();
         dateTitle.append(this._linkBtn);
         titlePanel.append(dateTitle);
         // 前进
         next = $("<div class='date-chooser-next' />");
-        next.click({ value: 1 }, this.onMonthChangedHandler);
+        next.on("click", { value: 1 }, this.onMonthChangedHandler);
         titlePanel.append(next);
         this._monthNext = next;
 
@@ -12003,7 +14421,7 @@ ui.ctrls.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
         daysPanel.append(this._currentDays);
         daysPanel.append(this._nextDays);
 
-        daysPanel.click(this.onDayItemClickHandler);
+        daysPanel.on("click", this.onDayItemClickHandler);
 
         return daysPanel;
     },
@@ -12055,7 +14473,7 @@ ui.ctrls.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
             this.secondText.textinput(this.onTimeTextinputHandler);
             ctrlPanel.append(this.secondText);
 
-            ctrlPanel.mousewheel(this.onTimeMousewheelHandler);
+            ctrlPanel.on("wheel", this.onTimeMousewheelHandler);
         } else {
             this._setTodayButton(function() {
                 this._todayButton = this._createButton(
@@ -12101,7 +14519,7 @@ ui.ctrls.define("ui.ctrls.DateChooser", ui.ctrls.DropDownBase, {
             btn.css(css);
         }
         if(eventFn) {
-            btn.click(eventFn);
+            btn.on("click", eventFn);
         }
         return btn;
     },
@@ -12779,18 +15197,18 @@ $.fn.dateChooser = function(option) {
 
         ui.hideAll(currentDateChooser);
         currentDateChooser.show();
-    }).click(function(e) {
+    }).on("click", function(e) {
         e.stopPropagation();
     });
     return currentDateChooser;
 };
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/control/select/selection-list.js
 
-(function($, ui) {
+(function(ui, $) {
 
 /**
  * 自定义下拉列表
@@ -12926,7 +15344,7 @@ ui.ctrls.define("ui.ctrls.SelectionList", ui.ctrls.DropDownBase, {
     },
     _render: function() {
         this.listPanel = $("<div class='ui-selection-list-panel border-highlight' />");
-        this.listPanel.click(this.onItemClickHandler);
+        this.listPanel.on("click", this.onItemClickHandler);
 
         this.wrapElement(this.element, this.listPanel);
 
@@ -13243,11 +15661,11 @@ $.fn.selectionList = function (option) {
 };
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/control/select/selection-tree.js
 
-(function($, ui) {
+(function(ui, $) {
 /**
  * 树形下拉列表，可以完美的解决多级联动下拉列表的各种弊端
  * 支持单项选择和多项选择
@@ -13500,7 +15918,7 @@ ui.ctrls.define("ui.ctrls.SelectionTree", ui.ctrls.DropDownBase, {
     },
     _render: function() {
         this.treePanel = $("<div class='ui-selection-tree-panel border-highlight' />");
-        this.treePanel.click(this.onTreeItemClickHandler);
+        this.treePanel.on("click", this.onTreeItemClickHandler);
         this.wrapElement(this.element, this.treePanel);
 
         this._showClass = "ui-selection-tree-show";
@@ -14128,11 +16546,11 @@ $.fn.selectionTree = function (option) {
 };
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/control/select/selection-tree4autocomplete.js
 
-(function($, ui) {
+(function(ui, $) {
 
 /**
  * 支持自动完成的下拉树
@@ -14308,7 +16726,7 @@ ui.ctrls.define("ui.ctrls.AutocompleteSelectionTree", ui.ctrls.SelectionTree, {
         if(!dl) {
             dl = this._autoCompleteList = $("<dl class='autocomplete-dl' />");
             dl.hide();
-            dl.click(this.onClickHandler)
+            dl.on("click", this.onClickHandler)
                 .mouseover(this.onMouseoverHandler);
             this.treePanel.append(dl);
         } else {
@@ -14410,11 +16828,11 @@ $.fn.autocompleteSelectionTree = function(option) {
 };
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/control/view/calendar-view.js
 
-(function($, ui) {
+(function(ui, $) {
 // CalendarView
 var controlName = "ui.ctrls.CalendarView",
     timeTitleWidth = 80,
@@ -14448,7 +16866,12 @@ function formatTime (date, beginDate) {
         twoNumberFormatter(s)].join("");
 }
 function defaultFormatDateHeadText(date) {
-    return (date.getMonth() + 1) + " / " + date.getDate() + "（" + language.sundayFirstWeek[date.getDay()] + "）";
+    return [
+        "<span", this.calendar.isWeekend(date.getDay()) ? " class='ui-calendar-weekend'" : "", ">",
+        (date.getMonth() + 1), " / ", date.getDate(), 
+        "（" + language.sundayFirstWeek[date.getDay()],  "）", 
+        "</span>"
+    ].join("");
 }
 
 // 事件处理
@@ -14621,7 +17044,7 @@ YearView.prototype = {
                 height: unitHeight + "px"
             });
             cell.children(".year-month-content")
-                .css("height", unitHeight - 48 + "px");
+                .css("height", unitHeight - 40 + "px");
             oddFn.call(this, cell, count, i);
         }
     },
@@ -14665,7 +17088,7 @@ YearView.prototype = {
             } else {
                 flag = "<th class='year-month-table-head'>";
             }
-            row.append(flag + week[i] + "</th>");
+            row.append(flag + "<span>" + week[i] + "</span></th>");
         }
         thead.append(row);
 
@@ -14703,7 +17126,7 @@ YearView.prototype = {
         content.empty().append(table);
 
         table.data("month", month);
-        table.click(this.onYearItemClickHandler);
+        table.on("click", this.onYearItemClickHandler);
     },
     _isDateCell: function(td) {
         return !td.hasClass("ui-calendar-empty") && td.children().length > 0;
@@ -15078,7 +17501,7 @@ MonthView.prototype = {
 
         if (!this.daysTable) {
             this.daysTable = $("<table class='month-days-table unselectable' cellspacing='0' cellpadding='0' />");
-            this.daysTable.click(this.onMonthItemClickHandler);
+            this.daysTable.on("click", this.onMonthItemClickHandler);
         } else {
             this.daysTable.html("");
         }
@@ -15591,7 +18014,7 @@ WeekView.prototype = {
             colgroup.append("<col />");
 
             th = $("<th class='weekday-cell' />");
-            th.text(this._formatDayText(day));
+            th.html(this._formatDayText(day));
             tr.append(th);
         }
 
@@ -15599,7 +18022,7 @@ WeekView.prototype = {
         this.weekTable.append(colgroup).append(thead);
         this.weekDayPanel.append(this.weekTable);
 
-        this.weekTable.click(this.onWeekHeadItemClickHandler);
+        this.weekTable.on("click", this.onWeekHeadItemClickHandler);
     },
     _createHourName: function() {
         var table, colgroup, tbody, 
@@ -15758,7 +18181,7 @@ WeekView.prototype = {
         for (i = 0; i < 7; i++) {
             day = this.weekDays[i];
             th = $(tr.cells[i]);
-            th.text(this._formatDayText(day));
+            th.html(this._formatDayText(day));
             // 将样式恢复成初始值
             th.attr("class", "weekday-cell");
         }
@@ -15863,22 +18286,28 @@ WeekView.prototype = {
         this._setTodayStyle();
     },
     _getUnitHourNameHeight: function() {
-        var table;
+        var table, rect;
         if(!this.hourNames) {
             return hourHeight;
         }
         table = this.hourNames.children("table")[0];
-        return $(table.tBodies[0].rows[0].cells[1]).outerHeight() / this.calendar._getTimeCellCount();
+        rect = table.tBodies[0].rows[0].cells[1].getBoundingClientRect();
+        return rect.height / this.calendar._getTimeCellCount();
     },
     _getPositionAndSize: function(td) {
-        var position = td.position();
+        var position, rect;
+        
+        position = td.position();
         position.left = position.left + timeTitleWidth;
         position.top = position.top;
+
+        rect = td.getBoundingClientRect();
+
         return {
             top: position.top,
             left: position.left,
-            width: td.outerWidth() - 1,
-            height: td.outerHeight() - 1
+            width: rect.width - 1,
+            height: rect.height - 1
         };
     },
     // API
@@ -16207,7 +18636,7 @@ DayView.prototype = {
                 this._formatDayText(this.calendar.currentDate) + "</span>");
         this.dayPanel.append(this.dayTitle);
 
-        this.dayTitle.click(this.onDayHeadItemClickHandler);
+        this.dayTitle.on("click", this.onDayHeadItemClickHandler);
     },
     _createHourName: WeekView.prototype._createHourName,
     _createHour: function() {
@@ -16663,18 +19092,23 @@ Selector.prototype = {
         var position = this.panel.offset();
         position.left = position.left + timeTitleWidth;
         return {
-            gridX: x - position.left + this.panel.scrollLeft(),
-            gridY: y - position.top + this.panel.scrollTop()
+            gridX: x - position.left + this.panel[0].scrollLeft,
+            gridY: y - position.top + this.panel[0].scrollTop
         };
     },
     _getPositionAndSize: function(td) {
-        var position = td.position();
+        var position, rect;
+        
+        position = td.position();
         position.left = position.left + timeTitleWidth;
+
+        rect = td.getBoundingClientRect();
+
         return {
             top: position.top - 2,
             left: position.left - 2,
-            width: td.outerWidth() - 1,
-            height: td.outerHeight() - 1
+            width: rect.width - 1,
+            height: rect.height - 1
         };
     },
 
@@ -16779,7 +19213,7 @@ Selector.prototype = {
             this.onSelectCompleted();
         }
     },
-    /** 选则完成处理 */
+    /** 选择完成处理 */
     onSelectCompleted: function() {
         var box,
             date, arr,
@@ -16819,7 +19253,7 @@ Selector.prototype = {
             eventData.top = selectorInfo.top;
             eventData.left = selectorInfo.left;
             eventData.parentWidth = selectorInfo.parentWidth;
-            eventData.parentWidth = selectorInfo.parentWidth;
+            eventData.parentHeight = selectorInfo.parentHeight;
             that.view.calendar.fire("selected", eventData);
         }, 50);
     },
@@ -16863,13 +19297,14 @@ Selector.prototype = {
         }
     },
     getSelectorInfo: function() {
-        var box = this.selectionBox;
+        var box = this.selectionBox,
+            rect = this.view.hourTable.getBoundingClientRect();
         return {
             element: box,
             top: parseFloat(box.css("top")),
             left: parseFloat(box.css("left")),
             parentWidth: this.view.viewPanel.width() - timeTitleWidth,
-            parentHeight: this.view.hourTable.outerHeight()
+            parentHeight: rect.height
         };
     },
     /** 获取选则的内容 */
@@ -17508,11 +19943,11 @@ ui.page.hlchanged(function(e, colorInfo) {
 });
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/control/view/card-view.js
 
-(function($, ui) {
+(function(ui, $) {
 // CardView
 
 var selectedClass = "ui-card-view-selection",
@@ -17713,7 +20148,7 @@ ui.ctrls.define("ui.ctrls.CardView", {
         this._initDataPrompt();
         this.element.append(this.viewBody);
         if(this.option.selection) {
-            this.viewBody.click(this.onBodyClickHandler);
+            this.viewBody.on("click", this.onBodyClickHandler);
         }
         this._initPagerPanel();
 
@@ -18512,11 +20947,11 @@ $.fn.cardView = function(option) {
 };
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/control/view/fold-view.js
 
-(function($, ui) {
+(function(ui, $) {
 // 折叠视图
 function onFoldTitleClick(e) {
     var elem,
@@ -18557,7 +20992,7 @@ FoldView.prototype = {
     constructor: FoldView,
     initialize: function(element) {
         this.element = element;
-        this.onFoldTitleClickHandler = $.proxy(onFoldTitleClick, this);
+        this.onFoldTitleClickHandler = onFoldTitleClick.bind(this);
     },
     _render: function() {
         var dtList,
@@ -18566,7 +21001,7 @@ FoldView.prototype = {
         dtList = this.element.children("dt");
         len = dtList.length;
         if(len > 0) {
-            this.element.click(this.onFoldTitleClickHandler);
+            this.element.on("click", this.onFoldTitleClickHandler);
         }
         for(i = 0; i < len; i++) {
             dt = $(dtList[i]);
@@ -18606,11 +21041,11 @@ $.fn.foldView = function() {
 };
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/control/view/grid-view-group.js
 
-(function($, ui) {
+(function(ui, $) {
 // GridViewGroup
 
 function defaultCreateGroupItem(groupKey) {
@@ -18771,11 +21206,11 @@ GridViewGroup.prototype = {
 ui.ctrls.GridViewGroup = GridViewGroup;
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/control/view/grid-view-tree.js
 
-(function($, ui) {
+(function(ui, $) {
 // GridViewTree
 
 var childrenField = "_children",
@@ -19179,11 +21614,11 @@ GridViewTree.prototype = {
 ui.ctrls.GridViewTree = GridViewTree;
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/control/view/grid-view.js
 
-(function($, ui) {
+(function(ui, $) {
 // grid view
 
 var cellCheckbox = "grid-checkbox",
@@ -19446,90 +21881,6 @@ function changeChecked(cbx) {
     }
 }
 
-// 事件代理
-function ClassEventDelegate() {
-    this.classEventMap = new ui.KeyArray();
-    this.length = 0;
-}
-ClassEventDelegate.prototype = {
-    getClassNames: function() {
-        return this.classEventMap.keys();
-    },
-    call: function(className) {
-        var args = Array.prototype.slice.call(arguments, 1),
-            handler = this.classEventMap.get(className);
-        if(Array.isArray(handler)) {
-            handler.forEach(function(h) {
-                h.apply(null, args);
-            });
-        } else {
-            handler.apply(null, args);
-        }
-    },
-    add: function(className, handler, isMultiple) {
-        var old;
-        if(!ui.core.isFunction(handler)) {
-            throw new TypeError("the delegate event handler is not a function.");
-        }
-
-        old = this.classEventMap.get(className);
-        if(isMultiple) {
-            if(Array.isArray(old)) {
-                old.push(handler);
-                handler = old;
-            } else if(ui.core.isFunction(old)) {
-                handler = [old, handler];
-            }
-        }
-        this.classEventMap.set(className, handler);
-        this.length = this.classEventMap.length;
-    },
-    remove: function(className, handler) {
-        var old;
-        if(ui.core.isFunction(handler)) {
-            old = this.classEventMap.get(className);
-            if(Array.isArray(old)) {
-                this.classEventMap.set(className, old.filter(function(item) {
-                    return item === handler;
-                }));
-            } else {
-                this.classEventMap.remove(className);
-            }
-        } else {
-            this.classEventMap.remove(className);
-        }
-        this.length = this.classEventMap.length;
-    },
-    has: function(className) {
-        return this.classEventMap.containsKey(className);
-    }
-};
-
-// 事件处理函数
-// 点击事件代理
-function clickDelegate(e) {
-    var elem = $(e.target),
-        i, len, classNames, className;
-    
-    len = this.clickHandlers ? this.clickHandlers.length : 0;
-    if(len === 0) {
-        return;
-    }
-    classNames = this.clickHandlers.getClassNames();
-    while (true) {
-        if (elem.length === 0 || elem.hasClass("ui-grid-view")) {
-            return;
-        }
-        for(i = 0; i < len; i++) {
-            className = classNames[i];
-            if(elem.hasClass(className)) {
-                this.clickHandlers.call(className, e, elem);
-                return;
-            }
-        }
-        elem = elem.parent();
-    }
-}
 // 排序点击事件处理
 function onSort(e, element) {
     var viewData,
@@ -19581,11 +21932,6 @@ function onBodyClick(e, element) {
     element.context = e.target;
 
     this._selectItem(element, selectedClass);
-}
-// 横向滚动条跟随事件处理
-function onScrolling(e) {
-    this.head.scrollLeft(
-        this.body.scrollLeft());
 }
 // 全选按钮点击事件处理
 function onCheckboxAllClick(e) {
@@ -19668,6 +22014,12 @@ function onCheckboxAllClick(e) {
         this._checkedCount = 0;
     }
 }
+// 横向滚动条跟随事件处理
+function onScrolling(e) {
+    var headDiv = this.head[0],
+        bodyDiv = this.body[0];
+    headDiv.scrollLeft = bodyDiv.scrollLeft;
+}
 
 // 提示信息
 function Prompt(view, text) {
@@ -19707,7 +22059,6 @@ Prompt.prototype = {
         }
     }
 };
-
 
 ui.ctrls.define("ui.ctrls.GridView", {
     _defineOption: function() {
@@ -19817,7 +22168,7 @@ ui.ctrls.define("ui.ctrls.GridView", {
         }
 
         // event handlers
-        this.clickHandlers = new ClassEventDelegate();
+        this.clickHandlers = this.createClassEventDelegate("click");
         // 排序列点击事件
         this.clickHandlers.add(sortColumn, onSort.bind(this));
         // 全选按钮点击事件
@@ -19835,9 +22186,13 @@ ui.ctrls.define("ui.ctrls.GridView", {
         if(!this.element.hasClass("ui-grid-view")) {
             this.element.addClass("ui-grid-view");
         }
-        this.element.click((function(e) {
-            clickDelegate.call(this, e);
-        }).bind(this));
+        this.element.on(
+            "click", 
+            this.clickHandlers
+                .getDelegateHandler(function(elem) {
+                    return elem.hasClass("ui-grid-view");
+                })
+                .bind(this));
         this._initBorderWidth();
 
         // 表头
@@ -19845,7 +22200,7 @@ ui.ctrls.define("ui.ctrls.GridView", {
         this.element.append(this.head);
         // 表体
         this.body = $("<div class='ui-grid-body' />");
-        this.body.scroll(this.onScrollingHandler);
+        this.body.on("scroll", this.onScrollingHandler);
         this.element.append(this.body);
         // 信息提示
         this.prompt = new Prompt(this, this.option.prompt);
@@ -20022,8 +22377,10 @@ ui.ctrls.define("ui.ctrls.GridView", {
         this.pager.renderPageList(rowCount);
     },
     _updateScrollState: function() {
+        var scrollHeight = this.body[0].scrollHeight;
+        var height = this.body.height();
         if (!this.headTable) return;
-        if(this.body[0].scrollHeight > this.body.height()) {
+        if(scrollHeight - height > 1) {
             this._headScrollCol.css("width", ui.scrollbarWidth + 0.1 + "px");
         } else {
             this._headScrollCol.css("width", "0");
@@ -20244,7 +22601,7 @@ ui.ctrls.define("ui.ctrls.GridView", {
             tr.append(th);
         }
 
-        this._headScrollCol = $("<col style='width:0' />");
+        this._headScrollCol = this._createCol({ len: 0 });
         colGroup.append(this._headScrollCol);
         tr.append($("<th class='ui-table-head-cell scroll-cell' />"));
         thead.append(tr);
@@ -20717,11 +23074,11 @@ $.fn.gridView = function(option) {
 };
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/control/view/list-view.js
 
-(function($, ui) {
+(function(ui, $) {
 //list view
 
 var indexAttr = "data-index";
@@ -20743,8 +23100,7 @@ function defaultSortFn(a, b) {
 function onListItemClick(e) {
     var elem,
         isCloseButton,
-        index,
-        data;
+        index;
 
     elem = $(e.target);
     isCloseButton = elem.hasClass("ui-item-view-remove");
@@ -20806,7 +23162,7 @@ ui.ctrls.define("ui.ctrls.ListView", {
         this.element.addClass("ui-list-view");
 
         this.listPanel = $("<ul class='ui-list-view-ul' />");
-        this.listPanel.click(this.onListItemClickHandler);
+        this.listPanel.on("click", this.onListItemClickHandler);
         this.element.append(this.listPanel);
 
         if(this.option.pager) {
@@ -20936,15 +23292,15 @@ ui.ctrls.define("ui.ctrls.ListView", {
                 container.html(content.html);
             }
         }
+        li.append(container);
         
         this._appendOperateElements(builder);
-        container.append(builder.join(""));
-        li.append(container);
+        li.append(builder.join(""));
 
         return li;
     },
     _appendOperateElements: function(builder) {
-        builder.push("<b class='ui-list-view-b background-highlight' />");
+        builder.push("<b class='ui-list-view-b background-highlight'></b>");
         if(this.option.hasRemoveButton) {
             builder.push("<a href='javascript:void(0)' class='closable-button ui-item-view-remove'>×</a>");
         }
@@ -21008,7 +23364,7 @@ ui.ctrls.define("ui.ctrls.ListView", {
             if(this.isMultiple()) {
                 for(i = 0; i < this._selectList.length; i++) {
                     if(elem[0] === this._selectList[i]) {
-                        this._selectList(i, 1);
+                        this._selectList.splice(i, 1);
                         break;
                     }
                 }
@@ -21361,11 +23717,11 @@ $.fn.listView = function(option) {
 };
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/control/view/report-view.js
 
-(function($, ui) {
+(function(ui, $) {
 // Report View
 
 var lastCell = "last-cell",
@@ -21639,10 +23995,13 @@ function onSort(e, element) {
 }
 // 滚动条同步事件
 function onScrolling(e) {
-    var scrollTop = this.reportDataBody.scrollTop(),
-        scrollLeft = this.reportDataBody.scrollLeft();
-    this.reportDataHead.scrollLeft(scrollLeft);
-    this.fixed.syncScroll(scrollTop, scrollLeft, this.reportDataBody[0].scrollWidth);
+    var reportDataBodyElement = this.reportDataBody[0],
+        reportDataHeadElement = this.reportDataHead[0],
+        scrollTop = reportDataBodyElement.scrollTop,
+        scrollLeft = reportDataBodyElement.scrollLeft;
+
+    reportDataHeadElement.scrollLeft = scrollLeft;
+    this.fixed.syncScroll(scrollTop, scrollLeft, reportDataBodyElement.scrollWidth);
 }
 
 ui.ctrls.define("ui.ctrls.ReportView", ui.ctrls.GridView, {
@@ -21668,12 +24027,12 @@ ui.ctrls.define("ui.ctrls.ReportView", ui.ctrls.GridView, {
 
         // 滚动条占位符对象
         this._headScrollColumn = {
-            addScrollCol: function(tr, colGroup) {
+            addScrollCol: function(tr, colGroup, context) {
                 var rows,
                     rowspan,
                     th;
 
-                this.scrollCol = $("<col style='width:0' />");
+                this.scrollCol = context._createCol({ len: 0 });
                 colGroup.append(this.scrollCol);
             
                 rows = tr.parent().children();
@@ -21917,7 +24276,7 @@ ui.ctrls.define("ui.ctrls.ReportView", ui.ctrls.GridView, {
         this._createHeadTable(this.headTable, columns, groupColumns, false, null, 
             // 创建滚动条适应列
             function(table, tr, groupCol) {
-                this._headScrollColumn.addScrollCol(tr, groupCol);
+                this._headScrollColumn.addScrollCol(tr, groupCol, this);
             });
         this.reportDataHead.append(this.headTable);
     },   
@@ -21939,7 +24298,7 @@ ui.ctrls.define("ui.ctrls.ReportView", ui.ctrls.GridView, {
         var isRebind = false;
         if (!this.reportDataBody) {
             this.reportDataBody = $("<div class='data-body' />");
-            this.reportDataBody.scroll(this.onScrollingHandler);
+            this.reportDataBody.on("scroll", this.onScrollingHandler);
             this.body.append(this.reportDataBody);
         } else {
             this.reportDataBody.html("");
@@ -21963,8 +24322,10 @@ ui.ctrls.define("ui.ctrls.ReportView", ui.ctrls.GridView, {
             // 初始化滚动条状态
             this._updateScrollState();
             ui.setTask((function() {
-                var scrollLeft = this.reportDataBody.scrollLeft(),
-                    scrollWidth = this.reportDataBody[0].scrollWidth;
+                var reportDataBodyElement = this.reportDataBody[0],
+                    scrollLeft = reportDataBodyElement.scrollLeft,
+                    scrollWidth = reportDataBodyElement.scrollWidth;
+                    
                 this.fixed.syncScroll(0, scrollLeft, scrollWidth);
             }).bind(this));
         }
@@ -22043,7 +24404,7 @@ ui.ctrls.define("ui.ctrls.ReportView", ui.ctrls.GridView, {
                         this.sorter.setSortColumn(th, columnObj, j);
                         // 设置列宽拖动把手
                         if(this.option.adjustable && !renderFixed) {
-                            th.append("<b class='adjust-column-handle' />");
+                            th.append("<b class='adjust-column-handle'></b>");
                         }
                         
                     }
@@ -22136,7 +24497,7 @@ ui.ctrls.define("ui.ctrls.ReportView", ui.ctrls.GridView, {
         scrollWidth = this.reportDataBody[0].scrollWidth;
         scrollHeight = this.reportDataBody[0].scrollHeight;
 
-        if (scrollHeight > height) {
+        if (scrollHeight - height > 1) {
             // Y轴滚动条出现
             this._headScrollColumn.show();
         } else {
@@ -22423,11 +24784,11 @@ $.fn.reportView = function(option) {
 };
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/control/view/tab-view.js
 
-(function($, ui) {
+(function(ui, $) {
 // TabView
 
 var selectedClass = "ui-tab-selection";
@@ -22619,11 +24980,11 @@ Tab.prototype = {
         that = this;
         if(tabView.isHorizontal) {
             this.animator[0].onChange = function(val) {
-                tabView.bodyPanel.scrollLeft(val);
+                tabView.bodyPanel[0].scrollLeft = val;
             };
             this.bodyShow = function(index) {
                 that.animator.stop();
-                that.animator[0].begin = tabView.bodyPanel.scrollLeft();
+                that.animator[0].begin = tabView.bodyPanel[0].scrollLeft;
                 that.animator[0].end = index * tabView.bodyWidth;
                 return that.animator.start();
             };
@@ -22655,7 +25016,7 @@ Tab.prototype = {
         tabView.tabs.addClass("font-highlight-hover");
 
         that = this;
-        tabView.tabPanel.click(function(e) {
+        tabView.tabPanel.on("click", function(e) {
             var elem = $(e.target);
             while(!elem.hasClass("ui-tab-button")) {
                 if(elem[0] === tabView.tabPanel[0]) {
@@ -22714,9 +25075,9 @@ Tab.prototype = {
     bodySet: function(index) {
         var tabView = this.tabView;
         if(tabView.isHorizontal) {
-            tabView.bodyPanel.scrollLeft(tabView.bodyWidth * index);
+            tabView.bodyPanel[0].scrollLeft = tabView.bodyWidth * index;
         } else {
-            tabView.bodyPanel.scrollTop(tabView.bodyHeight * index);
+            tabView.bodyPanel[0].scrollTop = tabView.bodyHeight * index;
         }
     },
     showIndex: function(index, animation) {
@@ -22982,11 +25343,11 @@ TabManager.prototype = {
 ui.ctrls.TabView.TabManager = TabManager;
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/control/view/tree-view.js
 
-(function($, ui) {
+(function(ui, $) {
 
 /**
  * 树形列表
@@ -23003,7 +25364,7 @@ ui.ctrls.define("ui.ctrls.TreeView", ui.ctrls.SelectionTree, {
             .addClass("ui-selection-tree-panel")
             .addClass("ui-tree-view-panel")
             .css("position", position);
-        this.treePanel.click(this.onTreeItemClickHandler);
+        this.treePanel.on("click", this.onTreeItemClickHandler);
 
         if (Array.isArray(this.option.viewData)) {
             this._fill(this.option.viewData);
@@ -23019,11 +25380,11 @@ $.fn.treeView = function(option) {
 };
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/control/tools/confirm-button.js
 
-(function($, ui) {
+(function(ui, $) {
 /* 确认按钮 */
 
 function noop() {}
@@ -23079,7 +25440,7 @@ ui.ctrls.define("ui.ctrls.ConfirmButton", {
         this.option.disabled = !!this.option.disabled;
 
         // 事件处理函数
-        this.onButtonClickHandler = $.proxy(onButtonClick, this);
+        this.onButtonClickHandler = onButtonClick.bind(this);
 
         this.defineProperty("disabled", this.getDisabled, this.setDisabled);
         this.defineProperty("text", this.getText, this.setText);
@@ -23107,7 +25468,7 @@ ui.ctrls.define("ui.ctrls.ConfirmButton", {
             .empty()
             .append(textState)
             .append(confirmState);
-        this.element.click(this.onButtonClickHandler);
+        this.element.on("click", this.onButtonClickHandler);
         
         this._initAnimation(textState, confirmState);
         
@@ -23222,11 +25583,11 @@ $.fn.confirmClick = function(option) {
 };
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/control/tools/extend-button.js
 
-(function($, ui) {
+(function(ui, $) {
 /* 扩展按钮 */
 ui.ctrls.define("ui.ctrls.ExtendButton", {
     _defineOption: function() {
@@ -23336,12 +25697,12 @@ ui.ctrls.define("ui.ctrls.ExtendButton", {
         this.parent.append(this.buttonPanel);
         this.buttonPanelBGBorderWidth = parseFloat(this.buttonPanelBackground.css("border-top-width")) || 0;
         
-        this.element.click(function(e) {
+        this.element.on("click", function(e) {
             e.stopPropagation();
             that.show();
         });
         if(this.hasCloseButton) {
-            this.centerIcon.click(function(e) {
+            this.centerIcon.on("click", function(e) {
                 that.hide();
             });
         } else {
@@ -23349,7 +25710,7 @@ ui.ctrls.define("ui.ctrls.ExtendButton", {
                 that.hide();
             });
         }
-        this.buttonPanel.click(function(e) {
+        this.buttonPanel.on("click", function(e) {
             e.stopPropagation();
         });
     },
@@ -23375,10 +25736,7 @@ ui.ctrls.define("ui.ctrls.ExtendButton", {
         }).add({
             target: this.buttonPanelBackground,
             onChange: function(op) {
-                this.target.css({
-                    "opacity": op / 100,
-                    "filter": "Alpha(opacity=" + op + ")"
-                });
+                this.target.css("opacity", op / 100);
             }
         });
         this.buttonPanelAnimator.duration =240;
@@ -23387,9 +25745,11 @@ ui.ctrls.define("ui.ctrls.ExtendButton", {
         this.buttonAnimator.duration = 240;
     },
     _getElementCenter: function() {
-        var position = this.isBodyInside ? this.element.offset() : this.element.position();
-        position.left = position.left + this.element.outerWidth() / 2;
-        position.top = position.top + this.element.outerHeight()/ 2;
+        var 
+            position = this.isBodyInside ? this.element.offset() : this.element.position(),
+            rect = this.element.getBoundingClientRect();
+        position.left = position.left + rect.width / 2;
+        position.top = position.top + rect.height / 2;
         return position;
     },
     _setButtonPanelAnimationOpenValue: function(animator) {
@@ -23556,7 +25916,7 @@ ui.ctrls.define("ui.ctrls.ExtendButton", {
         });
         
         if(ui.core.isFunction(button.handler)) {
-            button.elem.click(function(e) {
+            button.elem.on("click", function(e) {
                 button.handler.call(that, button);
             });
         }
@@ -23626,11 +25986,11 @@ $.fn.extendButton = function(option) {
 };
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/control/tools/filter-button.js
 
-(function($, ui) {
+(function(ui, $) {
 /* 内容过滤选择器 */
 var prefix = "filter_button_",
     filterCount = 0;
@@ -23669,7 +26029,7 @@ ui.ctrls.define("ui.ctrls.FilterButton", {
         this.radioName = prefix + (filterCount++);
         this._current = null;
 
-        this.onItemClickHandler = $.proxy(onItemClick, this);
+        this.onItemClickHandler = onItemClick.bind(this);
 
         viewData = this.getViewData();
         for (i = 0, len = viewData.length; i < len; i++) {
@@ -23682,7 +26042,7 @@ ui.ctrls.define("ui.ctrls.FilterButton", {
         if (this.option.filterCss) {
             this.filterPanel.css(this.option.filterCss);
         }
-        this.filterPanel.click(this.onItemClickHandler);
+        this.filterPanel.on("click", this.onItemClickHandler);
         this.parent.append(this.filterPanel);
 
         if (!ui.core.isNumber(this.option.defaultIndex) || this.option.defaultIndex >= len || this.option.defaultIndex < 0) {
@@ -23861,11 +26221,11 @@ $.fn.filterButton = function (option) {
 };
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/control/tools/hover-view.js
 
-(function($, ui) {
+(function(ui, $) {
 /* 悬停视图 */
 var guid = 1;
 // 鼠标移动处理事件
@@ -23890,6 +26250,7 @@ function onDocumentMousemove (e) {
     };
     pl.bottom = pl.top + this.height;
     pl.right = pl.left + this.width;
+    console.log([pl.left, pl.right, tl.left, tl.right]);
 
     //差值
     var xdv = -1,
@@ -23918,7 +26279,7 @@ function onDocumentMousemove (e) {
         ydv = y - b;
     }
 
-    if (xdv == -1 && ydv == -1) {
+    if (xdv === -1 && ydv === -1) {
         xdv = 0;
         if (x >= tl.left && x <= tl.right) {
             if (y <= tl.top - this.buffer || y >= tl.bottom + this.buffer) {
@@ -23931,11 +26292,8 @@ function onDocumentMousemove (e) {
                 ydv = y - pl.bottom;
             }
         }
-        if (ydv == -1) {
-            this.viewPanel.css({
-                "opacity": 1,
-                "filter": "Alpha(opacity=100)"
-            });
+        if (ydv === -1) {
+            this.viewPanel.css("opacity", 1);
             return;
         }
     }
@@ -23947,13 +26305,11 @@ function onDocumentMousemove (e) {
 
     var opacity = 1.0 - ((xdv > ydv ? xdv : ydv) / this.buffer);
     if (opacity < 0.2) {
+        console.log("hide");
         this.hide();
         return;
     }
-    this.viewPanel.css({
-        "opacity": opacity,
-        "filter": "Alpha(opacity=" + (opacity * 100) + ")"
-    });
+    this.viewPanel.css("opacity", opacity);
 }
 
 
@@ -23976,8 +26332,8 @@ ui.ctrls.define("ui.ctrls.HoverView", {
         });
         $(document.body).append(this.viewPanel);
 
-        this.width = this.viewPanel.outerWidth();
-        this.height = this.viewPanel.outerHeight();
+        this.width = null;
+        this.height = null;
 
         this.target = null;
         this.targetWidth = null;
@@ -24001,10 +26357,7 @@ ui.ctrls.define("ui.ctrls.HoverView", {
             target: this.viewPanel,
             ease: ui.AnimationStyle.easeFrom,
             onChange: function(val) {
-                this.target.css({
-                    "opacity": val / 100,
-                    "filter": "Alpha(opacity=" + val + ")"
-                });
+                this.target.css("opacity", val / 100);
             }
         }).add({
             target: this.viewPanel,
@@ -24053,16 +26406,12 @@ ui.ctrls.define("ui.ctrls.HoverView", {
     show: function (target) {
         var view = this,
             location,
-            option;
+            option,
+            rect;
 
         this.target = target;
 
         if (this.fire("showing") === false) return;
-
-        //update size
-        this.targetWidth = this.target.outerWidth();
-        this.targetHeight = this.target.outerHeight();
-        this.height = this.viewPanel.outerHeight();
 
         this.animator.stop();
         location = this.getLocation();
@@ -24095,6 +26444,16 @@ ui.ctrls.define("ui.ctrls.HoverView", {
         }
         this.isShow = true;
         this.viewPanel.css("display", "block");
+        
+        //update size
+        rect = this.target.getBoundingClientRect();
+        this.targetWidth = rect.width;
+        this.targetHeight = rect.height;
+
+        rect = this.target.getBoundingClientRect();
+        this.width = rect.width;
+        this.height = rect.height;
+
         this.animator.start().then(function() {
             view.addDocMousemove();
             view.fire("shown");
@@ -24140,11 +26499,11 @@ $.fn.addHoverView = function (view) {
 };
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/control/tools/progress.js
 
-(function($, ui) {
+(function(ui, $) {
 // Progress
 
 var circlePrototype,
@@ -24483,11 +26842,11 @@ $.fn.progress = function(option) {
 };
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/control/tools/slidebar.js
 
-(function($, ui) {
+(function(ui, $) {
 // Slidebar
 
 function prepareMove(arg) {
@@ -24573,14 +26932,16 @@ function onMouseup(e) {
 function onMouseWheel(e) {
     var lengthValue,
         arg,
-        stepValue;
+        stepValue,
+        delta;
 
     e.stopPropagation();
     if(this.mouseDragger._isDragStart) {
         return;
     }
     arg = {};
-    stepValue = (-e.delta) * 5;
+    delta = Math.trunc(e.deltaY || -(e.wheelDelta));
+    stepValue = delta * 5;
 
     if(this.isHorizontal()) {
         lengthValue = this.track.width();
@@ -24653,7 +27014,7 @@ ui.ctrls.define("ui.ctrls.Slidebar", {
         this._initScale();
         this._initMouseDragger();
         this.track.on("mouseup", this.onMouseupHandler);
-        this.element.mousewheel(this.onMouseWheelHandler);
+        this.element.on("wheel", this.onMouseWheelHandler);
 
         this.readonly = this.option.readonly;
         this.disabled = this.option.disabled;
@@ -24782,11 +27143,11 @@ $.fn.slidebar = function(option) {
 };
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/control/tools/switch-button.js
 
-(function($, ui) {
+(function(ui, $) {
 /* 开关按钮 */
 
 var normalStyle,
@@ -25048,11 +27409,11 @@ $.fn.switchButton = function(option) {
 };
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/control/tools/tag.js
 
-(function($, ui) {
+(function(ui, $) {
 // tag
 
 var size = {
@@ -25271,11 +27632,11 @@ ui.ctrls.Tag.addColor = function(name, color) {
 };
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/control/tools/uploader.js
 
-(function($, ui) {
+(function(ui, $) {
 // uploader
 /**
  * HTML上传工具，提供ajax和iframe两种机制，自动根据当前浏览器特性进行切换
@@ -25619,11 +27980,11 @@ $.fn.uploader = function(option) {
 };
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/control/images/image-preview.js
 
-(function($, ui) {
+(function(ui, $) {
 //图片预览视图
 
 function onChooserItemClick(e) {
@@ -25691,10 +28052,10 @@ ui.ctrls.define("ui.ctrls.ImagePreview", {
             .append(this.chooserNext);
         
         that = this;
-        this.chooserPrev.click(function(e) {
+        this.chooserPrev.on("click", function(e) {
             that.beforeItems();
         });
-        this.chooserNext.click(function(e) {
+        this.chooserNext.on("click", function(e) {
             that.afterItems();
         });
         
@@ -25707,7 +28068,7 @@ ui.ctrls.define("ui.ctrls.ImagePreview", {
         if(this.isHorizontal) {
             this.smallImageSize = this.chooser.height();
             this.chooserAnimator[0].onChange = function(val) {
-                this.target.scrollLeft(val);
+                this.target[0].scrollLeft = val;
             };
             showCss = {
                 "width": buttonSize + "px",
@@ -25779,7 +28140,7 @@ ui.ctrls.define("ui.ctrls.ImagePreview", {
                 });
             };
         }
-        this.chooserQueue.click(this._onChooserItemClickHandler);
+        this.chooserQueue.on("click", this._onChooserItemClickHandler);
         
         this.setImages(this.option.images);
     },
@@ -25788,7 +28149,7 @@ ui.ctrls.define("ui.ctrls.ImagePreview", {
             height,
             marginValue, 
             i, len, image,
-            item, img,
+            item, img, rect,
             css;
 
         marginValue = 0;
@@ -25812,12 +28173,13 @@ ui.ctrls.define("ui.ctrls.ImagePreview", {
             item.append(img);
             this.chooserQueue.append(item);
 
+            rect = item.getBoundingClientRect();
             if(this.isHorizontal) {
                 item.css("left", marginValue + "px");
-                marginValue += this.option.imageMargin + item.outerWidth();
+                marginValue += this.option.imageMargin + rect.width;
             } else {
                 item.css("top", marginValue + "px");
-                marginValue += this.option.imageMargin + item.outerHeight();
+                marginValue += this.option.imageMargin + rect.height;
             }
             this.items.push(item);
         }
@@ -25906,7 +28268,7 @@ ui.ctrls.define("ui.ctrls.ImagePreview", {
             scrollLength;
         if(this.isHorizontal) {
             queueSize = this.chooserQueue.width();
-            currentValue = this.chooserQueue.scrollLeft();
+            currentValue = this.chooserQueue[0].scrollLeft;
             scrollLength = this.chooserQueue[0].scrollWidth;
         } else {
             queueSize = this.chooserQueue.height();
@@ -25984,11 +28346,11 @@ $.fn.imagePreview = function(option) {
 };
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/control/images/image-viewer.js
 
-(function($, ui) {
+(function(ui, $) {
 //图片轮播视图
 ui.ctrls.define("ui.ctrls.ImageViewer", {
     _defineOption: function () {
@@ -26100,10 +28462,10 @@ ui.ctrls.define("ui.ctrls.ImageViewer", {
         if(this.option.hasSwitchButtom === true) {
             this.prevBtn = $("<a href='javascript:void(0)' class='image-switch-button switch-button-prev font-highlight-hover'><i class='fa fa-angle-left'></i></a>");
             this.nextBtn = $("<a href='javascript:void(0)' class='image-switch-button switch-button-next font-highlight-hover'><i class='fa fa-angle-right'></i></a>");
-            this.prevBtn.click((function(e) {
+            this.prevBtn.on("click", (function(e) {
                 this.prev();
             }).bind(this));
-            this.nextBtn.click((function(e) {
+            this.nextBtn.on("click", (function(e) {
                 this.next();
             }).bind(this));
             this.element
@@ -26308,11 +28670,11 @@ $.fn.imageViewer = function(option) {
 };
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/control/images/image-watcher.js
 
-(function($, ui) {
+(function(ui, $) {
 //图片局部放大查看器
 ui.ctrls.define("ui.ctrls.ImageWatcher", {
     _defineOption: function () {
@@ -26433,22 +28795,24 @@ ui.ctrls.define("ui.ctrls.ImageWatcher", {
         this.leftRatio = (left - marginLeft) / this.imageOffsetWidth;
     },
     _setZoomView: function() {
-        var top, left;
+        var top, left, rect;
         if(this.focusView.css("display") === "none") {
             this.zoomView.css("display", "none");
             return;
         }
+
+        rect = this.element.getBoundingClientRect();
         if(this.option.position === "top") {
             left = 0;
             top = -(this.zoomHeight + this.viewMargin);
         } else if(this.option.position === "bottom") {
             left = 0;
-            top = (this.element.outerHeight() + this.viewMargin);
+            top = (rect.height + this.viewMargin);
         } else if(this.option.position === "left") {
             left = -(this.zoomWidth + this.viewMargin);
             top = 0;
         } else {
-            left = (this.element.outerWidth() + this.viewMargin);
+            left = (rect.width + this.viewMargin);
             top = 0;
         }
         
@@ -26472,11 +28836,11 @@ $.fn.imageWatcher = function(option) {
 };
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/control/images/image-zoomer.js
 
-(function($, ui) {
+(function(ui, $) {
 function getLargeImageSrc(img) {
     var src = img.attr("data-large-src");
     if(!src) {
@@ -26563,7 +28927,7 @@ ui.ctrls.define("ui.ctrls.ImageZoomer", {
         this.nextView.append("<img class='image-view-img' />");
         this.closeButton = $("<a class='closable-button font-highlight-hover' href='javascript:void(0)'>×</a>");
         
-        this.closeButton.click(function () {
+        this.closeButton.on("click", function () {
             that.hide();
         });
         
@@ -26573,14 +28937,14 @@ ui.ctrls.define("ui.ctrls.ImageZoomer", {
             .append(this.closeButton);
         if(this.option.getNext) {
             this.nextButton = $("<a class='next-button font-highlight-hover disabled-button' style='right:10px;' href='javascript:void(0)'><i class='fa fa-angle-right'></i></a>");
-            this.nextButton.click(function(e) {
+            this.nextButton.on("click", function(e) {
                 that._doNextView();
             });
             this.imagePanel.append(this.nextButton);
         }
         if(this.option.getPrev) {
             this.prevButton = $("<a class='prev-button font-highlight-hover disabled-button' style='left:10px;' href='javascript:void(0)'><i class='fa fa-angle-left'></i></a>");
-            this.prevButton.click(function(e) {
+            this.prevButton.on("click", function(e) {
                 that._doPrevView();
             });
             this.imagePanel.append(this.prevButton);
@@ -26981,7 +29345,7 @@ $.fn.addImageZoomer = function (zoomer) {
         return;
     }
     if (zoomer instanceof ui.ctrls.ImageZoomer) {
-        this.click(function(e) {
+        this.on("click", function(e) {
             var target = $(e.target);
             var largeSize = target.data("LargeSize");
             if(largeSize) {
@@ -27005,11 +29369,11 @@ $.fn.addImageZoomer = function (zoomer) {
 };
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/viewpage/menu.js
 
-(function($, ui) {
+(function(ui, $) {
 var showClass = "ui-menu-button-show",
     currentClass = "current-menu",
     lightClass = "head-color",
@@ -27715,14 +30079,14 @@ ui.ctrls.define("ui.ctrls.Menu", {
 
         that = this;
         //菜单点击事件
-        this.menuList.click(function (e) {
+        this.menuList.on("click", function (e) {
             that.onMenuItemClickHandler(e);
         });
         
         //菜单汉堡按钮点击事件
         if(this.hasMenuButton) {
             menuButton = this.option.menuButton;
-            menuButton.click(function (e) {
+            menuButton.on("click", function (e) {
                 if (menuButton.hasClass(showClass)) {
                     menuButton.removeClass(showClass).removeClass(that.hamburgCloseButton);
                     that.hide(that.hasAnimation());
@@ -27972,11 +30336,11 @@ ui.ctrls.define("ui.ctrls.Menu", {
 });
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/viewpage/page-extend.js
 
-(function($, ui) {
+(function(ui, $) {
 /*
     基础属性
     {
@@ -28232,7 +30596,7 @@ plugin({
                     that._currentHighlightItem = null;
                 }
             });
-            highlightPanel.click(function(e) {
+            highlightPanel.on("click", function(e) {
                 var elem,
                     highlight;
                 elem = $(e.target);
@@ -28312,7 +30676,7 @@ plugin({
             });
             this.contentAnimator.start();
         });
-        userProtrait.click(function(e) {
+        userProtrait.on("click", function(e) {
             that.sidebarManager.show("userSidebar");
         });
     }
@@ -28342,11 +30706,11 @@ plugin({
     }
 });
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/viewpage/sidebar-manager.js
 
-(function($, ui) {
+(function(ui, $) {
 //边栏管理器
 function SidebarManager() {
     if(this instanceof SidebarManager) {
@@ -28448,11 +30812,11 @@ SidebarManager.prototype = {
 ui.SidebarManager = SidebarManager;
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/viewpage/tile-view.js
 
-(function($, ui) {
+(function(ui, $) {
 // 动态磁贴
 
 ///磁贴组
@@ -29311,11 +31675,11 @@ TileContainer.prototype = {
 ui.TileContainer = TileContainer;
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/viewpage/tiles/tile-calendar.js
 
-(function($, ui) {
+(function(ui, $) {
 // 日期动态磁贴
 var calendarStyle,
     weekChars;
@@ -29397,11 +31761,11 @@ ui.tiles.calendar = function(tile) {
 };
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/viewpage/tiles/tile-clock.js
 
-(function($, ui) {
+(function(ui, $) {
 // 时钟动态磁贴
 var clockStyle;
 
@@ -29487,11 +31851,11 @@ ui.tiles.clock = function(tile) {
 };
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/viewpage/tiles/tile-picture.js
 
-(function($, ui) {
+(function(ui, $) {
 // 图片动态磁贴
 
 if(!ui.tiles) {
@@ -29673,11 +32037,11 @@ function moveNext(tile) {
 }
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/viewpage/tiles/tile-weather.js
 
-(function($, ui) {
+(function(ui, $) {
 // 天气可交互磁贴
 /*
     cityName: 城市名称
@@ -29868,7 +32232,7 @@ function activeMutualTile(tile) {
 
     days = context.parent.children(".weather-days");
     context.current = $(days.children()[0]);
-    days.click(onWeatherHandleClick.bind(tile));
+    days.on("click", onWeatherHandleClick.bind(tile));
 }
 function onWeatherHandleClick(e) {
     var context,
@@ -29983,11 +32347,11 @@ ui.tiles.weather = function(tile, weatherData) {
 };
 
 
-})(jQuery, ui);
+})(ui, $);
 
 // Source: src/viewpage/toolbar.js
 
-(function($, ui) {
+(function(ui, $) {
 // toolbar
 function Toolbar(option) {
     if(this instanceof Toolbar) {
@@ -30081,7 +32445,7 @@ Toolbar.prototype = {
         }
         
         var that = this;
-        this.extendButton.click(function(e) {
+        this.extendButton.on("click", function(e) {
             if(that.isExtendShow()) {
                 that.hideExtend();
             } else {
@@ -30093,7 +32457,7 @@ Toolbar.prototype = {
         this.pinButton = $("<a class='tool-extend-pin-button font-highlight-hover' href='javascript:void(0)' title='固定扩展区域'><i class='fa fa-thumb-tack'></i></a>");
         this.extendWrapPanel.append(this.pinButton);
         var that = this;
-        this.pinButton.click(function(e) {
+        this.pinButton.on("click", function(e) {
             if(that.isExtendPin()) {
                 that.unpinExtend();
             } else {
@@ -30206,7 +32570,7 @@ Toolbar.prototype = {
 ui.Toolbar = Toolbar;
 
 
-})(jQuery, ui);
+})(ui, $);
 
 
 // 兼容AMD
