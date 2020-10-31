@@ -51,7 +51,7 @@ module.exports = {
     module: {
         rules: [
             {
-                test: /\.html$/,
+                test: /\.(html|ejs)$/,
                 use: [{
                     loader: "html-loader",
                     options: {
@@ -66,7 +66,7 @@ module.exports = {
                 exclude: /(node_modules|vendor)/,
                 /* link打包之后引入对应的css形式(dev模式下为内嵌style形式) */
                 use: [
-                    env === "prod" ? MiniCssExtractPlugin.loader : "style-loader", 
+                    env === "prod" ? MiniCssExtractPlugin.loader : "style-loader",  
                     "css-loader"
                 ]
             },

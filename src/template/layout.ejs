@@ -12,7 +12,18 @@
     <link href="/vendor/soon-ui/theme/color/ui.metro.SeaBlue.css" rel="stylesheet" id="highlight" />
 </head>
 <body>
-    <header id="head" class="head-color clear"></header>
+    <header id="head" class="head-color clear">
+        <h1 class="head-system-title title-color">
+            <span class="head-system-title-text">@{header}</span>
+        </h1>
+        <ul id="headerCtrls" class="head-ctrl-buttons">
+            <li class="head-ctrl-buttons-item">
+                <div id="user" class="user-color title-color" title="username">
+                    <img src="../content/image/protrait.png" class="cover" alt="用户头像" />
+                </div>
+            </li>
+        </ul>
+    </header>
     <section id="body" style="visibility:hidden"></section>
 
     <script src="/vendor/soon-ui/soonui.dll.js"></script>
