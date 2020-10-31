@@ -31,7 +31,11 @@ module.exports = {
             patterns: [
                 { 
                     from: path.resolve(__dirname, "../vendor/soon-ui/theme"), 
-                    to: path.resolve(__dirname, "../dist/vendor/soon-ui/theme") 
+                    to: path.resolve(__dirname, "../dist/vendor/soon-ui/theme")
+                },
+                {
+                    from: path.resolve(__dirname, "../vendor/font-awesome"),
+                    to: path.resolve(__dirname, "../dist/vendor/font-awesome")
                 }
             ]
         })
