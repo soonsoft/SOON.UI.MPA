@@ -5,18 +5,22 @@
  * url: 编译后js文件和html文件存放的位置
  */
 module.exports = [
-     {
-        name: "home",
-        title: "首页",
-        url: "",
-        layout: "",
-        js: "home/home.js"
-     },
-     {
-      name: "about",
-      title: "关于",
-      url: "",
-      layout: "",
-      js: "about/about.js"
-   }
+      {
+         name: "home",
+         url: "",
+         layout: "",
+         js: "home/home.js"
+      },
+      {
+         name: "manage",
+         url: "",
+         layout: "",
+         js: "manage/manage.js"
+      },
+      {
+         name: "about",
+         url: "",
+         layout: "",
+         js: "about/about.js"
+      }
  ];

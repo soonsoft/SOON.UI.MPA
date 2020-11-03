@@ -36,6 +36,10 @@ module.exports = {
                 {
                     from: path.resolve(__dirname, "../vendor/font-awesome"),
                     to: path.resolve(__dirname, "../dist/vendor/font-awesome")
+                },
+                {
+                    from: path.resolve(__dirname, "../vendor/content"),
+                    to: path.resolve(__dirname, "../dist/vendor/content")
                 }
             ]
         })

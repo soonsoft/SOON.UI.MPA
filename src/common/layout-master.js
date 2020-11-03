@@ -1,10 +1,10 @@
 import ui from "soonui";
 
-ui.page.title = "HOME";
-ui.page.header = "SOON.UI HOME";
+ui.page.title = "TITLE";
+ui.page.header = "HEADER";
 
 const masterInitConfig = {
-    master: function() {
+    master() {
         this.loaded(function() {
             this.body.css({
                 "visibility": "visible",
@@ -13,10 +13,10 @@ const masterInitConfig = {
             ui.animator.fadeIn(this.body, 500);
         });
     },
-    userPanel: function() {
+    userPanel() {
         initHighlight();
         return {
-            changeHighlightUrl: function(highlight) {
+            changeHighlightUrl(highlight) {
                 let url = parseHighlightStyleUrl((url, arr) => {
                     arr[arr.length - 2] = highlight.Id;
                     return url + arr.join(".");
