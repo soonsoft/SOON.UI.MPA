@@ -1,4 +1,5 @@
 import ui from "soonui";
+import htmlUtils from "../../common/html/html-utils";
 
 ui.page.title = "TITLE";
 ui.page.header = "HEADER";

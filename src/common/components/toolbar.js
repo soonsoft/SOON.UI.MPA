@@ -15,8 +15,6 @@ function addTools(tools) {
     }
 }
 
-
-
 export {
     createToolbarBuilder
 };
