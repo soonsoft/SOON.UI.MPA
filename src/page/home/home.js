@@ -1,7 +1,7 @@
 import style from "./home.css";
 
 import ui from "soonui";
-import { pageInit } from "../../common/layout-master";
+import { pageInit, bodyAppend } from "../../common/layout/layout-master";
 
 ui.page.title = "HOME";
 ui.page.header = "SOON.UI HOME";
@@ -9,9 +9,7 @@ ui.page.header = "SOON.UI HOME";
 pageInit({
     created() {
         this.tileContainer = createTiles();
-
-        const bodyContent = document.getElementById("body");
-        body.appendChild(this.tileContainer.container[0]);
+        bodyAppend(this.tileContainer.container);
     },
     layout() {
         this.tileContainer.layout(

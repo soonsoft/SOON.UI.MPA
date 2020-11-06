@@ -127,6 +127,20 @@ function pageInit(pageInitConfig) {
     ui.page.init(config);
 }
 
+function bodyAppend(element) {
+    if(!element || !ui.page.body) {
+        return;
+    }
+
+    let elem = element;
+    if(ui.core.isJQueryObject(elem)) {
+        elem = elem[0]
+    }
+    let contentBody = ui.page.body[0];
+    contentBody.appendChild(elem);
+}
+
 export {
-    pageInit
+    pageInit,
+    bodyAppend
 };
