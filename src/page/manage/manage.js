@@ -1,11 +1,14 @@
 import style from "./manage.css";
 
 import ui from "soonui";
-import { pageInit, bodyAppend } from "../../common/layout/layout-master";
+import { pageSettings, pageInit, bodyAppend } from "../../common/layout/menu-layout";
 import { createToolbarBuilder } from "../../common/components/toolbar";
 
-ui.page.title = "MANAGE";
-ui.page.header = "SOON.UI MANAGE";
+pageSettings({
+    title: "MANAGE",
+    header: "SOON.UI MANAGE",
+    showHomeButton: true
+});
 
 pageInit({
     menu: true,

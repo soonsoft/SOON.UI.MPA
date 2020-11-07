@@ -39,7 +39,7 @@ module.exports = {
                 },
                 {
                     from: path.resolve(__dirname, "../vendor/content"),
-                    to: path.resolve(__dirname, "../dist/vendor/content")
+                    to: path.resolve(__dirname, "../dist/content")
                 }
             ]
         })

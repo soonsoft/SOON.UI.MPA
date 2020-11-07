@@ -14,7 +14,7 @@ module.exports = [
       {
          name: "manage",
          url: "",
-         layout: "",
+         layout: "menu-layout.ejs",
          js: "manage/manage.js"
       },
       {

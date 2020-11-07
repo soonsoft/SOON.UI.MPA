@@ -1,10 +1,12 @@
 import style from "./home.css";
 
 import ui from "soonui";
-import { pageInit, bodyAppend } from "../../common/layout/layout-master";
+import { pageSettings, pageInit, bodyAppend } from "../../common/layout/layout-master";
 
-ui.page.title = "HOME";
-ui.page.header = "SOON.UI HOME";
+pageSettings({
+    title: "HOME",
+    header: "SOON.UI HOME"
+});
 
 pageInit({
     created() {
@@ -19,7 +21,7 @@ pageInit({
 
 function createTiles() {
     const tileColor = "rgba(255, 255, 255, .4)";
-    const tileIcon = "/vendor/content/icon/tile/Settings.png";
+    const tileIcon = "/content/icon/tile/Settings.png";
 
     const tileContainer = ui.TileContainer(document.createElement("div"));
     tileContainer.addGroup("常用", [
@@ -31,7 +33,7 @@ function createTiles() {
         { type: "small", color: tileColor, title: "microsoft", icon: tileIcon },
         { type: "small", color: tileColor, title: "google", icon: tileIcon },
         { type: "medium", color: tileColor, title: "浏览器", icon: tileIcon },
-        { type: "medium", color: tileColor, title: "飞机", icon: tileIcon },
+        { type: "medium", color: tileColor, title: "manage", icon: tileIcon, link: "./manage.html" },
         { type: "medium", color: tileColor, title: "机票打印", icon: tileIcon },
         { type: "medium", color: tileColor, title: "度假", icon: tileIcon },
         { type: "medium", color: tileColor, title: "请假单", icon: tileIcon }
@@ -92,11 +94,11 @@ function updateWeather(tile) {
 
 function picturePlay(tile) {
     var images = [
-        "/vendor/content/image/picture/1.jpg",
-        "/vendor/content/image/picture/5.jpg",
-        "/vendor/content/image/picture/12.jpg",
-        "/vendor/content/image/picture/20.jpg",
-        "/vendor/content/image/picture/27.jpg"
+        "/content/image/picture/1.jpg",
+        "/content/image/picture/5.jpg",
+        "/content/image/picture/12.jpg",
+        "/content/image/picture/20.jpg",
+        "/content/image/picture/27.jpg"
     ];
     ui.tiles.picture(tile, images);
 }

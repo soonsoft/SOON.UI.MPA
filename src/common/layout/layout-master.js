@@ -1,8 +1,15 @@
 import ui from "soonui";
-import htmlUtils from "../../common/html/html-utils";
+import { createElement, text, append, addClass, prop } from "../html/html-utils";
 
 ui.page.title = "TITLE";
 ui.page.header = "HEADER";
+
+let pageSettingsOption = {
+    title: "TITLE",
+    header: "HEADER",
+    haederTabs: [],
+    showHomeButton: false
+};
 
 const masterInitConfig = {
     master() {
@@ -26,41 +33,69 @@ const masterInitConfig = {
                 if(url) {
                     ui.theme.setHighlight(highlight, url);
                 }
-            }
+            },
+            operateList: [
+                { text: "登录", url: "./login.html" },
+                { text: "个性化", url: "javascript:void(0)" },
+                { text: "修改密码", url: "javascript:void(0)" }, 
+                { text: "退出", url: "javascript:void(0)" }
+            ]
         };
     }
 };
 
-function initHead() {
-    let title = document.getElementsByTagName("title");
-    if(title.length === 0) {
-        title = document.createElement("title");
-        title.innerText = ui.page.title;
-        let head = document.getElementsByTagName("head")[0];
-        head.appendChild(title);
-    } else {
-        title[0].innerText = ui.page.title;
-    }
+//#region prepare page layout
 
+function initTitle() {
+    let title = document.getElementsByTagName("title");
+    let titleText = pageSettingsOption.title;
+    if(title.length === 0) {
+        title = createElement("title");
+        text(title, titleText);
+        let head = document.getElementsByTagName("head")[0];
+        append(head, title);
+    } else {
+        text(title[0], titleText);
+    }
+}
+
+function initHead() {
     let head = document.getElementById("head");
     if(!head) {
         return;
     }
 
-    let headerSpan = head.getElementsByClassName("head-system-title-text");
-    if(headerSpan.length === 0) {
-        let header = head.getElementsByClassName("head-system-title");
-        if(header.length > 0) {
-            header = header[0];
-            headerSpan = document.createElement("span");
-            headerSpan.classList.add("head-system-title-text");
-            headerSpan.innerText = ui.page.header;
-            header.appendChild(headerSpan);
-        }
+    let header = head.getElementsByClassName("head-system-title");
+    if(header.length === 0) {
+        header = createElement("h1");
+        addClass(header, "head-system-title", "title-color");
+        append(header);
     } else {
-        headerSpan[0].innerText = ui.page.header;
+        header = header[0];
+    }
+
+    if(pageSettingsOption.showHomeButton) {
+        let homeButton = createElement("a");
+        addClass(homeButton, "ui-home-button");
+        prop(homeButton, "javascript:void(0)");
+        append(header, homeButton);
+    }
+
+    let headerSpan = head.getElementsByClassName("head-system-title-text");
+    let headerText = pageSettingsOption.header;
+    if(headerSpan.length === 0) {
+        headerSpan = createElement("span");
+        addClass(headerSpan, "head-system-title-text");
+        text(headerSpan, headerText);
+        append(header, headerSpan);
+    } else {
+        text(headerSpan[0], headerText);
     }
 }
+
+//#endregion
+
+//#region Theme
 
 function initHighlight() {
     ui.theme.highlights = [
@@ -121,7 +156,14 @@ function parseHighlightStyleUrl(action) {
     return action(url, cssName.split("."));
 }
 
+//#endregion
+
+function pageSettings(settings) {
+    pageSettingsOption = ui.extend({}, pageSettingsOption, settings);
+}
+
 function pageInit(pageInitConfig) {
+    initTitle();
     initHead();
 
     const config = ui.extend({}, masterInitConfig, pageInitConfig);
@@ -133,15 +175,11 @@ function bodyAppend(element) {
         return;
     }
 
-    let elem = element;
-    if(ui.core.isJQueryObject(elem)) {
-        elem = elem[0]
-    }
-    let contentBody = ui.page.body[0];
-    contentBody.appendChild(elem);
+    append(ui.page.body, element);
 }
 
 export {
+    pageSettings,
     pageInit,
     bodyAppend
 };

@@ -4,13 +4,7 @@ const $ = ui.$;
 const slice = Array.prototype.slice;
 
 function ensureElement(element) {
-    if(!element) {
-        return element;
-    }
-
-    if(!ui.core.isJQueryObject(element)) {
-        return $(element);
-    }
+    return !element || ui.core.isJQueryObject(element) ? element : $(element);
 }
 
 function callFunc(element, fnName, args) {

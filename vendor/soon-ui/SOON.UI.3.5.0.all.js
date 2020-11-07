@@ -9865,6 +9865,8 @@ function ensureElement(element) {
     if(!ui.core.isJQueryObject(element)) {
         return $(element);
     }
+
+    return element;
 }
 
 function mergeEvents() {
@@ -30764,11 +30766,13 @@ SidebarManager.prototype = {
         return this;
     },
     setElement: function(name, option, element) {
+        var sidebar = null,
+            that = this;
+        
         if(ui.str.isEmpty(name)) {
             return;
         }
-        var sidebar = null,
-            that = this;
+
         if(this.sidebars.containsKey(name)) {
             sidebar = this.sidebars.get(name);
             if(element) {
@@ -30778,12 +30782,14 @@ SidebarManager.prototype = {
             if(!option || !option.parent) {
                 throw new Error("option is null");
             }
+            
             sidebar = ui.ctrls.SidebarBase(option, element);
             sidebar.hiding(function(e) {
                 that.currentBar = null;
             });
             this.sidebars.set(name, sidebar);
         }
+
         return sidebar;
     },
     get: function(name) {
