@@ -30,12 +30,28 @@ pageInit({
         }
     },
     load() {
+        loadMenuData();
         loadGridviewData();
     }
 });
 
 function createToolbarElement() {
     const toolbarBuilder = createToolbarBuilder();
+    toolbarBuilder.addTools([
+        {
+            type: "actionButton",
+            buttons: [
+                {
+                    id: "add",
+                    text: "添加",
+                    icon: "<i class='fa fa-plus'></i>",
+                    handler: function() {
+                        ui.messageShow("add new data.");
+                    }
+                }
+            ]
+        }
+    ], true);
     bodyAppend(toolbarBuilder.element);
 
     return toolbarBuilder.element;
@@ -68,6 +84,18 @@ function createGridview() {
     });
 
     return gridview;
+}
+
+function loadMenuData() {
+    ui.page.menu.setMenuList([
+        {
+            resourceCode: "1",
+            resourceName: "HOME",
+            icon: "/content/icon/sys-setting.png",
+            url: "/home.html",
+            children: null
+        }
+    ]);
 }
 
 function loadGridviewData(pageIndex) {
