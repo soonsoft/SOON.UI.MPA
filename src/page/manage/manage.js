@@ -3,6 +3,7 @@ import style from "./manage.css";
 import ui from "soonui";
 import { pageSettings, pageInit, bodyAppend } from "../../common/layout/menu-layout";
 import { createToolbarBuilder } from "../../common/components/toolbar";
+import { createElement, css, append, addClass, text } from "../../common/html/html-utils";
 
 pageSettings({
     title: "MANAGE",
@@ -20,7 +21,9 @@ pageInit({
         });
     },
     created() {
-        this.gridView = createGridview();
+        this.contentPanel = createContentPanel();
+        this.gridView = createGridView(this.contentPanel);
+        this.sidePanel = createSidePanel(this.contentPanel);
     },
     layout() {
         const height = this.contentBodyHeight;
@@ -31,7 +34,7 @@ pageInit({
     },
     load() {
         loadMenuData();
-        loadGridviewData();
+        loadGridViewData();
     }
 });
 
@@ -46,7 +49,9 @@ function createToolbarElement() {
                     text: "添加",
                     icon: "<i class='far fa-plus'></i>",
                     handler: function() {
-                        ui.messageShow("add new data.");
+                        if(ui.page.sidePanel) {
+                            ui.page.sidePanel.onAdd();
+                        }
                     }
                 },
                 {
@@ -65,9 +70,21 @@ function createToolbarElement() {
     return toolbarBuilder.element;
 }
 
-function createGridview() {
-    const element = document.createElement("div");
+function createContentPanel() {
+    const element = createElement("div");
+    css(element, {
+        position: "relative",
+        width: "100%",
+        height: "100%",
+        overflow: "hidden"
+    });
     bodyAppend(element);
+    return element;
+}
+
+function createGridView(parentElement) {
+    const element = document.createElement("div");
+    append(parentElement, element);
 
     const gridview = ui.ctrls.GridView({
         columns: [
@@ -90,8 +107,78 @@ function createGridview() {
     gridview.pagechanging(function(e, pageIndex, pageSize) {
         loadGridviewData(pageIndex);
     });
+    gridview.rebind(function() {
+        ui.page.sidePanel.hide();
+    });
+    gridview.selected(function(e, eventData) {
+        ui.page.sidePanel.onUpdate(eventData.rowData);
+    });
+    gridview.deselected(function() {
+        ui.page.sidePanel.hide();
+    });
 
     return gridview;
+}
+
+function createSidePanel(parentElement) {
+    function createButton(content) {
+        let button = createElement("button");
+        addClass(button, "button");
+        css(button, {
+            marginRight: "10px",
+            height: "24px",
+            lineHeight: "24px"
+        });
+        text(button, content);
+        return button;
+    }
+    
+    const saveButton = createButton("保 存");
+    const cancelButton = createButton("取 消");
+    addClass(saveButton, "background-highlight");
+
+    const element = createElement("div");
+
+    const sidePanel = ui.ctrls.OptionBox({
+        parent: parentElement,
+        title: "编辑信息",
+        width: 240,
+        hasCloseButton: false,
+        buttons: [saveButton, cancelButton]
+    }, element);
+
+    sidePanel.onAdd = function() {
+        this.$isUpdate = false;
+        this.resetForm();
+        this.setTitle("新建信息");
+        this.show();
+    };
+
+    sidePanel.onUpdate = function(data) {
+        this.$isUpdate = true;
+        this.fillForm(data);
+        this.setTitle("编辑信息");
+        this.show();
+    };
+
+    sidePanel.resetForm = function() {
+
+    };
+
+    sidePanel.fillForm = function(data) {
+
+    };
+
+    saveButton.addEventListener("click", function() {
+        sidePanel.hide();
+    });
+    cancelButton.addEventListener("click", function() {
+        sidePanel.hide();
+        ui.page.gridView.cancelSelection();
+    });
+
+    return sidePanel;
+    
 }
 
 function loadMenuData() {
@@ -106,7 +193,7 @@ function loadMenuData() {
     ]);
 }
 
-function loadGridviewData(pageIndex) {
+function loadGridViewData(pageIndex) {
     if(!ui.core.isNumber(pageIndex)) {
         ui.page.gridView.pageIndex = 1;
     }
