@@ -44,9 +44,17 @@ function createToolbarElement() {
                 {
                     id: "add",
                     text: "添加",
-                    icon: "<i class='fa fa-plus'></i>",
+                    icon: "<i class='far fa-plus'></i>",
                     handler: function() {
                         ui.messageShow("add new data.");
+                    }
+                },
+                {
+                    id: "remove",
+                    text: "删除",
+                    icon: "<i class='far fa-minus'></i>",
+                    handler: function() {
+                        ui.messageShow("remove the selection data.");
                     }
                 }
             ]
