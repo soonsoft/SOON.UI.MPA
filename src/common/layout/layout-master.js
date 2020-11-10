@@ -178,8 +178,37 @@ function bodyAppend(element) {
     append(ui.page.body, element);
 }
 
+function addFormFunctions(box, fnOption) {
+    if(!box) {
+        return;
+    }
+
+    if(!fnOption) {
+        fnOption = {};
+    }
+
+    let title = box.option.title;
+    ["onAdd", "onUpdate"].forEach(name => {
+        let isUpdate = !(name === "onAdd");
+        let boxTitle = isUpdate ? "编辑" + title : "新建" + title;
+        box[name] = (function(data) {
+            this.$isUpdate = isUpdate;
+            this.setTitle(boxTitle);
+            this.fillForm(data || {});
+            this.show();
+        }).bind(box);
+
+        ["fillForm", "getFormData"].forEach(name => {
+            box[name] = ui.core.isFunction(fnOption[name]) 
+                ? fnOption[name].bind(box) 
+                : function() {};
+        })
+    });
+}
+
 export {
     pageSettings,
     pageInit,
-    bodyAppend
+    bodyAppend,
+    addFormFunctions
 };

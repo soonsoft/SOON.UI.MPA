@@ -1,4 +1,4 @@
-import { pageSettings, pageInit } from "./layout-master";
+import { pageSettings, pageInit, addFormFunctions } from "./layout-master";
 import { append } from "../html/html-utils";
 
 function bodyAppend(element) {
@@ -15,5 +15,6 @@ function bodyAppend(element) {
 export {
     pageSettings,
     pageInit,
-    bodyAppend
+    bodyAppend,
+    addFormFunctions
 }

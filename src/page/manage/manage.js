@@ -1,9 +1,10 @@
 import style from "./manage.css";
 
 import ui from "soonui";
-import { pageSettings, pageInit, bodyAppend } from "../../common/layout/menu-layout";
+import { pageSettings, pageInit, bodyAppend, addFormFunctions } from "../../common/layout/menu-layout";
 import { createToolbarBuilder } from "../../common/components/toolbar";
-import { createElement, css, append, addClass, text, on } from "../../common/html/html-utils";
+import { createElement, css, append, addClass, text, on, prop } from "../../common/html/html-utils";
+import { dateChooser } from "../../common/ctrl/ctrl-utils";
 
 pageSettings({
     title: "MANAGE",
@@ -135,37 +136,24 @@ function createSidePanel(parentElement) {
     const cancelButton = createButton("取 消");
     addClass(saveButton, "background-highlight");
 
-    const element = createElement("div");
+    const element = createFormElement();
 
     const sidePanel = ui.ctrls.OptionBox({
         parent: parentElement,
-        title: "编辑信息",
-        width: 240,
+        title: "信息",
+        width: 260,
         hasCloseButton: false,
         buttons: [saveButton, cancelButton]
     }, element);
 
-    sidePanel.onAdd = function() {
-        this.$isUpdate = false;
-        this.resetForm();
-        this.setTitle("新建信息");
-        this.show();
-    };
+    addFormFunctions(sidePanel, {
+        fillForm: function(data) {
 
-    sidePanel.onUpdate = function(data) {
-        this.$isUpdate = true;
-        this.fillForm(data);
-        this.setTitle("编辑信息");
-        this.show();
-    };
+        },
+        getFormData: function() {
 
-    sidePanel.resetForm = function() {
-
-    };
-
-    sidePanel.fillForm = function(data) {
-
-    };
+        }
+    });
 
     on(saveButton, "click", function() {
         sidePanel.hide();
@@ -176,7 +164,116 @@ function createSidePanel(parentElement) {
     });
 
     return sidePanel;
-    
+}
+
+function createFormElement() {
+
+    function createDataItem(parent, itemText, ctrlFn, isRequired, noBr) {
+        let label = createElement("label");
+        text(label, itemText);
+        append(parent, label);
+        
+        if(isRequired) {
+            let span = createElement("span");
+            addClass(span, "required");
+            text(span, "*");
+            append(parent, span);
+        }
+
+        append(parent, createElement("br"));
+
+        append(parent, ctrlFn());
+
+        if(!noBr) {
+            append(parent, createElement("br"));
+        }
+    }
+
+    const element = createElement("div");
+    addClass(element, "ui-form");
+    css(element, {
+        width: "230px",
+        marginLeft: "15px"
+    });
+
+    // 姓名
+    createDataItem(element, "姓名", () => {
+        let input = createElement("input");
+        prop(input, {
+            id: "name",
+            type: "text"
+        });
+        return input;
+    }, true);
+
+    // 年龄
+    createDataItem(element, "年龄", () => {
+        let input = createElement("input");
+        prop(input, {
+            id: "age",
+            type: "text"
+        });
+        return input;
+    });
+
+    // 电话
+    createDataItem(element, "电话", () => {
+        let input = createElement("input");
+        prop(input, {
+            id: "phone",
+            type: "text"
+        });
+        return input;
+    });
+
+    // 日期
+    createDataItem(element, "日期", () => {
+        let input = createElement("input");
+        prop(input, {
+            id: "dateValue",
+            type: "text"
+        });
+        addClass(input, "ui-date-text");
+
+        dateChooser(input, {
+            //layoutPanel: element,
+            isDateTime: true
+        });
+
+        return input;
+    });
+
+    // 状态
+    createDataItem(element, "状态", () => {
+        let input = createElement("input");
+        prop(input, {
+            id: "status",
+            type: "checkbox",
+            checked: true
+        });
+
+        let label = createElement("label");
+        addClass(label, "ui-switch-text");
+        text(label, "有效");
+        prop(label, {
+            for: input.id
+        });
+
+        let switchButton = ui.ctrls.SwitchButton({}, input);
+        switchButton.changed(function() {
+            if(this.checked) {
+                this.switchBox.next().text("有效");
+            } else {
+                this.switchBox.next().text("无效");
+            }
+        });
+
+        return [switchButton.switchBox, label];
+    });
+
+    append(element, createElement("br"));
+
+    return element;
 }
 
 function loadMenuData() {

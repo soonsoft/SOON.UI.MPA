@@ -261,7 +261,7 @@ core.isTouchAvailable = function() {
 
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/core/i18n.js
 
@@ -337,7 +337,7 @@ ui.i18n.language.control["ui.ctrls.CalendarView"] = {
 // language of viewpage
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/shims/ES5-Array-shims.js
 
@@ -545,7 +545,7 @@ if(!isFunction(Array.prototype.lastIndexOf)) {
 }
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/shims/ES6-Array-shims.js
 
@@ -635,7 +635,7 @@ if(!isFunction(Array.of)) {
 }
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/shims/ES5-String-shims.js
 
@@ -661,7 +661,7 @@ if(!isFunction(String.prototype.trim)) {
 
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/shims/ES6-String-shims.js
 
@@ -783,7 +783,7 @@ if(!isFunction(String.prototype.endsWith)) {
 }
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/shims/ES5-Function-shims.js
 
@@ -815,7 +815,7 @@ if(!isFunction(Function.prototype.bind)) {
 }
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/shims/ES5-JSON-shims.js
 
@@ -1019,7 +1019,7 @@ JSON.parse = function (text, reviver) {
     throw new SyntaxError("JSON.parse");
 };
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/shims/ES6-Number-shims.js
 
@@ -1057,7 +1057,7 @@ if(!isFunction(Number.parseFloat)) {
 }
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/shims/ES5-Object-shims.js
 
@@ -1452,7 +1452,7 @@ if(!isFunction(Object.create)) {
 }
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/shims/ES6-Promise.shims.js
 
@@ -1712,7 +1712,7 @@ global = ui.core.global();
 global.Promise = PromiseShim;
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/core/array-like.js
 
@@ -1790,7 +1790,7 @@ ArrayLike.prototype = {
 ui.ArrayLike = ArrayLike;
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/core/keyarray.js
 
@@ -1914,7 +1914,7 @@ KeyArray.prototype.clear = function () {
 ui.KeyArray = KeyArray;
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/core/linked-list.js
 
@@ -2078,7 +2078,7 @@ function getAndRemove(atTheEnd) {
 
 ui.LinkedList = LinkedList;
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/shims/jQuery/zepto.js
 
@@ -3041,7 +3041,7 @@ ui.$.fn.jquery = "zepto"
 init_$(ui.$)
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/shims/jQuery/style.js
 
@@ -3080,7 +3080,7 @@ ui.core.each("Width, Height", function(name) {
 });
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/shims/jQuery/event.js
 
@@ -3365,7 +3365,7 @@ $.Event = function(type, props) {
 }
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/shims/jQuery/ie.js
 
@@ -3392,7 +3392,7 @@ $.Event = function(type, props) {
 })()
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/shims/jQuery/data.js
 
@@ -3489,7 +3489,7 @@ var data = {},
   })
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/shims/jQuery/jQuery-extend.js
 
@@ -3727,7 +3727,7 @@ $.fn.textinput = function(data, fn) {
 };
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/core/utils/util.js
 
@@ -4098,7 +4098,7 @@ ui.getLeftLocation = function (target, width, height) {
 };
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/core/utils/util-string.js
 
@@ -4431,7 +4431,7 @@ ui.str = {
 };
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/core/utils/util-date.js
 
@@ -4920,7 +4920,7 @@ ui.date = {
 };
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/core/utils/util-object.js
 
@@ -5009,7 +5009,7 @@ ui.obj = {
 };
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/core/utils/util-url.js
 
@@ -5120,7 +5120,7 @@ ui.url = {
     }
 };
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/core/utils/util-structure-transform.js
 
@@ -5268,7 +5268,7 @@ ui.trans = {
 };
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/core/utils/util-random.js
 
@@ -5411,7 +5411,7 @@ random.vivid = function(ranges) {
 ui.random = random;
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/core/parser.js
 
@@ -5572,7 +5572,7 @@ ui.parseXML = parseXML;
 ui.parseHTML = parseHTML;
 ui.parseJSON = JSON.parse;
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/core/task.js
 
@@ -5733,7 +5733,7 @@ ui.clearMicroTask = function(index) {
 };
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/core/cookie.js
 
@@ -5827,7 +5827,7 @@ ui.cookie = {
     }
 };
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/core/style-sheet.js
 
@@ -5991,7 +5991,7 @@ StyleSheet.createStyleSheet = function(id) {
 ui.StyleSheet = StyleSheet;
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/component/introsort.js
 
@@ -6196,7 +6196,7 @@ Introsort.prototype = {
 ui.Introsort = Introsort;
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/component/animation.js
 
@@ -6849,7 +6849,7 @@ ui.animator.fadeOut = function(target) {
 };
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/component/selector-set.js
 
@@ -7202,7 +7202,7 @@ SelectorSet.prototype = {
 ui.SelectorSet = SelectorSet;
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/component/event-delegate.js
 
@@ -7390,7 +7390,7 @@ ui.on = on;
 ui.off = off;
 ui.fire = fire;
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/component/custom-event.js
 
@@ -7539,7 +7539,7 @@ CustomEvent.prototype = {
 ui.CustomEvent = CustomEvent;
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/component/ajax.js
 
@@ -8380,7 +8380,7 @@ function extendHttpProcessor() {
 
 }
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/component/color.js
 
@@ -8520,7 +8520,7 @@ ui.color = {
 };
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/component/browser.js
 
@@ -8647,7 +8647,7 @@ ui.platform = platform;
 ui.browser = browser;
 ui.engine = engine;
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/component/image-loader.js
 
@@ -8839,7 +8839,7 @@ $.fn.setImage = function (src, width, height, fillMode) {
 };
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/component/define.js
 
@@ -9007,7 +9007,7 @@ ui.define = function(name, base, prototype) {
 };
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/component/draggable.js
 
@@ -9297,7 +9297,7 @@ $.fn.undraggable = function() {
 };
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/component/theme.js
 
@@ -9383,7 +9383,7 @@ ui.theme = {
 };
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/component/page.js
 
@@ -9682,7 +9682,7 @@ $(window)
 ui.page = page;
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/control/base/control-define.js
 
@@ -9923,7 +9923,7 @@ function define(name, base, prototype) {
 
 ui.ctrls.define = define;
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/control/base/dropdown-base.js
 
@@ -10318,7 +10318,7 @@ ui.ctrls.define("ui.ctrls.DropDownBase", {
 });
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/control/base/sidebar-base.js
 
@@ -10515,7 +10515,7 @@ ui.ctrls.define("ui.ctrls.SidebarBase", {
 });
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/control/common/column-style.js
 
@@ -11048,7 +11048,7 @@ ui.ColumnStyle = {
 };
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/control/common/mask.js
 
@@ -11164,7 +11164,7 @@ ui.mask = {
     }
 };
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/control/common/pager.js
 
@@ -11383,7 +11383,7 @@ Pager.prototype = {
 ui.ctrls.Pager = Pager;
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/control/box/dialog-box.js
 
@@ -12283,7 +12283,7 @@ ui.ctrls.DialogBox.setHideStyle = function(name, fn) {
 };
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/control/box/loading-box.js
 
@@ -12366,7 +12366,7 @@ ui.loadingHide = function() {
 };
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/control/box/message-box.js
 
@@ -12585,7 +12585,7 @@ ui.failedShow = function(text) {
 };
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/control/box/option-box.js
 
@@ -12713,7 +12713,7 @@ ui.ctrls.define("ui.ctrls.OptionBox", ui.ctrls.SidebarBase, {
 });
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/control/select/chooser.js
 
@@ -13403,7 +13403,7 @@ $.fn.chooser = function(option) {
 };
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/control/select/color-picker.js
 
@@ -13815,7 +13815,7 @@ $.fn.colorPicker = function (option) {
 
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/control/select/date-chooser.js
 
@@ -15111,6 +15111,7 @@ function createDateChooser(option, element) {
 }
 function onMousemoveHandler(e) {
     var eWidth,
+        paddingRight,
         offsetX;
     if(!this.isShow()) {
         this.element.css("cursor", "auto");
@@ -15118,11 +15119,12 @@ function onMousemoveHandler(e) {
         return;
     }
     eWidth = this.element.width();
+    paddingRight = parseFloat(this.element.css("padding-right")) || 0;
     offsetX = e.offsetX;
     if(!offsetX) {
         offsetX = e.clientX - this.element.offset().left;
     }
-    if (eWidth - offsetX < 0) {
+    if (eWidth - paddingRight - offsetX < 0) {
         this.element.css("cursor", "pointer");
         this._clearable = true;
     } else {
@@ -15132,16 +15134,18 @@ function onMousemoveHandler(e) {
 }
 function onMouseupHandler(e) {
     var eWidth,
+        paddingRight,
         offsetX;
     if(!this._clearable) {
         return;
     }
     eWidth = this.element.width();
+    paddingRight = parseFloat(this.element.css("padding-right")) || 0;
     offsetX = e.offsetX;
     if(!offsetX) {
         offsetX = e.clientX - this.element.offset().left;
     }
-    if (eWidth - offsetX < 0) {
+    if (eWidth - paddingRight - offsetX < 0) {
         if ($.isFunction(this._clear)) {
             this._clear();
         }
@@ -15241,7 +15245,7 @@ $.fn.dateChooser = function(option) {
 };
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/control/select/selection-list.js
 
@@ -15698,7 +15702,7 @@ $.fn.selectionList = function (option) {
 };
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/control/select/selection-tree.js
 
@@ -16583,7 +16587,7 @@ $.fn.selectionTree = function (option) {
 };
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/control/select/selection-tree4autocomplete.js
 
@@ -16865,7 +16869,7 @@ $.fn.autocompleteSelectionTree = function(option) {
 };
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/control/view/calendar-view.js
 
@@ -19980,7 +19984,7 @@ ui.page.hlchanged(function(e, colorInfo) {
 });
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/control/view/card-view.js
 
@@ -20984,7 +20988,7 @@ $.fn.cardView = function(option) {
 };
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/control/view/fold-view.js
 
@@ -21078,7 +21082,7 @@ $.fn.foldView = function() {
 };
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/control/view/grid-view-group.js
 
@@ -21243,7 +21247,7 @@ GridViewGroup.prototype = {
 ui.ctrls.GridViewGroup = GridViewGroup;
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/control/view/grid-view-tree.js
 
@@ -21651,7 +21655,7 @@ GridViewTree.prototype = {
 ui.ctrls.GridViewTree = GridViewTree;
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/control/view/grid-view.js
 
@@ -23111,7 +23115,7 @@ $.fn.gridView = function(option) {
 };
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/control/view/list-view.js
 
@@ -23754,7 +23758,7 @@ $.fn.listView = function(option) {
 };
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/control/view/report-view.js
 
@@ -24822,7 +24826,7 @@ $.fn.reportView = function(option) {
 };
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/control/view/tab-view.js
 
@@ -25381,7 +25385,7 @@ TabManager.prototype = {
 ui.ctrls.TabView.TabManager = TabManager;
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/control/view/tree-view.js
 
@@ -25418,7 +25422,7 @@ $.fn.treeView = function(option) {
 };
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/control/tools/confirm-button.js
 
@@ -25621,7 +25625,7 @@ $.fn.confirmClick = function(option) {
 };
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/control/tools/extend-button.js
 
@@ -26024,7 +26028,7 @@ $.fn.extendButton = function(option) {
 };
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/control/tools/filter-button.js
 
@@ -26259,7 +26263,7 @@ $.fn.filterButton = function (option) {
 };
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/control/tools/hover-view.js
 
@@ -26537,7 +26541,7 @@ $.fn.addHoverView = function (view) {
 };
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/control/tools/progress.js
 
@@ -26880,7 +26884,7 @@ $.fn.progress = function(option) {
 };
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/control/tools/slidebar.js
 
@@ -27181,7 +27185,7 @@ $.fn.slidebar = function(option) {
 };
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/control/tools/switch-button.js
 
@@ -27447,7 +27451,7 @@ $.fn.switchButton = function(option) {
 };
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/control/tools/tag.js
 
@@ -27670,7 +27674,7 @@ ui.ctrls.Tag.addColor = function(name, color) {
 };
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/control/tools/uploader.js
 
@@ -28018,7 +28022,7 @@ $.fn.uploader = function(option) {
 };
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/control/images/image-preview.js
 
@@ -28384,7 +28388,7 @@ $.fn.imagePreview = function(option) {
 };
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/control/images/image-viewer.js
 
@@ -28708,7 +28712,7 @@ $.fn.imageViewer = function(option) {
 };
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/control/images/image-watcher.js
 
@@ -28874,7 +28878,7 @@ $.fn.imageWatcher = function(option) {
 };
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/control/images/image-zoomer.js
 
@@ -29407,7 +29411,7 @@ $.fn.addImageZoomer = function (zoomer) {
 };
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/viewpage/menu.js
 
@@ -30374,7 +30378,7 @@ ui.ctrls.define("ui.ctrls.Menu", {
 });
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/viewpage/page-extend.js
 
@@ -30747,7 +30751,7 @@ plugin({
     }
 });
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/viewpage/sidebar-manager.js
 
@@ -30856,7 +30860,7 @@ SidebarManager.prototype = {
 ui.SidebarManager = SidebarManager;
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/viewpage/tile-view.js
 
@@ -31719,7 +31723,7 @@ TileContainer.prototype = {
 ui.TileContainer = TileContainer;
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/viewpage/tiles/tile-calendar.js
 
@@ -31805,7 +31809,7 @@ ui.tiles.calendar = function(tile) {
 };
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/viewpage/tiles/tile-clock.js
 
@@ -31895,7 +31899,7 @@ ui.tiles.clock = function(tile) {
 };
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/viewpage/tiles/tile-picture.js
 
@@ -32081,7 +32085,7 @@ function moveNext(tile) {
 }
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/viewpage/tiles/tile-weather.js
 
@@ -32390,7 +32394,7 @@ ui.tiles.weather = function(tile, weatherData) {
 };
 
 
-})(ui, $);
+})(ui, ui.$);
 
 // Source: src/viewpage/toolbar.js
 
@@ -32613,7 +32617,7 @@ Toolbar.prototype = {
 ui.Toolbar = Toolbar;
 
 
-})(ui, $);
+})(ui, ui.$);
 
 
 // 兼容AMD
