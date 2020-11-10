@@ -20,21 +20,22 @@ pageInit({
 });
 
 function createTiles() {
-    const tileColor = "rgba(255, 255, 255, .4)";
+    //const tileColor = "rgba(255, 255, 255, .4)";
+    const tileColor = ui.theme.currentHighlight.Color;
     const tileIcon = "/content/icon/tile/Settings.png";
 
     const tileContainer = ui.TileContainer(document.createElement("div"));
     tileContainer.addGroup("常用", [
         { type: "large", color: tileColor, title: "天气", icon: tileIcon, name: "weather", interval: 5, updateFn: updateWeather },
-        { type: "wide", color: tileColor, title: "日期", icon: tileIcon, name: "date", interval: 1, updateStyle: "moveup", updateFn: ui.tiles.calendar },
-        { type: "wide", color: tileColor, title: "时间", icon: tileIcon, name: "time", interval: 1, updateFn: ui.tiles.clock },
+        { type: "medium", color: tileColor, title: "日期", icon: tileIcon, name: "date", interval: 1, updateStyle: "moveup", updateFn: ui.tiles.calendar },
+        { type: "medium", color: tileColor, title: "时间", icon: tileIcon, name: "time", interval: 1, updateFn: ui.tiles.clock },
+        { type: "medium", color: tileColor, title: "manage", icon: tileIcon, link: "./manage.html" },
+        { type: "medium", color: tileColor, title: "机票打印", icon: tileIcon },
         { type: "small", color: tileColor, title: "bing", icon: tileIcon, link: "http://cn.bing.com" },
         { type: "small", color: tileColor, title: "baidu", icon: tileIcon, link: "http://www.baidu.com" },
         { type: "small", color: tileColor, title: "microsoft", icon: tileIcon },
         { type: "small", color: tileColor, title: "google", icon: tileIcon },
         { type: "medium", color: tileColor, title: "浏览器", icon: tileIcon },
-        { type: "medium", color: tileColor, title: "manage", icon: tileIcon, link: "./manage.html" },
-        { type: "medium", color: tileColor, title: "机票打印", icon: tileIcon },
         { type: "medium", color: tileColor, title: "度假", icon: tileIcon },
         { type: "medium", color: tileColor, title: "请假单", icon: tileIcon }
     ]);
