@@ -1,5 +1,5 @@
 import ui from "soonui";
-import { createElement, append, addClass, css, prop, html } from "../html/html-utils";
+import { createElement, append, addClass, css, prop, html, on } from "../html/html-utils";
 
 
 function createToolbarBuilder() {
@@ -70,7 +70,7 @@ function createButtons(li, buttons) {
                 html(a, b.icon);
             }
             if(ui.core.isFunction(b.handler)) {
-                a.addEventListener("click", b.handler, false);
+                on(a, "click", b.handler);
             }
 
             append(li, a);

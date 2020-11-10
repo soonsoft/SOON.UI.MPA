@@ -3,7 +3,7 @@ import style from "./manage.css";
 import ui from "soonui";
 import { pageSettings, pageInit, bodyAppend } from "../../common/layout/menu-layout";
 import { createToolbarBuilder } from "../../common/components/toolbar";
-import { createElement, css, append, addClass, text } from "../../common/html/html-utils";
+import { createElement, css, append, addClass, text, on } from "../../common/html/html-utils";
 
 pageSettings({
     title: "MANAGE",
@@ -125,9 +125,7 @@ function createSidePanel(parentElement) {
         let button = createElement("button");
         addClass(button, "button");
         css(button, {
-            marginRight: "10px",
-            height: "24px",
-            lineHeight: "24px"
+            marginRight: "10px"
         });
         text(button, content);
         return button;
@@ -169,10 +167,10 @@ function createSidePanel(parentElement) {
 
     };
 
-    saveButton.addEventListener("click", function() {
+    on(saveButton, "click", function() {
         sidePanel.hide();
     });
-    cancelButton.addEventListener("click", function() {
+    on(cancelButton, "click", function() {
         sidePanel.hide();
         ui.page.gridView.cancelSelection();
     });

@@ -119,6 +119,21 @@ function toggleClass(element) {
     callFunc(element, "toggleClass", args);
 }
 
+function on(element) {
+    let args = slice.call(arguments, 1);
+    callFunc(element, "on", args);
+}
+
+function off(element) {
+    let args = slice.call(arguments, 1);
+    callFunc(element, "off", args);
+}
+
+function trigger(element) {
+    let args = slice.call(arguments, 1);
+    callFunc(element, "trigger", args);
+}
+
 //#endregion
 
 export {
@@ -140,5 +155,8 @@ export {
     removeClass,
     getClassList,
     hasClass,
-    toggleClass
+    toggleClass,
+    on,
+    off,
+    trigger
 };

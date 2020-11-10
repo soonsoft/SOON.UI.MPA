@@ -53,12 +53,9 @@ if(noGlobal) {
 	window.SOONUI = ui;
 }
 
-var $ = null;
+var $ = ui.$ = window.$;
 function init_$() {
-	$ = ui.$ || window.$;
-	if(!window.$) {
-		window.$ = $ || undefined;
-	}
+	$ = ui.$;
 }
 
 ui.version = '3.5.0';
@@ -9559,6 +9556,8 @@ page.get = function(pluginName) {
         };
     })(handlers, ranks, pluginName);
 };
+
+/*
 page.watch = function(property, fn) {
     var vm = this.model,
         props, propertyName, i;
@@ -9601,6 +9600,8 @@ page.plugin({
         }
     }
 });
+*/
+
 // 创建
 page.plugin({
     name: "created",
