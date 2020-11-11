@@ -194,7 +194,7 @@ function addFormFunctions(box, fnOption) {
         box[name] = (function(data) {
             this.$isUpdate = isUpdate;
             this.setTitle(boxTitle);
-            this.fillForm(data || {});
+            this.fillForm(data || null);
             this.show();
         }).bind(box);
 
@@ -206,9 +206,23 @@ function addFormFunctions(box, fnOption) {
     });
 }
 
+ui.page.ctrlBag = ui.KeyArray();
+function putToBag(key, ctrl) {
+    if(!ui.core.isString(key)|| !key) {
+        throw new TypeError("the parameter key is required.");
+    }
+    ui.page.ctrlBag.set(key, ctrl);
+}
+
+function getFromBag(key) {
+    return ui.page.ctrlBag.get(key + "");
+}
+
 export {
     pageSettings,
     pageInit,
     bodyAppend,
-    addFormFunctions
+    addFormFunctions,
+    putToBag,
+    getFromBag
 };

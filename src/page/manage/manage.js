@@ -1,10 +1,10 @@
 import style from "./manage.css";
 
 import ui from "soonui";
-import { pageSettings, pageInit, bodyAppend, addFormFunctions } from "../../common/layout/menu-layout";
+import { pageSettings, pageInit, bodyAppend, addFormFunctions, putToBag, getFromBag } from "../../common/layout/menu-layout";
 import { createToolbarBuilder } from "../../common/components/toolbar";
 import { createElement, css, append, addClass, text, on, prop } from "../../common/html/html-utils";
-import { dateChooser } from "../../common/ctrl/ctrl-utils";
+import { dateChooser, switchButton } from "../../common/ctrl/ctrl-utils";
 
 pageSettings({
     title: "MANAGE",
@@ -29,6 +29,10 @@ pageInit({
     layout() {
         const height = this.contentBodyHeight;
         const toolbarHeight = this.toolbar.height;
+
+        css(this.contentPanel, {
+            height: (height - toolbarHeight) + "px"
+        });
         if(this.gridView) {
             this.gridView.setSize(height - toolbarHeight);
         }
@@ -60,6 +64,8 @@ function createToolbarElement() {
                     text: "删除",
                     icon: "<i class='far fa-minus'></i>",
                     handler: function() {
+                        let selectionList = ui.page.gridView.getCheckedValues();
+                        console.log(selectionList);
                         ui.messageShow("remove the selection data.");
                     }
                 }
@@ -90,7 +96,7 @@ function createGridView(parentElement) {
     const gridview = ui.ctrls.GridView({
         columns: [
             { text: "#", align: "right", len: 60, formatter: ui.ColumnStyle.cfn.rowNumber },
-            { text: ui.ColumnStyle.cnfn.checkAll, align: "center", len: 40, formatter: ui.ColumnStyle.cfn.check },
+            { text: ui.ColumnStyle.cnfn.checkAll, column: "id", align: "center", len: 40, formatter: ui.ColumnStyle.cfn.check },
             { text: "姓名", column: "name", len: 100 },
             { text: "年龄", column: "age", len: 100, align: "center" },
             { text: "电话", column: "phone", len: 120, align: "center", formatter: ui.ColumnStyle.cfn.cellPhone },
@@ -106,7 +112,7 @@ function createGridView(parentElement) {
     }, element);
 
     gridview.pagechanging(function(e, pageIndex, pageSize) {
-        loadGridviewData(pageIndex);
+        loadGridViewData(pageIndex);
     });
     gridview.rebind(function() {
         ui.page.sidePanel.hide();
@@ -148,14 +154,42 @@ function createSidePanel(parentElement) {
 
     addFormFunctions(sidePanel, {
         fillForm: function(data) {
+            let status = true;
+            if(!data) {
+                data = {};
+            } else {
+                status = !!data.status;
+            }
 
+            let element = document.getElementById("name");
+            element.value = data.name || "";
+
+            element = document.getElementById("age");
+            element.value = data.age || "";
+
+            element = document.getElementById("phone");
+            element.value = data.phone || "";
+
+            element = document.getElementById("dateValue");
+            element.value = data.dateValue ? ui.date.format(data.dateValue, "yyyy-MM-dd HH:mm:ss") : "";
+
+            let switchButton = getFromBag("status");
+            switchButton.checked = status;
         },
         getFormData: function() {
-
+            let data = {
+                name: document.getElementById("name").value || null,
+                age: parseInt(document.getElementById("age").value, 10) || null,
+                phone: document.getElementById("phone").value || null,
+                dateValue: ui.date.parse(document.getElementById("dateValue").value, "yyyy-MM-dd HH:mm:ss"),
+                status: getFromBag("status").checked
+            };
+            return data;
         }
     });
 
     on(saveButton, "click", function() {
+        console.log(sidePanel.getFormData());
         sidePanel.hide();
     });
     on(cancelButton, "click", function() {
@@ -259,16 +293,17 @@ function createFormElement() {
             for: input.id
         });
 
-        let switchButton = ui.ctrls.SwitchButton({}, input);
-        switchButton.changed(function() {
+        let switchBtn= switchButton(input);
+        switchBtn.changed(function() {
             if(this.checked) {
                 this.switchBox.next().text("有效");
             } else {
                 this.switchBox.next().text("无效");
             }
         });
+        putToBag("status", switchBtn);
 
-        return [switchButton.switchBox, label];
+        return [switchBtn.switchBox, label];
     });
 
     append(element, createElement("br"));
@@ -296,6 +331,7 @@ function loadGridViewData(pageIndex) {
     const viewData = [];
     for(let i = 0; i < 20; i++) {
         viewData.push({
+            id: (i + 1) + (ui.page.gridView.pageIndex - 1) * ui.page.gridView.pageSize,
             name: "姓名" + (i + 1),
             age: ui.random.getNum(1, 150),
             dateValue: new Date(),
