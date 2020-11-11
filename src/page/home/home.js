@@ -30,7 +30,7 @@ function createTiles() {
         { type: "medium", color: tileColor, title: "日期", icon: tileIcon, name: "date", interval: 1, updateStyle: "moveup", updateFn: ui.tiles.calendar },
         { type: "medium", color: tileColor, title: "时间", icon: tileIcon, name: "time", interval: 1, updateFn: ui.tiles.clock },
         { type: "medium", color: tileColor, title: "MANAGE", icon: tileIcon, link: "./manage.html" },
-        { type: "medium", color: tileColor, title: "LOGIN", icon: tileIcon },
+        { type: "medium", color: tileColor, title: "LOGIN", icon: tileIcon, link: "./login.html" },
         { type: "small", color: tileColor, title: "bing", icon: tileIcon, link: "http://cn.bing.com" },
         { type: "small", color: tileColor, title: "baidu", icon: tileIcon, link: "http://www.baidu.com" },
         { type: "small", color: tileColor, title: "microsoft", icon: tileIcon },

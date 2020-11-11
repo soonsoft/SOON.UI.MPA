@@ -6,6 +6,12 @@
  */
 module.exports = [
       {
+         name: "login",
+         url: "",
+         layout: "login.ejs",
+         js: "account/login/login.js"
+      },
+      {
          name: "home",
          url: "",
          layout: "",
