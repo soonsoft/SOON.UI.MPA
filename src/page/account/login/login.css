@@ -25,8 +25,7 @@
     height: 40px;
     line-height: 40px;
     text-align: right;
-    /* background-image: url(/content/images/login-text-shadow.png);
-    background-repeat: repeat-x; */
+    background: linear-gradient(0deg, rgba(0, 0, 0, .5) 2%, transparent);
 }
 
 #loginWindow .logo {
@@ -59,7 +58,6 @@
     top: 0px;
     bottom: 0px;
     background-color: #000000;
-    filter: Alpha(opacity=0);
     opacity: 0;
 }
 
@@ -95,7 +93,6 @@ input[type='password'] {
     line-height: 26px;
     color: #333333;
     background-color: #BFBFBF;
-    filter: Alpha(opacity=60);
     opacity: .6;
 }
 
@@ -106,7 +103,6 @@ input[type='password']:focus {
     background-color: #E6E5E5;
     color: #000000;
     text-decoration: none;
-    filter: Alpha(opacity=100);
     opacity: 1;
 }
 

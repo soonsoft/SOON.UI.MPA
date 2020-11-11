@@ -1,165 +1,54 @@
 import style from "./login.css";
 
 import ui from "soonui";
-import { css } from "../../../common/html/html-utils";
+import Parallax from "./parallax";
+import { append, createElement, css, text } from "../../../common/html/html-utils";
 
 const $ = ui.$;
 
-class Parallax {
-    constructor(view, image, width, height) {
-        this.imageScale = 1.1;
-        this.view = view;
-        this.image = image;
-        this.enabled = true;
+const header = "SOON.UI LOGIN";
+const imageName = "SOON.UI by SoonSoft";
 
-        if(ui.core.type(width) === "number") {
-            this.width = width;
-        } else {
-            this.width = this.view.width();
-        }
-        if(ui.core.type(height) === "number") {
-            this.height = height;
-        } else {
-            this.height = this.view.height();
-        }
-        this.initial();
+const windowSize = {
+    tiny: {
+        width: 958,
+        height: 512,
+        startWidth: 0,
+        startHeight: 0,
+        logoTop: 70,
+        logoSize: "2.5em",
+        formTop: 284
+    },
+    small: {
+        width: 1092,
+        height: 614,
+        startWidth: 0,
+        startHeight: 0,
+        logoTop: 100,
+        logoSize: "2.7em",
+        formTop: 340
+    },
+    middle: {
+        width: 1366,
+        height: 768,
+        startWidth: 1440,
+        startHeight: 960,
+        logoTop: 140,
+        logoSize: "3.4em",
+        formTop: 500
+    },
+    large: {
+        width: 1920,
+        height: 1080,
+        startWidth: 2560,
+        startHeight: 1440,
+        logoTop: 200,
+        logoSize: "4.2em",
+        formTop: 712
     }
-
-    initial() {
-        this.view.css({
-            "position": "relative",
-            "overflow": "hidden"
-        });
-        this.image.css("position", "absolute");
-        this.initialImageAnimator();
-        this.view.mouseenter(e => {
-            if (this.enabled) {
-                this.changeImageLocation(e.clientX, e.clientY, true);
-            }
-        });
-        this.view.mousemove(e => {
-            if (this.enabled) {
-                this.changeImageLocation(e.clientX, e.clientY);
-            }
-        });
-        this.view.mouseleave(e => {
-            if (this.enabled) {
-                this.stopImageLocation();
-            }
-        });
-    }
-
-    initialImageAnimator() {
-        this.imageAnimator = ui.animator({
-            target: this.image,
-            ease: ui.AnimationStyle.easeFromTo,
-            onChange: function(val) {
-                this.target.css("top", val + "px");
-            }
-        }).add({
-            target: this.image,
-            ease: ui.AnimationStyle.easeFromTo,
-            onChange: function(val) {
-                this.target.css("left", val + "px");
-            }
-        });
-        this.imageAnimator.onEnd = () => {
-            this.beginAnimation = false;
-        };
-        this.imageAnimator.duration = 200;
-    }
-
-    resize(width, height) {
-        this.width = width;
-        this.height = height;
-        this.resetImageLocation();
-    }
-
-    resetImageLocation() {
-        this.imageWidth = this.width * this.imageScale;
-        this.imageHeight = this.height * this.imageScale;
-        this.imageMoveWidth = this.imageWidth - this.width;
-        this.imageMoveHeight = this.imageHeight - this.height;
-
-        css(this.image, {
-            width: this.imageWidth + "px",
-            height: this.imageHeight + "px",
-            top: -(this.imageMoveHeight / 2) + "px",
-            left: -(this.imageMoveWidth / 2) + "px"
-        });
-    }
-
-    changeImageLocation(x, y) {
-        if(this.beginAnimation) {
-            return;
-        }
-        const p = this.view.offset();
-        x -= p.left + 1;
-        y -= p.top + 1;
-
-        const currentLeft = parseFloat(this.image.css("left"));
-        const currentTop = parseFloat(this.image.css("top"));
-        const left = -(this.imageMoveWidth * (x / this.width));
-        const top = -(this.imageMoveHeight * (y / this.height));
-
-        if(Math.abs(currentLeft - left) > 20 || Math.abs(currentTop - top) > 20) {
-            let  option = this.imageAnimator[0];
-            option.begin = currentTop;
-            option.end = top;
-
-            option = this.imageAnimator[1];
-            option.begin = currentLeft;
-            option.end = left;
-            
-            this.beginAnimation = true;
-            this.imageAnimator.start();
-        } else {
-            css(this.image, {
-                top: top + "px",
-                left: left + "px"
-            });
-        }
-    }
-
-    stopImageLocation() {
-        if(this.beginAnimation) {
-            this.beginAnimation = false;
-            this.imageAnimator.stop();
-        }
-    }
-
-}
+};
 
 const loginWindow = {
-    size: {
-        small: {
-            width: 958,
-            height: 512,
-            startWidth: 0,
-            startHeight: 0,
-            logoTop: 70,
-            logoSize: "2.5em",
-            formTop: 284
-        },
-        middle: {
-            width: 1366,
-            height: 768,
-            startWidth: 1440,
-            startHeight: 960,
-            logoTop: 140,
-            logoSize: "3.4em",
-            formTop: 500
-        },
-        large: {
-            width: 1920,
-            height: 1080,
-            startWidth: 2560,
-            startHeight: 1440,
-            logoTop: 200,
-            logoSize: "4.2em",
-            formTop: 712
-        }
-    },
     initial() {
         this.loginWindow = $("#loginWindow");
         this.loginPanel = this.loginWindow.children(".login-panel");
@@ -169,6 +58,15 @@ const loginWindow = {
 
         this.parallax = new Parallax(this.loginWindow, this.bgImg);
         this.initFocus();
+
+        text(this.logo, header);
+        
+        let span = createElement("span");
+        css(span, {
+            marginRight: "10px"
+        });
+        text(span, imageName);
+        append($(".image-name"), span);
 
         this.onResize();
         this.loginWindow.css("visibility", "visible");
@@ -200,7 +98,7 @@ const loginWindow = {
             if (this.spotlightAnimator.isStarted) {
                 this.spotlightAnimator.stop();
             }
-            this.onSpotlightHandle = setTimeout(function () {
+            this.onSpotlightHandle = setTimeout(() => {
                 this.onSpotlightHandle = null;
                 this.onSpotlight();
             }, 200);
@@ -212,7 +110,7 @@ const loginWindow = {
             if (this.spotlightAnimator.isStarted) {
                 this.spotlightAnimator.stop();
             }
-            this.offSpotlightHandle = setTimeout(function () {
+            this.offSpotlightHandle = setTimeout(() => {
                 this.offSpotlightHandle = null;
                 this.offSpotlight();
             }, 200);
@@ -238,12 +136,12 @@ const loginWindow = {
         }
     },
     getSize() {
-        const sizeArray = ["small", "middle", "large"];
+        const sizeArray = ["tiny", "small", "middle", "large"];
         const width = this.clientWidth;
         const height = this.clientHeight;
 
         for (let i = sizeArray.length - 1; i >= 0; i--) {
-            let size = this.size[sizeArray[i]];
+            let size = windowSize[sizeArray[i]];
             if (width >= size.startWidth && height >= size.startHeight) {
                 return size;
             }
