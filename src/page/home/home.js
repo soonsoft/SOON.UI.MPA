@@ -1,4 +1,4 @@
-import style from "./home.css";
+import "./home.css";
 
 import ui from "soonui";
 import { pageSettings, pageInit, bodyAppend } from "../../common/layout/layout-master";

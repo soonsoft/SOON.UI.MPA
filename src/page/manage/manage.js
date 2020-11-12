@@ -1,4 +1,4 @@
-import style from "./manage.css";
+import "./manage.css";
 
 import ui from "soonui";
 import { pageSettings, pageInit, bodyAppend, addFormFunctions, putToBag, getFromBag } from "../../common/layout/menu-layout";

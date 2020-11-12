@@ -1,4 +1,4 @@
-import style from "./login.css";
+import "./login.css";
 
 import ui from "soonui";
 import Parallax from "./parallax";
@@ -22,8 +22,8 @@ const windowSize = {
     small: {
         width: 1092,
         height: 614,
-        startWidth: 0,
-        startHeight: 0,
+        startWidth: 1280,
+        startHeight: 719,
         logoTop: 100,
         logoSize: "2.7em",
         formTop: 340
@@ -69,7 +69,9 @@ const loginWindow = {
         append($(".image-name"), span);
 
         this.onResize();
-        this.loginWindow.css("visibility", "visible");
+        css(this.loginWindow, {
+            visibility: "visible"
+        });
         ui.page.resize(() => {
             this.onResize();
         }, ui.eventPriority.bodyResize);
@@ -83,9 +85,8 @@ const loginWindow = {
             target: $(".panel-background"),
             ease: ui.AnimationStyle.easeTo,
             onChange: function (val) {
-                this.target.css({
-                    "filter": "Alpha(opacity=" + val + ")",
-                    "opacity": val / 100
+                css(this.target, {
+                    opacity: val / 100
                 });
             }
         });
@@ -148,12 +149,12 @@ const loginWindow = {
         }
     },
     setLocation() {
-        const left = (this.clientWidth - this.panelWidth) / 2;
-        const top = (this.clientHeight - this.panelHeight) / 2;
+        let left = (this.clientWidth - this.panelWidth) / 2;
+        let top = (this.clientHeight - this.panelHeight) / 2;
         if (left < 0) {
             left = 0;
         }
-        this.loginWindow.css({
+        css(this.loginWindow, {
             top: top + "px",
             left: left + "px"
         });
@@ -163,7 +164,9 @@ const loginWindow = {
             width: this.panelWidth + "px",
             height: this.panelHeight + "px"
         });
-        this.logo.css("font-size", size.logoSize);
+        css(this.logo, {
+            fontSize: size.logoSize
+        });
         if (this.parallax) {
             this.parallax.resize(this.panelWidth, this.panelHeight);
         }
@@ -175,30 +178,32 @@ const loginWindow = {
                 target: this.logo,
                 ease: ui.AnimationStyle.easeTo,
                 onChange: function (val) {
-                    this.target.css("top", val + "px");
+                    css(this.target, {
+                        top: val + "px"
+                    });
                 }
             }).add({
                 target: this.logo,
                 ease: ui.AnimationStyle.easeFrom,
                 onChange: function (val) {
-                    this.target.css({
-                        "filter": "Alpha(opacity=" + val + ")",
-                        "opacity": val / 100
+                    css(this.target, {
+                        opacity: val / 100
                     });
                 }
             }).add({
                 target: this.loginContent,
                 ease: ui.AnimationStyle.easeTo,
                 onChange: function (val) {
-                    this.target.css("top", val + "px");
+                    css(this.target, {
+                        top: val + "px"
+                    });
                 }
             }).add({
                 target: this.loginContent,
                 ease: ui.AnimationStyle.easeFrom,
                 onChange: function (val) {
-                    this.target.css({
-                        "filter": "Alpha(opacity=" + val + ")",
-                        "opacity": val / 100
+                    css(this.target, {
+                        opacity: val / 100
                     });
                 }
             });
@@ -208,7 +213,7 @@ const loginWindow = {
         this.elemAnimator.stop();
 
         let option = this.elemAnimator[0];
-        option.begin = parseFloat(option.target.css("top"), 10);
+        option.begin = parseFloat(css(option.target, "top"));
         option.end = logoTop;
         option = this.elemAnimator[1];
         option.begin = 0;
@@ -224,13 +229,13 @@ const loginWindow = {
     },
     onSpotlight() {
         const option = this.spotlightAnimator[0];
-        option.begin = Math.floor(parseFloat(option.target.css("opacity")) * 100) || 0;
+        option.begin = Math.floor(parseFloat(css(option.target, "opacity")) * 100) || 0;
         option.end = 40;
         this.spotlightAnimator.start();
     },
     offSpotlight() {
         const option = this.spotlightAnimator[0];
-        option.begin = Math.floor(parseFloat(option.target.css("opacity")) * 100) || 0;
+        option.begin = Math.floor(parseFloat(css(option.target, "opacity")) * 100) || 0;
         option.end = 0;
         this.spotlightAnimator.start();
     },
