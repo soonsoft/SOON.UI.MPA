@@ -1,6 +1,9 @@
 import ui from "soonui";
 import { defineXMapComponent } from "../util/define";
 
+const showedToolPanelArray = [];
+const body = document.body;
+
 export default defineXMapComponent("MapToolPanel", {
     _defineOption() {
         return {

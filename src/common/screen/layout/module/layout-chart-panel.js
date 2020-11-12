@@ -2,6 +2,10 @@ import ui from "soonui";
 import { defineScreenModule } from "../../util/define";
 import LayoutBaseModule from "./layout-base-module";
 
+const defaultChartColors = [
+
+];
+
 // 柱状图面板
 const LayoutChartBarPanel = defineScreenModule("LayoutChartBarPanel", LayoutBaseModule, {
     _createContent() {
@@ -10,7 +14,7 @@ const LayoutChartBarPanel = defineScreenModule("LayoutChartBarPanel", LayoutBase
     },
     _initPanel() {
         this.highlightColor = ui.theme.currentHighlight.Color;
-        this.chartColors = this.option.chartColors || CloudAtlas.chartColors;
+        this.chartColors = this.option.chartColors || defaultChartColors;
 
         var that = this;
         this.resize(function(e) {

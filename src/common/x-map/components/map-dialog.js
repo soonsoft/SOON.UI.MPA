@@ -1,6 +1,8 @@
 import ui from "soonui";
 import { defineXMapComponent } from "../util/define";
 
+const body = document.body;
+
 ui.ctrls.DialogBox.setShowStyle("rightShow", function () {
     var clientWidth,
         option,
