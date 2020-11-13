@@ -1,8 +1,6 @@
 import ui from "soonui";
 import { createElement, text, append, addClass, prop } from "../html/html-utils";
-
-ui.page.title = "TITLE";
-ui.page.header = "HEADER";
+import { initTitle } from "./common";
 
 let pageSettingsOption = {
     title: "TITLE",
@@ -45,19 +43,6 @@ const masterInitConfig = {
 };
 
 //#region prepare page layout
-
-function initTitle() {
-    let title = document.getElementsByTagName("title");
-    let titleText = pageSettingsOption.title;
-    if(title.length === 0) {
-        title = createElement("title");
-        text(title, titleText);
-        let head = document.getElementsByTagName("head")[0];
-        append(head, title);
-    } else {
-        text(title[0], titleText);
-    }
-}
 
 function initHead() {
     let head = document.getElementById("head");
@@ -163,7 +148,7 @@ function pageSettings(settings) {
 }
 
 function pageInit(pageInitConfig) {
-    initTitle();
+    initTitle(pageSettingsOption.title);
     initHead();
 
     const config = ui.extend({}, masterInitConfig, pageInitConfig);

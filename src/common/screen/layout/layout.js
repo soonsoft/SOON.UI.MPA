@@ -1,4 +1,5 @@
 import ui from "soonui";
+import { css } from "../../html/html-utils";
 
 class LayoutFence {
 
@@ -64,6 +65,28 @@ class LayoutFence {
 
 }
 
+function getShowStyle(setStartFn) {
+    return function() {
+        let option = this.animator[0];
+        setStartFn.call(this, option);
+        option.onChange = left => {
+            css(this.box, {
+                left: left + "px"
+            });
+        };
+        this.openMask();
+        this.animator.onEnd = () => {
+            this.onShown();
+        };
+
+        css(this.box, {
+            top: this.positionTop + "px",
+            left: option.begin + "px",
+            display: "block"
+        });
+    };
+}
+
 class Layout {
 
     constructor(option) {
@@ -80,66 +103,43 @@ class Layout {
 
         this.isShown = false;
 
-        function getShowStyle(setStartFn) {
-            return function() {
-                var option,
-                    that;
-
-                that = this;
-
-                option = this.animator[0];
-                setStartFn.call(this, option);
-                option.onChange = function (left) {
-                    that.box.css("left", left + "px");
-                };
-                this.openMask();
-                this.animator.onEnd = function () {
-                    that.onShown();
-                };
-
-                this.box.css({
-                    "top": this.positionTop + "px",
-                    "left": option.begin + "px",
-                    "display": "block"
-                });
-            };
-        }
-
         ui.ctrls.DialogBox.setShowStyle("showFromLeft", getShowStyle(function(option) {
             option.begin = -this.offsetWidth;
             option.end = this.positionLeft;
         }));
         ui.ctrls.DialogBox.setShowStyle("showFromRight", getShowStyle(function(option) {
-            var clientWidth = this.parent.width();
+            let clientWidth = this.parent.width();
             option.begin = clientWidth;
             option.end = this.positionLeft;
         }));
 
         this.createRestore = function(panel) {
-            var restoreAnimator = ui.animator({
+            let restoreAnimator = ui.animator({
                 target: panel.box,
                 ease: ui.AnimationStyle.easeFromTo,
                 onChange: function(val) {
-                    this.target.css("top", val + "px");
+                    css(this.target, {
+                        top: val + "px"
+                    });
                 }
             }).add({
                 target: panel.box,
                 ease: ui.AnimationStyle.easeFromTo,
                 onChange: function(val) {
-                    this.target.css("left", val + "px");
+                    css(this.target, {
+                        left: val + "px"
+                    });
                 }
             });
             restoreAnimator.duration = 240;
 
             panel.restore = function() {
-                var option;
-
-                option = restoreAnimator[0];
-                option.begin = parseFloat(option.target.css("top"));
+                let option = restoreAnimator[0];
+                option.begin = parseFloat(css(option.target, "top"));
                 option.end = this.positionTop;
 
                 option = restoreAnimator[1];
-                option.begin = parseFloat(option.target.css("left"));
+                option.begin = parseFloat(css(option.target, "left"));
                 option.end = this.positionLeft;
 
                 restoreAnimator.start();

@@ -29,15 +29,15 @@ function createTiles() {
         { type: "large", color: tileColor, title: "天气", icon: tileIcon, name: "weather", interval: 5, updateFn: updateWeather },
         { type: "medium", color: tileColor, title: "日期", icon: tileIcon, name: "date", interval: 1, updateStyle: "moveup", updateFn: ui.tiles.calendar },
         { type: "medium", color: tileColor, title: "时间", icon: tileIcon, name: "time", interval: 1, updateFn: ui.tiles.clock },
-        { type: "medium", color: tileColor, title: "MANAGE", icon: tileIcon, link: "./manage.html" },
-        { type: "medium", color: tileColor, title: "LOGIN", icon: tileIcon, link: "./login.html" },
         { type: "small", color: tileColor, title: "bing", icon: tileIcon, link: "http://cn.bing.com" },
         { type: "small", color: tileColor, title: "baidu", icon: tileIcon, link: "http://www.baidu.com" },
         { type: "small", color: tileColor, title: "microsoft", icon: tileIcon },
         { type: "small", color: tileColor, title: "google", icon: tileIcon },
         { type: "medium", color: tileColor, title: "浏览器", icon: tileIcon },
-        { type: "medium", color: tileColor, title: "度假", icon: tileIcon },
-        { type: "medium", color: tileColor, title: "请假单", icon: tileIcon }
+        { type: "medium", color: tileColor, title: "MANAGE", icon: tileIcon, link: "./manage.html" },
+        { type: "medium", color: tileColor, title: "LOGIN", icon: tileIcon, link: "./login.html" },
+        { type: "medium", color: tileColor, title: "SCREEN", icon: tileIcon, link: "./screen.html" },
+        { type: "medium", color: tileColor, title: "X-MAP", icon: tileIcon }
     ]);
     tileContainer.addGroup("日常工作", [
         { type: "wide", color: tileColor, title: "工时记录", icon: tileIcon },

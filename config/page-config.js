@@ -28,5 +28,11 @@ module.exports = [
          url: "",
          layout: "",
          js: "about/about.js"
+      },
+      {
+         name: "screen",
+         url: "",
+         layout: "screen-layout.ejs",
+         js: "map/screen/screen.js"
       }
  ];

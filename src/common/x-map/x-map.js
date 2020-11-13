@@ -1,3 +1,5 @@
+import "./x-map-galaxy.css";
+
 import "./components/map-layer-panel";
 import "./components/map-menu-list";
 import "./components/map-context-menu";

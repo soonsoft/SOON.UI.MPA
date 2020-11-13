@@ -20,7 +20,7 @@ function defineScreenComponent(name, base, prototype) {
 
     name = [namespace, ".", name].join("");
 
-    return ui.ctrl.define(name, base, prototype);
+    return ui.ctrls.define(name, base, prototype);
 }
 
 export {
