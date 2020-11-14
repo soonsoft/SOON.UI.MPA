@@ -235,8 +235,6 @@ const loginWindow = {
     },
     offSpotlight() {
         const option = this.spotlightAnimator[0];
-        let opacity = css(option.target, "opacity");
-        console.log([opacity]);
         option.begin = Math.floor(parseFloat(css(option.target, "opacity")) * 100) || 0;
         option.end = 0;
         this.spotlightAnimator.start();

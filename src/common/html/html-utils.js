@@ -62,32 +62,32 @@ function empty(element) {
 
 function text(element) {
     let args = slice.call(arguments, 1);
-    callFunc(element, "text", args);
+    return callFunc(element, "text", args);
 }
 
 function html(element) {
     let args = slice.call(arguments, 1);
-    callFunc(element, "html", args);
+    return callFunc(element, "html", args);
 }
 
 function outerHtml(element) {
     let args = slice.call(arguments, 1);
-    callFunc(element, "outerHtml", args);
+    return callFunc(element, "outerHtml", args);
 }
 
 function prop(element) {
     let args = slice.call(arguments, 1);
-    callFunc(element, "prop", args);
+    return callFunc(element, "prop", args);
 }
 
 function attr(element) {
     let args = slice.call(arguments, 1);
-    callFunc(element, "attr", args);
+    return callFunc(element, "attr", args);
 }
 
 function css(element) {
     let args = slice.call(arguments, 1);
-    callFunc(element, "css", args);
+    return callFunc(element, "css", args);
 }
 
 function addClass(element) {
@@ -111,7 +111,7 @@ function getClassList(element) {
 
 function hasClass(element) {
     let args = slice.call(arguments, 1);
-    callFunc(element, "hasClass", args);
+    return callFunc(element, "hasClass", args);
 }
 
 function toggleClass(element) {
