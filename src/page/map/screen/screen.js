@@ -146,7 +146,7 @@ function createPanelManager() {
 }
 
 function createChartPiePanel(panelManager) {
-    let alarms = ["仓库报警", "库区报警", "温度报警", "湿度报警", "门禁报警"];
+    let alarms = ["库区报警", "温度报警"];
     let values = [];
 
     alarms.forEach(function(alarm) {

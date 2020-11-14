@@ -1,4 +1,5 @@
 import ui from "soonui";
+import echarts from "echarts";
 import { defineXMapComponent } from "../util/define";
 
 const body = document.body;
@@ -368,13 +369,9 @@ defineXMapComponent("MapDialog", ui.ctrls.DialogBox, {
         return this.imageView;
     },
     initChartView(container, option) {
-        var globel = ui.core.global();
         container = ui.getJQueryElement(container);
         if(!container) {
             throw new TypeError("在地图对话框中初始化图表视图时必须要传递容器。");
-        }
-        if(!globel.echarts) {
-            throw new TypeError("请先引入echarts.simple.min.js");
         }
 
         if(!option) {
@@ -389,7 +386,7 @@ defineXMapComponent("MapDialog", ui.ctrls.DialogBox, {
             "height": option.height + "px",
             "overflow": "hidden"
         });
-        this.chartView = globel.echarts.init(container.get(0));
+        this.chartView = echarts.init(container.get(0));
 
         return this.chartView;
     },

@@ -1,4 +1,5 @@
 import ui from "soonui";
+import echarts from "echarts";
 import { defineScreenModule } from "../../util/define";
 import LayoutBaseModule from "./layout-base-module";
 
@@ -50,8 +51,7 @@ const LayoutChartBarPanel = defineScreenModule("LayoutChartBarPanel", LayoutBase
                 "height": this.panel.contentHeight + "px"
             });
             if(!this.panel.chartView) {
-                return;
-                // this.panel.chartView = echarts.init(this.panelContent.get(0));
+                this.panel.chartView = echarts.init(this.panelContent.get(0));
             }
 
             var chartOption = that._getChartOption(that.chartColors, that.highlightColor);
