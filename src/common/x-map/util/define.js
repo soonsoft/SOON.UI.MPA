@@ -13,5 +13,5 @@ function defineXMapComponent(name, base, prototype) {
 }
 
 export {
-  defineXMapComponent  
+  defineXMapComponent
 };

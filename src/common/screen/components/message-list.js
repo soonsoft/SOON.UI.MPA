@@ -1,6 +1,8 @@
 import ui from "soonui";
 import { defineScreenComponent } from "../util/define";
 
+const $ = ui.$;
+
 function defaultMessageTemplate(item, itemClass, group) {
     var html = [],
         alarmClass = "alarm-message-level" + item.level,

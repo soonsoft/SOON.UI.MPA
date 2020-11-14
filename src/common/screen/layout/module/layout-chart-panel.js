@@ -2,9 +2,23 @@ import ui from "soonui";
 import { defineScreenModule } from "../../util/define";
 import LayoutBaseModule from "./layout-base-module";
 
+const $ = ui.$;
 const defaultChartColors = [
-
+    "#FA3769",
+    "#FFC828",
+    "#61A2E5",
+    "#44BEC3",
+    "#0ABF1C",
+    "#F2CB57",
+    "#4BD9FF",
+    "#A4D8B2",
+    "#FE5A3E",
+    "#6E9AEF",
+    "#BEB9FA",
+    "#FFABAF",
+    "#8CBAD1"
 ];
+
 
 // 柱状图面板
 const LayoutChartBarPanel = defineScreenModule("LayoutChartBarPanel", LayoutBaseModule, {
@@ -36,7 +50,8 @@ const LayoutChartBarPanel = defineScreenModule("LayoutChartBarPanel", LayoutBase
                 "height": this.panel.contentHeight + "px"
             });
             if(!this.panel.chartView) {
-                this.panel.chartView = echarts.init(this.panelContent.get(0));
+                return;
+                // this.panel.chartView = echarts.init(this.panelContent.get(0));
             }
 
             var chartOption = that._getChartOption(that.chartColors, that.highlightColor);

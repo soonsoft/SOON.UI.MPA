@@ -30,7 +30,7 @@ defineScreenModule("LayoutListPanel", LayoutBaseModule, {
                 ].join("");
             };
         }
-        this.panel.list = new CloudAtlas.ctrls.OperateList({
+        this.panel.list = new ui.screen.OperateList({
             width: this.panel.contentWidth,
             height: this.panel.contentHeight,
             itemFormatter: itemFormatter

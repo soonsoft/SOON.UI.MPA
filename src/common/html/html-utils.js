@@ -92,6 +92,9 @@ function css(element) {
 
 function addClass(element) {
     let args = slice.call(arguments, 1);
+    if(args.length > 1) {
+        args = [ args.join(" ") ];
+    }
     callFunc(element, "addClass", args);
 }
 
@@ -134,6 +137,14 @@ function trigger(element) {
     callFunc(element, "trigger", args);
 }
 
+function nodeName(element) {
+    if(!element) {
+        return null;
+    }
+
+    return element.nodeName || element.tagName;
+}
+
 //#endregion
 
 export {
@@ -158,5 +169,6 @@ export {
     toggleClass,
     on,
     off,
-    trigger
+    trigger,
+    nodeName
 };

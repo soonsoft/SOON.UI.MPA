@@ -12,11 +12,11 @@ let pageSettingsOption = {
 const masterInitConfig = {
     master() {
         this.loaded(function() {
-            // let pageProgress = document.getElementsByClassName("page-progress");
-            // if(pageProgress.length > 0) {
-            //     pageProgress = pageProgress[0];
-            //     remove(pageProgress);
-            // }
+            let pageProgress = document.getElementsByClassName("page-progress");
+            if(pageProgress.length > 0) {
+                pageProgress = pageProgress[0];
+                remove(pageProgress);
+            }
 
             this.body.css({
                 "visibility": "visible",

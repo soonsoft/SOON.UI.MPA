@@ -1,5 +1,5 @@
 import ui from "soonui";
-import { createElement, css, text, append, addClass, remove } from "../html/html-utils";
+import { createElement, css, text, append, addClass, remove, prop, on, hasClass, removeClass, html } from "../html/html-utils";
 import { initTitle } from "./common";
 
 ui.theme.currentTheme = "Galaxy";
@@ -48,7 +48,7 @@ ui.page.get("master").setHandler(function(arg) {
 let pageSettingsOption = {
     title: "TITLE",
     header: "HEADER",
-    headerWidth: 360,
+    headerWidth: 450,
     leftIconButtons: [],
     rightIconButtons: []
 };
@@ -87,7 +87,7 @@ const masterInitConfig = {
         // 注册时间
         let timeElem = document.getElementById("timeTool");
         setInterval(function() {
-            text(timeElem, ui.date.format(new Date(), "yyyy-MM-dd EEEE, HH:mm"));
+            text(timeElem, ui.date.format(new Date(), "yyyy-MM-dd EEEE , HH:mm"));
         }, 1000);
     }
 };
@@ -108,7 +108,7 @@ function initHeader(head, headerWidth, headerTitle) {
     if(screenBackground.length > 0) {
         screenBackground = screenBackground[0];
         css(screenBackground, {
-            transform: "perspective(" + Math.floor(headerWidth * 0.142) + "px) rotateX(-14deg)"
+            transform: "perspective(64px) rotateX(" + -Math.floor(64 / headerWidth * 100) + "deg)"
         });
     }
 
@@ -116,6 +116,118 @@ function initHeader(head, headerWidth, headerTitle) {
     if(screenTitle.length > 0) {
         screenTitle = screenTitle[0];
         text(screenTitle, headerTitle);
+    }
+
+    const marginValue = Math.floor(headerWidth / 2) + "px";
+    initToolButton(true, marginValue, pageSettingsOption.leftIconButtons);
+    initToolButton(false, marginValue, pageSettingsOption.rightIconButtons);
+}
+
+function initToolButton(isLeft, marginValue, buttons) {
+    const toolPanel = isLeft 
+        ? document.getElementById("leftToolbar") 
+        : document.getElementById("rightToolbar");
+    if(!toolPanel) {
+        return;
+    }
+    const cssSettings = isLeft ? { marginRight: marginValue } : { marginLeft: marginValue };
+    css(toolPanel, cssSettings);
+
+    if(!Array.isArray(buttons) || buttons.length === 0) {
+        return;
+    }
+
+    const ul = createElement("ul");
+    addClass(ul, "tools");
+    if(isLeft) {
+        css(ul, {
+            float: "right"
+        });
+    }
+    buttons.forEach(buttonSettings => {
+        const li = createElement("li");
+        addClass(li, "tool-item");
+        if(buttonSettings.toggle) {
+            addClass(li, "toggle-item");
+        }
+
+        const a = createElement("a");
+        addClass(a, "map-element", "map-button");
+        if(buttonSettings.text) {
+            prop(a, "title", buttonSettings.text);
+        }
+        if(buttonSettings.id) {
+            prop(a, "id", buttonSettings.id);
+        }
+        if(buttonSettings.icon) {
+            html(a, buttonSettings.icon);
+        }
+
+        if(ui.core.isFunction(buttonSettings.handler)) {
+            on(li, "click", getClickHandler(li, a, buttonSettings));
+        }
+        
+        append(li, a);
+        append(ul, li);
+    });
+    append(toolPanel, ul);
+}
+
+function getClickHandler(li, a, buttonSettings) {
+    if(buttonSettings.toggle) {
+        return e => {
+            const checked = !hasClass(a, "map-button-active");
+            if(checked) {
+                addClass(a, "map-button-active");
+            } else {
+                removeClass(a, "map-button-active");
+            }
+
+            buttonSettings.handler.call(null, checked, buttonSettings.id);
+        };
+    } else if(buttonSettings.change) {
+        let change = buttonSettings.change;
+        if(Array.isArray(change)) {
+            return e => {
+                let icon = a.getElementsByTagName("i");
+                if(icon.length === 0) {
+                    return;
+                }
+
+                icon = icon[0];
+                const states = change;
+                let state = -1;
+
+                for(let i = 0; i < states.length; i++) {
+                    if(hasClass(icon, states[i])) {
+                        removeClass(icon, states[i]);
+                        state = i;
+                        break;
+                    }
+                }
+
+                if(state > -1) {
+                    state++;
+                    if(state >= states.length) {
+                        state = 0;
+                    }
+                    addClass(icon, states[state]);
+                    buttonSettings.handler.call(null, state);
+                }
+            };
+        }
+
+        if(ui.core.isFunction(change)) {
+            return e => {
+                change.call(null, e, handler);
+            };
+        }
+
+        throw new TypeError("no support change model.");
+    } else {
+        return e => {
+            buttonSettings.handler.call(null, e);
+        };
     }
 }
 

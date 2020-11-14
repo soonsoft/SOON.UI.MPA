@@ -2,6 +2,8 @@ import ui from "soonui";
 import { defineScreenModule } from "../../util/define";
 import LayoutBaseModule from "./layout-base-module";
 
+const $ = ui.$;
+
 defineScreenModule("LayoutMessagePanel", LayoutBaseModule, {
     _init: function(option) {
         var events = ["messageclick"];
@@ -13,7 +15,7 @@ defineScreenModule("LayoutMessagePanel", LayoutBaseModule, {
     },
     _initPanel: function(panel) {
         var maxLength = this.option.maxLength || 20;
-        this.panel.messageList = new ui.ctrls.screen.MessageList({
+        this.panel.messageList = new ui.screen.MessageList({
             maxLength: maxLength,
             viewData: this.option.viewData,
             itemKey: this.option.itemKey

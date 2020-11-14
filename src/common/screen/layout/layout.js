@@ -219,7 +219,7 @@ class Layout {
         option.resizeable = false;
         option.autoPosition = false;
 
-        panel = new ui.ctrls.xmap.MapDialog(option, content);
+        panel = new ui.xmap.MapDialog(option, content);
         if(this.container) {
             panel.parent = this.container;
             panel.parent.append(panel.box);
@@ -330,7 +330,8 @@ class Layout {
         const panelList = fence.getAllPanels();
         const percentArr = [];
 
-        for(let i = 0, len = panelList.length; i < len; i++) {
+        let len = panelList.length;
+        for(let i = 0; i < len; i++) {
             let panel = panelList[i];
             let size = {
                 offsetWidth: panel.option.width,
@@ -344,10 +345,11 @@ class Layout {
         surplusHeight += len * this.panelMargin;
         surplusHeight = height - surplusHeight;
 
-        for(i = 0, len = panelList.length; i < len; i++) {
-            panel = panelList[i];
+        len = panelList.length;
+        for(let i = 0; i < len; i++) {
+            let panel = panelList[i];
             panel.overflow = false;
-            size = panel.sizeInfo;
+            let size = panel.sizeInfo;
             if(maxWidth < size.offsetWidth) {
                 maxWidth = size.offsetWidth;
             }
@@ -427,7 +429,9 @@ class Layout {
 
         const panelList = fence.getAllPanels();
         const percentArr = [];
-        for(let i = 0, len = panelList.length; i < len; i++) {
+
+        let len = panelList.length;
+        for(let i = 0; i < len; i++) {
             let panel = panelList[i];
             let size = {
                 offsetWidth: panel.option.width,
@@ -442,10 +446,11 @@ class Layout {
         surplusHeight = height - surplusHeight;
         
         let column = [];
-        for(i = 0, len = panelList.length; i < len; i++) {
-            panel = panelList[i];
+        len = panelList.length;
+        for(let i = 0; i < len; i++) {
+            let panel = panelList[i];
             panel.overflow = false;
-            size = panel.sizeInfo;
+            let size = panel.sizeInfo;
             if(maxWidth < size.offsetWidth) {
                 maxWidth = size.offsetWidth;
             }
@@ -514,7 +519,7 @@ class Layout {
     }
 
     show() {
-        const panelList = this.leftGroup.filter(function(i) {
+        let panelList = this.leftGroup.filter(function(i) {
             return !i.overflow;
         });
         for(let i = 0, len = panelList.length; i < len; i++) {
@@ -533,8 +538,9 @@ class Layout {
         panelList = this.rightGroup.filter(function(i) {
             return !i.overflow;
         });
-        for(i = 0, len = panelList.length; i < len; i++) {
-            panel = panelList[i];
+
+        for(let i = 0, len = panelList.length; i < len; i++) {
+            let panel = panelList[i];
             if(i === 0) {
                 panel.show();
             } else {

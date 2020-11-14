@@ -1,6 +1,8 @@
 import ui from "soonui";
 import { defineScreenComponent } from "../util/define";
 
+const $ = ui.$;
+
 function defaultItemTemplate(item, index) {
     var icon = this.option.icon;
     return [

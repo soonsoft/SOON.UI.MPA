@@ -1,7 +1,7 @@
 import ui from "soonui";
 
 const namespace = "screen";
-const moduleNamespace = "screen.module";
+const moduleNamespace = "ui.screen.module";
 
 function defineScreenModule(name, base, prototype) {
     if(!ui.core.isString(name) || !name) {
