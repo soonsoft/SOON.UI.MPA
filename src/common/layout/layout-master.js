@@ -1,5 +1,5 @@
 import ui from "soonui";
-import { createElement, text, append, addClass, prop } from "../html/html-utils";
+import { createElement, text, append, addClass, prop, remove } from "../html/html-utils";
 import { initTitle } from "./common";
 
 let pageSettingsOption = {
@@ -12,11 +12,24 @@ let pageSettingsOption = {
 const masterInitConfig = {
     master() {
         this.loaded(function() {
+            // let pageProgress = document.getElementsByClassName("page-progress");
+            // if(pageProgress.length > 0) {
+            //     pageProgress = pageProgress[0];
+            //     remove(pageProgress);
+            // }
+
             this.body.css({
                 "visibility": "visible",
                 "opacity": 0
             });
             ui.animator.fadeIn(this.body, 500);
+
+            ui.ajax.global.start(function() {
+                ui.loadingShow();
+            });
+            ui.ajax.global.complete(function() {
+                ui.loadingHide();
+            });
         });
     },
     userPanel() {
