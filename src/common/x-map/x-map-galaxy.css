@@ -476,7 +476,7 @@ a:active {
 }
 .dialog-tab-button-pointer {
     position: absolute;
-    bottom: 0;
+    bottom: 2px;
     left: 50%;
     margin-left: -2px;
     width: 4px;

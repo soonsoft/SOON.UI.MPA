@@ -260,15 +260,15 @@ function createAlarmPanel(panelManager) {
         name: "AlarmPanel",
         group: "Right",
         title: "实时信息列表",
-        itemKey: "uniqueId",
+        itemKey: "id",
         flexibleHeight: 8,
         maxLength: 50
     });
 
     ui.page.alarmPanel.shown(function(e) {
-        var that = this;
+        let that = this;
         function add() {
-            var alarms = getAlarms();
+            let alarms = getAlarms();
             that.setViewData(alarms);
             setTimeout(add, ui.random.getNum(1000, 5000))
         }
@@ -277,7 +277,7 @@ function createAlarmPanel(panelManager) {
         }, ui.random.getNum(1000, 5000));
     });
     ui.page.alarmPanel.messageclick(function(e, eventData) {
-        var item = eventData.itemData;
+        let item = eventData.itemData;
         alert([item.message, item.level, item.id]);
     });
 }
