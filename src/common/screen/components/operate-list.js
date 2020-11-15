@@ -4,7 +4,7 @@ import { defineScreenComponent } from "../util/define";
 const $ = ui.$;
 
 function defaultItemTemplate(item, index) {
-    var icon = this.option.icon;
+    let icon = this.option.icon;
     return [
         "<i class='ui-list-view-item-icon fa ", icon, "' />",
         "<span class='ui-list-view-item-text'>", item, "</span>"
@@ -65,13 +65,12 @@ defineScreenComponent("OperateList", {
             duration: 360
         }, this.element);
         this.tabView.changed((function(e, index) {
-            var eventData;
             if(index === 0) {
                 if(this.list) {
                     this.list.cancelSelection();
                 }
             } else if(index === 1) {
-                eventData = this.list ? this.list.getSelection() : {};
+                let eventData = this.list ? this.list.getSelection() : {};
                 this.fire("enter", eventData);
             }
         }).bind(this));
@@ -85,7 +84,7 @@ defineScreenComponent("OperateList", {
     },
     _back(animatable) {
         if(this.list) {
-            var eventData = this.list.getSelection();
+            let eventData = this.list.getSelection();
             this.list.cancelSelection();
             this.fire("back", eventData);
             this.tabView.showIndex(0, animatable);
@@ -130,8 +129,8 @@ defineScreenComponent("OperateList", {
         this._detailText.text(text);
     },
     setBodyInfo(data, target) {
-        var infoPanel = target || this._detailBody;
-        var html = [];
+        let infoPanel = target || this._detailBody;
+        let html = [];
 
         if(Array.isArray(data)) {
             html.push("<ul class='ui-operate-detail-ul'>");
@@ -147,16 +146,15 @@ defineScreenComponent("OperateList", {
         infoPanel.html(html.join(""));
     },
     appendBodyItem(data, target) {
-        var infoPanel = target || this._detailBody,
-            ul;
+        const infoPanel = target || this._detailBody;
         if(Array.isArray(data)) {
-            ul = infoPanel.children(".ui-operate-detail-ul");
+            let ul = infoPanel.children(".ui-operate-detail-ul");
             if(ul.length === 0) {
                 return;
             }
 
             data.forEach(function(item) {
-                var li = $("<li class='ui-operate-detail-li' />");
+                let li = $("<li class='ui-operate-detail-li' />");
                 li.append(
                     $("<label class='ui-operate-detail-label' />").text(item.label));
                 li.append(
