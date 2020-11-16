@@ -5,16 +5,16 @@ import LayoutBaseModule from "./layout-base-module";
 const $ = ui.$;
 
 defineScreenModule("LayoutMessagePanel", LayoutBaseModule, {
-    _init: function(option) {
-        var events = ["messageclick"];
+    _init(option) {
+        const events = ["messageclick"];
         this._super(option, events);
     },
-    _createContent: function() {
-        var content = $("<div style='width:100%;height:100%;' />");
+    _createContent() {
+        const content = $("<div style='width:100%;height:100%;' />");
         return content;
     },
-    _initPanel: function(panel) {
-        var maxLength = this.option.maxLength || 20;
+    _initPanel(panel) {
+        let maxLength = this.option.maxLength || 20;
         this.panel.messageList = new ui.screen.MessageList({
             maxLength: maxLength,
             viewData: this.option.viewData,
@@ -24,7 +24,7 @@ defineScreenModule("LayoutMessagePanel", LayoutBaseModule, {
             this.fire("messageclick", eventData);
         }).bind(this));
     },
-    setViewData: function(viewData) {
+    setViewData(viewData) {
         if(this.panel.messageList) {
             this.panel.messageList.add(viewData);
         }

@@ -4,21 +4,20 @@ import LayoutBaseModule from "./layout-base-module";
 
 defineScreenModule("LayoutListPanel", LayoutBaseModule, {
     _init(option) {
-        var events = ["selected", "back", "enter"];
+        const events = ["selected", "back", "enter"];
         this._super(option, events);
     },
     _createContent() {
-        var content = $("<div style='width:100%;height:100%;overflow:hidden;position:relative;' />");
+        const content = $("<div style='width:100%;height:100%;overflow:hidden;position:relative;' />");
         return content;
     },
     _initPanel() {
-        var icon, nameField,
-            itemFormatter = this.option.itemFormatter;
+        let itemFormatter = this.option.itemFormatter;
         if(!ui.core.isFunction(itemFormatter)) {
-            icon = this.option.icon;
-            nameField = this.option.nameField;
+            let icon = this.option.icon;
+            let nameField = this.option.nameField;
             itemFormatter = function(item, index) {
-                var name = "未知名称";
+                let name = "未知名称";
                 if(item) {
                     name = ui.core.isString(item) 
                         ? item 
@@ -35,16 +34,16 @@ defineScreenModule("LayoutListPanel", LayoutBaseModule, {
             height: this.panel.contentHeight,
             itemFormatter: itemFormatter
         }, this.panelContent);
-        this.panel.list.selected((function(e, eventData) {
+        this.panel.list.selected((e, eventData) => {
             this.fire("selected", eventData);
-        }).bind(this));
+        });
         // 事件代理
-        this.panel.list.enter((function(e, eventData) {
+        this.panel.list.enter((e, eventData) => {
             this.fire("enter", eventData);
-        }).bind(this));
-        this.panel.list.back((function(e, eventData) {
+        });
+        this.panel.list.back((e, eventData) => {
             this.fire("back", eventData);
-        }).bind(this));
+        });
         this.resize(function(e) {
             this.panel.list.setSize(this.panel.contentWidth, this.panel.contentHeight);
         });

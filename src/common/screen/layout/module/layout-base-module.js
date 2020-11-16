@@ -3,14 +3,13 @@ import { defineScreenModule } from "../../util/define";
 
 export default defineScreenModule("LayoutBaseModule", {
     _initialize(useOption) {
-        var option,
-            defaultOption = {
-                width: 300,
-                height: 200,
-                draggable: false
-            };
+        const defaultOption = {
+            width: 300,
+            height: 200,
+            draggable: false
+        };
 
-        option = ui.extend({}, defaultOption, useOption);
+        const option = ui.extend({}, defaultOption, useOption);
 
         this.panelManager = option.panelManager;
         this.name = option.name;
@@ -34,13 +33,12 @@ export default defineScreenModule("LayoutBaseModule", {
         this.eventDispatcher.initEvents(events);
     },
     _render(option) {
-        var addPanelFn;
         this.panelContent = null;
         if(ui.core.isFunction(this._createContent)) {
             this.panelContent = this._createContent();
         }
 
-        addPanelFn = this.group === "Left" 
+        const addPanelFn = this.group === "Left" 
             ? this.panelManager.addLeftPanel
             : this.panelManager.addRightPanel;
 
@@ -48,15 +46,15 @@ export default defineScreenModule("LayoutBaseModule", {
 
         this.panel = addPanelFn.call(this.panelManager, this.name, this.option);
         // panel的事件代理
-        this.panel.showing((function(e) {
+        this.panel.showing(e => {
             this.fire("showing");
-        }).bind(this));
-        this.panel.shown((function(e) {
+        });
+        this.panel.shown(e => {
             this.fire("shown");
-        }).bind(this));
-        this.panel.resize((function(e) {
+        });
+        this.panel.resize(e => {
             this.fire("resize");
-        }).bind(this));
+        });
 
         this._initPanel(this.panel);
     },

@@ -4,17 +4,16 @@ import LayoutBaseModule from "./layout-base-module";
 
 defineScreenModule("LayoutCtrlPanel", LayoutBaseModule, {
     _createContent() {
-        var content = $("<div style='width:100%;height:100%;' />"),
-            htmlBuilder = [],
-            group,
-            buttons = this.option.buttons;
+        let buttons = this.option.buttons;
         if(!buttons) {
             buttons = this.option.buttons = {};
         }
 
+        const htmlBuilder = [];
         htmlBuilder.push("<dl class='layer-list'>");
+        let group;
         Object.keys(buttons).forEach(function(key) {
-            var button = buttons[key];
+            let button = buttons[key];
             if(group !== button.group) {
                 if(!group) {
                     htmlBuilder.push("</dd>");
@@ -31,16 +30,17 @@ defineScreenModule("LayoutCtrlPanel", LayoutBaseModule, {
         htmlBuilder.push("</dd>");
         htmlBuilder.push("</dl>");
 
+        const content = $("<div style='width:100%;height:100%;' />")
         content.html(htmlBuilder.join(""));
 
         return content;
     },
     _initPanel(panel) {
-        var buttons = this.option.buttons;
+        let buttons = this.option.buttons;
         ui.setTask(function() {
             Object.keys(buttons).forEach(function(key) {
-                var elem = $("#" + key),
-                    button = buttons[key];
+                let elem = $("#" + key);
+                let button = buttons[key];
                 elem.click(function(e) {
                     if(elem.hasClass("layer-button-selection")) {
                         elem.removeClass("layer-button-selection");

@@ -31,7 +31,7 @@ const LayoutChartBarPanel = defineScreenModule("LayoutChartBarPanel", LayoutBase
         this.highlightColor = ui.theme.currentHighlight.Color;
         this.chartColors = this.option.chartColors || defaultChartColors;
 
-        var that = this;
+        const that = this;
         this.resize(function(e) {
             this.panelContent.css({
                 "width": "100%",
@@ -54,7 +54,7 @@ const LayoutChartBarPanel = defineScreenModule("LayoutChartBarPanel", LayoutBase
                 this.panel.chartView = echarts.init(this.panelContent.get(0));
             }
 
-            var chartOption = that._getChartOption(that.chartColors, that.highlightColor);
+            let chartOption = that._getChartOption(that.chartColors, that.highlightColor);
             this.panel.chartView.setOption(chartOption);
             if(Array.isArray(this.option.viewData) && this.option.viewData.length > 0) {
                 this.setViewData(this.option.viewData);
@@ -105,7 +105,7 @@ const LayoutChartBarPanel = defineScreenModule("LayoutChartBarPanel", LayoutBase
         };
     },
     _createValueItem(name, value, index) {
-        var colors = this.chartColors;
+        let colors = this.chartColors;
         return {
             name: name,
             value: value,
@@ -115,15 +115,14 @@ const LayoutChartBarPanel = defineScreenModule("LayoutChartBarPanel", LayoutBase
         };
     },
     _getCategories() {
-        var viewData,
-            map,
-            categories = this.option.categories || this.categories;
+        let categories = this.option.categories || this.categories;
         if(Array.isArray(categories)) {
             return categories;
         }
-        viewData = this.option.viewData || [];
+        
+        let viewData = this.option.viewData || [];
         if(viewData.length > 0) {
-            map = {};
+            let map = {};
             viewData.forEach(function(item) {
                 map[item[categoryColumn]] = 1;
             });
@@ -133,15 +132,15 @@ const LayoutChartBarPanel = defineScreenModule("LayoutChartBarPanel", LayoutBase
         return [];
     },
     _getData(viewData) {
-        var data = [],
-            categoryMap = {},
-            categories = [],
-            categoryColumn = this.option.categoryColumn,
-            valueColumn = this.option.valueColumn,
-            that = this;
+        const data = [];
+        const categoryMap = {};
+        const categories = [];
+            
+        const categoryColumn = this.option.categoryColumn,
+        const valueColumn = this.option.valueColumn;
         
         if(viewData.length > 0) {
-            viewData.forEach(function(item) {
+            viewData.forEach(item => {
                 var category = item[categoryColumn];
                 data.push(that._createValueItem(category, item[valueColumn], categories.length, item));
                 if(!categoryMap[category]) {
@@ -157,10 +156,8 @@ const LayoutChartBarPanel = defineScreenModule("LayoutChartBarPanel", LayoutBase
         return data;
     },
     _getSeries() {
-        var highlightColor = this.highlightColor,
-            data = [];
-
-        data = this._getData(this.option.viewData || []);
+        const highlightColor = this.highlightColor;
+        const data = this._getData(this.option.viewData || []);
 
         return [
             {
@@ -180,16 +177,15 @@ const LayoutChartBarPanel = defineScreenModule("LayoutChartBarPanel", LayoutBase
         ];
     },
     setViewData(viewData) {
-        var series, categories;
         this.option.viewData = viewData;
         if(this.panel && this.panel.chartView) {
-            series = this._getSeries();
-            categories = this._getCategories();
+            let series = this._getSeries();
+            let categories = this._getCategories();
             this.panel.chartView.setOption({
                 xAxis: {
                     data: categories
                 },
-                series: this._getSeries()
+                series: series
             });
         }
     }
@@ -242,19 +238,17 @@ defineScreenModule("LayoutChartLinePanel", LayoutChartBarPanel, {
         };
     },
     _createValueItem(name, value, index, item) {
-        var result = {
+        return {
             name: name,
             value: value,
             group: item[this.option.groupColumn]
         };
-        return result;
     },
     _getSeries() {
-        var data = [],
-            series = [],
-            seriesMap = {};
+        const series = [];
+        const seriesMap = {};
 
-        data = this._getData(this.option.viewData || []);
+        let data = this._getData(this.option.viewData || []);
         data.forEach(function(item) {
             var group = item.group;
             delete item.group;
@@ -315,7 +309,7 @@ defineScreenModule("LayoutChartPiePanel", LayoutChartBarPanel, {
         };
     },
     _getSeries() {
-        var data = this._getData(this.option.viewData || []);
+        let data = this._getData(this.option.viewData || []);
         return [{
             type: "pie",
             radius: ["50%", "70%"],
@@ -344,16 +338,15 @@ defineScreenModule("LayoutChartPiePanel", LayoutChartBarPanel, {
         }];
     },
     setViewData(viewData) {
-        var series, categories;
         this.option.viewData = viewData;
         if(this.panel && this.panel.chartView) {
-            series = this._getSeries();
-            categories = this._getCategories();
+            let series = this._getSeries();
+            let categories = this._getCategories();
             this.panel.chartView.setOption({
                 legend: {
                     data: categories
                 },
-                series: this._getSeries()
+                series: series
             });
         }
     }
