@@ -136,13 +136,13 @@ const LayoutChartBarPanel = defineScreenModule("LayoutChartBarPanel", LayoutBase
         const categoryMap = {};
         const categories = [];
             
-        const categoryColumn = this.option.categoryColumn,
+        const categoryColumn = this.option.categoryColumn;
         const valueColumn = this.option.valueColumn;
         
         if(viewData.length > 0) {
             viewData.forEach(item => {
                 var category = item[categoryColumn];
-                data.push(that._createValueItem(category, item[valueColumn], categories.length, item));
+                data.push(this._createValueItem(category, item[valueColumn], categories.length, item));
                 if(!categoryMap[category]) {
                     categoryMap[category] = 1;
                     categories.push(category);
