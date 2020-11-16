@@ -7,22 +7,17 @@ const $ = ui.$;
 const noop = function() {};
 
 ui.ctrls.DialogBox.setShowStyle("rightShow", function () {
-    var clientWidth,
-        option,
-        that;
+    const clientWidth = this.parent.width();
 
-    that = this;
-    clientWidth = this.parent.width();
-
-    option = this.animator[0];
+    let option = this.animator[0];
     option.begin = clientWidth;
     option.end = clientWidth - this.offsetWidth - 20;
-    option.onChange = function (left) {
-        that.box.css("left", left + "px");
+    option.onChange = left => {
+        this.box.css("left", left + "px");
     };
     this.openMask();
-    this.animator.onEnd = function () {
-        that.onShown();
+    this.animator.onEnd = () => {
+        this.onShown();
     };
 
     this.box.css({
@@ -33,20 +28,15 @@ ui.ctrls.DialogBox.setShowStyle("rightShow", function () {
 });
 
 ui.ctrls.DialogBox.setShowStyle("leftShow", function () {
-    var option,
-        that;
-
-    that = this;
-
-    option = this.animator[0];
+    let option = this.animator[0];
     option.begin = -this.offsetWidth;
     option.end = 20;
-    option.onChange = function (left) {
-        that.box.css("left", left + "px");
+    option.onChange = left => {
+        this.box.css("left", left + "px");
     };
     this.openMask();
-    this.animator.onEnd = function () {
-        that.onShown();
+    this.animator.onEnd = () => {
+        this.onShown();
     };
 
     this.box.css({
@@ -86,15 +76,12 @@ defineXMapComponent("MapDialog", ui.ctrls.DialogBox, {
         };
     },
     _defineEvents() {
-        var events = this._super();
+        const events = this._super();
         events.push("moveStart", "moveEnd");
         return events;
     },
     _render() {
-        var title,
-            tabFn;
-
-        title = this.option.title;
+        const title = this.option.title;
         this.option.title = {
             text: $("<span class='font-highlight'>" + title + "</span>"),
             hasHr: false,
@@ -105,6 +92,7 @@ defineXMapComponent("MapDialog", ui.ctrls.DialogBox, {
             }
         };
         // 生成tab
+        let tabFn;
         if(this.option.tabs) {
             tabFn = this._initTabs(this.option.tabs);
         }
@@ -127,7 +115,7 @@ defineXMapComponent("MapDialog", ui.ctrls.DialogBox, {
 
         // 自适应
         if(this.option.autoPosition) {
-            ui.page.resize((function()  {
+            ui.page.resize(() => {
                 if(this.isShow()) {
                     if(this.isMaximize) {
                         this._maximize(true);
@@ -138,7 +126,7 @@ defineXMapComponent("MapDialog", ui.ctrls.DialogBox, {
                         });
                     }
                 }
-            }).bind(this), ui.eventPriority.elementResize);
+            }, ui.eventPriority.elementResize);
         }
     },
     _initContent() {
@@ -148,32 +136,30 @@ defineXMapComponent("MapDialog", ui.ctrls.DialogBox, {
         this._super();
     },
     _initDraggable() {
-        var option = {
+        const option = {
             target: this.box,
             parent: this.parent || body,
             hasIframe: this.hasIframe(),
-            onBeginDrag: (function() {
+            onBeginDrag: () => {
                 this.fire("moveStart");
-            }).bind(this),
-            onEndDrag: (function() {
+            },
+            onEndDrag: () => {
                 this.fire("moveEnd");
-            }).bind(this)
+            }
         };
         this.titlePanel
             .addClass("draggable-handle")
             .draggable(option);
     },
     _initMaximizeButton() {
-        var that = this;
-
         this.maximizeBtn = $("<a href='javascript:void(0)' style='font-size:12px;'><i class='fa fa-window-maximize'></i></a>");
         this.maximizeBtn.attr("class", this.option.closeButtonStyle || "closable-button");
         if(this.option.showCloseButton) {
             this.maximizeBtn.css("right", "30px");
         }
 
-        this.maximizeBtn.click(function() {
-            that._maximize(!that.isMaximize);
+        this.maximizeBtn.click(() => {
+            this._maximize(!this.isMaximize);
         });
         this.box.append(this.maximizeBtn);
         if(this.tab) {
@@ -184,11 +170,12 @@ defineXMapComponent("MapDialog", ui.ctrls.DialogBox, {
         }
     },
     _maximize(state) {
-        var parentWidth = this.parent.width(),
-            parentHeight = this.parent.height();
         if(state === this.isMaximize) {
             return;
         }
+
+        const parentWidth = this.parent.width();
+        const parentHeight = this.parent.height();
         if(state) {
             this.isMaximize = true;
             this.maximizeBtn.html("<i class='fa fa-window-restore'></i>");
@@ -208,45 +195,41 @@ defineXMapComponent("MapDialog", ui.ctrls.DialogBox, {
         }
     },
     _initTabs(tabs) {
-        var i, len,
-            tab,
-            tabBodies,
-            title;
         if(!Array.isArray(tabs)) {
             return;
         }
 
-        title = this.option.title;
+        const title = this.option.title;
         title.style["background-color"];
         title.text = [];
-        tabBodies = [];
-        for(i = 0, len = tabs.length; i < len; i++) {
-            tab = tabs[i];
+        const tabBodies = [];
+        for(let i = 0, len = tabs.length; i < len; i++) {
+            let tab = tabs[i];
             title.text.push("<a class='dialog-tab-button' data-tab-index='", i, "'>");
             title.text.push("<span>", tab.title, "</span>");
             title.text.push("<i class='dialog-tab-button-pointer'></i>");
             title.text.push("</a>");
-            if(!ui.core.isJQueryObject(tab.body)) {
-                if(ui.core.isString(tab.body)) {
-                    tab.body = $(tab.body);
+
+            let tabBody = ui.getJQueryElement(tab.body);
+            if(!tabBody) {
+                if(ui.core.isString(tabBody)) {
+                    tabBody = $(tab.body);
                 } else {
-                    tab.body = $("<div />");
+                    tabBody = $("<div />");
                 }
             }
-            tab.body.addClass("ui-tab-body");
-            tabBodies.push(tab.body);
+            tabBody.addClass("ui-tab-body");
+            tabBodies.push(tabBody);
         }
         title.text = $(title.text.join(""));
 
         return function() {
-            var currentClass = "current-dialog-tab",
-                tab;
+            const currentClass = "current-dialog-tab";
             this.contentPanel
                     .append(tabBodies)
                     .css("overflow", "hidden");
             this.titlePanel.click(function(e) {
-                var elem = $(e.target),
-                    index;
+                let elem = $(e.target);
                 while (!elem.hasClass("dialog-tab-button")) {
                     elem = elem.parent();
                     if(elem.hasClass("ui-dialog-box-title")) {
@@ -254,22 +237,21 @@ defineXMapComponent("MapDialog", ui.ctrls.DialogBox, {
                     }
                 }
 
-                index = parseInt(elem.attr("data-tab-index"), 10);
+                let index = parseInt(elem.attr("data-tab-index"), 10);
                 if(index !== tab.getCurrentIndex()) {
                     tab.showIndex(index);
                 }
             });
 
             this.contentPanel.addClass("white-panel");
-            tab = new ui.ctrls.TabView({
+            const tab = new ui.ctrls.TabView({
                 type: "view",
                 bodyPanel: this.contentPanel,
                 duration: 500
             });
             tab.changing(function(e, index) {
-                var i, len,
-                    button;
-                for(i = 0, len = title.text.length; i < len; i++) {
+                let button;
+                for(let i = 0, len = title.text.length; i < len; i++) {
                     button = $(title.text[i]);
                     if(button.hasClass(currentClass)) {
                         button.removeClass(currentClass);
@@ -284,7 +266,7 @@ defineXMapComponent("MapDialog", ui.ctrls.DialogBox, {
             tab.restore();
 
             tab.getBody = function(index) {
-                var len = this.bodies.length;
+                let len = this.bodies.length;
                 if(index < 0 || index >= len) {
                     return null;
                 }
@@ -359,9 +341,9 @@ defineXMapComponent("MapDialog", ui.ctrls.DialogBox, {
         option.interval = false;
         this.imageView = container.imagePreview(option);
         this.imageView.ready(function(e, images) {
-            var zoomer = new ui.ctrls.ImageZoomer();
+            let zoomer = new ui.ctrls.ImageZoomer();
             this.imageViewer.images.forEach(function(image) {
-                var img = image.view.children("img");
+                let img = image.view.children("img");
                 img.addImageZoomer(zoomer);
             });
         });
@@ -391,7 +373,6 @@ defineXMapComponent("MapDialog", ui.ctrls.DialogBox, {
         return this.chartView;
     },
     initVideoView(container, option) {
-        var provider;
         container = ui.getJQueryElement(container);
         if(!container) {
             throw new TypeError("在地图对话框中初始化视频视图时必须要传递容器。");
@@ -405,7 +386,7 @@ defineXMapComponent("MapDialog", ui.ctrls.DialogBox, {
             option = {};
         }
 
-        provider = option.provider || "HikVision";
+        let provider = option.provider || "HikVision";
         provider = CloudAtlas.media[provider];
         if(!ui.core.isFunction(provider)) {
             provider = CloudAtlas.media.HikVision;

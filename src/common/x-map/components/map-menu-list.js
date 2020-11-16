@@ -16,20 +16,18 @@ defineXMapComponent("MapMenuList", MapToolPanel, {
         this._super();
 
         this.toolPanel.click(e => {
-            var elem = $(e.target),
-                index,
-                menus;
+            let elem = $(e.target);
             while(!elem.hasClass("map-menu-item")) {
                 if(elem.hasClass(this.toolPanelClassName)) {
                     return;
                 }
                 elem = elem.parent();
             }
-            index = parseInt(elem.attr("data-index"), 10);
+            let index = parseInt(elem.attr("data-index"), 10);
             if(isNaN(index)) {
                 index = -1;
             }
-            menus = this.option.menus;
+            let menus = this.option.menus;
             if(index >= 0 && index < menus.length) {
                 menus[index].handler.call(menus[index]);
             }
@@ -39,17 +37,14 @@ defineXMapComponent("MapMenuList", MapToolPanel, {
         this.setMenus(this.option.menus);
     },
     setMenus(menus) {
-        var html;
-
         if(!Array.isArray(menus)) {
             menus = [];
         }
         this.option.menus = menus;
 
-        html = [];
+        const html = [];
         html.push("<ul class='map-menu-list'>");
         menus.forEach(function(item, index) {
-            var text;
             if(!item) {
                 return;
             }
@@ -69,7 +64,7 @@ defineXMapComponent("MapMenuList", MapToolPanel, {
                 html.push("</i>");
             }
 
-            text = item.text || item.name;
+            let text = item.text || item.name;
             html.push("<span class='map-menu-text'>");
             html.push(ui.core.isFunction(text) ? text.call(item) : text);
             html.push("<span>");

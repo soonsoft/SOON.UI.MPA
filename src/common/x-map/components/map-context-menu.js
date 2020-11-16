@@ -26,20 +26,18 @@ defineXMapComponent("MapContextMenu", MapToolPanel, {
 
         this.toolPanel.css("overflow", "auto");
         this.toolPanel.click(e => {
-            var elem = $(e.target),
-                index,
-                menus;
+            let elem = $(e.target);
             while(!elem.hasClass("map-menu-item")) {
                 if(elem.hasClass(this.toolPanelClassName)) {
                     return;
                 }
                 elem = elem.parent();
             }
-            index = parseInt(elem.attr("data-index"), 10);
+            let index = parseInt(elem.attr("data-index"), 10);
             if(isNaN(index)) {
                 index = -1;
             }
-            menus = this.option.menus;
+            let menus = this.option.menus;
             if(index >= 0 && index < menus.length) {
                 this.fire("click", menus[index]);
             }
@@ -51,25 +49,18 @@ defineXMapComponent("MapContextMenu", MapToolPanel, {
         this.mouseClientY = mouseClientY;
     },
     setMenus(menus) {
-        var len;
         CloudAtlas.ctrls.MapMenuList.prototype.setMenus.call(this, menus);
-        len = this.option.menus.length;
+        let len = this.option.menus.length;
         if(len > 5) {
             len = 5;
         }
         this.height = 40 * len + 32;
     },
     _preShow() {
-        var containerOffset,
-            clientWidth,
-            clientHeight,
-            top,
-            left;
+        let clientWidth = document.documentElement.clientWidth;
+        let clientHeight = document.documentElement.clientHeight;
 
-        clientWidth = document.documentElement.clientWidth;
-        clientHeight = document.documentElement.clientHeight;
-
-        containerOffset = this.container.offset();
+        let containerOffset = this.container.offset();
         containerOffset.width = this.container.width();
         containerOffset.height = this.container.height();
 
@@ -82,8 +73,8 @@ defineXMapComponent("MapContextMenu", MapToolPanel, {
 
         this.width = this.option.width;
         this.height = this.height;
-        top = this.mouseClientY || 0;
-        left = this.mouseClientX || 0;
+        let top = this.mouseClientY || 0;
+        let left = this.mouseClientX || 0;
 
         if(top + this.height > clientHeight) {
             top = top - ((top + this.height) - clientHeight);
@@ -93,20 +84,18 @@ defineXMapComponent("MapContextMenu", MapToolPanel, {
         }
 
         this.toolPanel.css({
-            "height": this.height + "px",
-            "top": top + "px",
-            "left": left + "px"
+            height: this.height + "px",
+            top: top + "px",
+            left: left + "px"
         });
     },
     show(animation) {
-        var option,
-            toolPanel;
-            
         this._preShow();
         if(this.isShow()) {
             return;
         }
 
+        let toolPanel;
         while(showedToolPanelArray.length) {
             toolPanel = showedToolPanelArray.shift();
             if(toolPanel) {
@@ -126,7 +115,7 @@ defineXMapComponent("MapContextMenu", MapToolPanel, {
 
         this.animator.stop();
 
-        option = this.animator[0];
+        let option = this.animator[0];
         option.ease = ui.AnimationStyle.easeTo;
         option.begin = parseFloat(option.target.css("opacity")) || 0;
         option.end = 100;
@@ -141,8 +130,6 @@ defineXMapComponent("MapContextMenu", MapToolPanel, {
         this.animator.start();
     },
     hide(animation) {
-        var option;
-
         if(!this.isShow()) {
             return;
         }
@@ -161,7 +148,7 @@ defineXMapComponent("MapContextMenu", MapToolPanel, {
 
         this.animator.stop();
 
-        option = this.animator[0];
+        let option = this.animator[0];
         option.ease = ui.AnimationStyle.easeTo;
         option.begin = (parseFloat(option.target.css("opacity")) * 100) || 100;
         option.end = 0;

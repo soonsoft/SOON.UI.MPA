@@ -30,12 +30,10 @@ const LayoutChartBarPanel = defineScreenModule("LayoutChartBarPanel", LayoutBase
     _initPanel() {
         this.highlightColor = ui.theme.currentHighlight.Color;
         this.chartColors = this.option.chartColors || defaultChartColors;
-
-        const that = this;
-        this.resize(function(e) {
+        this.resize(e => {
             this.panelContent.css({
-                "width": "100%",
-                "height": "100%"
+                width: "100%",
+                height: "100%"
             });
             if(this.panel.chartView) {
                 this.panel.chartView.resize({
@@ -45,16 +43,16 @@ const LayoutChartBarPanel = defineScreenModule("LayoutChartBarPanel", LayoutBase
             }
         });
 
-        this.showing(function(e) {
+        this.showing(e => {
             this.panelContent.css({
-                "width": this.panel.contentWidth + "px",
-                "height": this.panel.contentHeight + "px"
+                width: this.panel.contentWidth + "px",
+                height: this.panel.contentHeight + "px"
             });
             if(!this.panel.chartView) {
                 this.panel.chartView = echarts.init(this.panelContent.get(0));
             }
 
-            let chartOption = that._getChartOption(that.chartColors, that.highlightColor);
+            let chartOption = this._getChartOption(this.chartColors, this.highlightColor);
             this.panel.chartView.setOption(chartOption);
             if(Array.isArray(this.option.viewData) && this.option.viewData.length > 0) {
                 this.setViewData(this.option.viewData);

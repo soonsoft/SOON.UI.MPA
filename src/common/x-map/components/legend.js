@@ -22,7 +22,7 @@ defineXMapComponent("Legend", {
         this.animator.duration = 300;
 
         this.onCloseButtonClickHandler = (function(e) {
-            var icon = this.closeButton.children("i");
+            let icon = this.closeButton.children("i");
             if(this.isShow()) {
                 this.option.isShow = false;
                 icon.removeClass("fa-angle-down").addClass("fa-angle-up");
@@ -35,7 +35,6 @@ defineXMapComponent("Legend", {
         }).bind(this);
     },
     _render() {
-        var resizeFn;
         if(this.option.closeButton) {
             this.closeButton = $("<a class='map-legend-button font-highlight-hover'></a>");
             if(this.option.isShow === false) {
@@ -50,8 +49,8 @@ defineXMapComponent("Legend", {
         this.content = $("<ul class='map-legend-content font-highlight' />");
         this.element.append(this.content);
         this.parent = this.element.parent();
-        resizeFn = (function() {
-            var clientWidth = this.parent.width();
+        const resizeFn = (function() {
+            const clientWidth = this.parent.width();
             this.element.css("left", (clientWidth - this.element.width()) / 2 + "px");
 
         }).bind(this);
@@ -64,53 +63,48 @@ defineXMapComponent("Legend", {
         return this.option.isShow !== false;
     },
     show: function() {
-        var option;
         if(this.animator.isStarted) {
             return;
         }
 
-        option = this.animator[0];
+        let option = this.animator[0];
         option.begin = -this.element.height();
         option.end = 0;
 
         this.animator.start();
     },
     hide: function() {
-        var option;
         if(this.animator.isStarted) {
             return;
         }
 
-        option = this.animator[0];
+        let option = this.animator[0];
         option.begin = 0;
         option.end = -this.element.height();
 
         this.animator.start();
     },
     setViewData: function(data) {
-        var htmlBuilder,
-            that;
         if(!Array.isArray(data)) {
             return;
         }
 
         this.option.viewData = data;
 
-        that = this;
-        htmlBuilder = [];
-        data.forEach(function(item, index) {
-            var field;
+        const htmlBuilder = [];
+        data.forEach((item, index) => {
+            let field;
             htmlBuilder.push("<li class='map-legend-item'>");
-            field = item[that.option.iconField];
+            field = item[this.option.iconField];
             if(ui.core.isFunction(field)) {
-                htmlBuilder.push(field.call(that, item, index));
+                htmlBuilder.push(field.call(this, item, index));
             } else {
                 htmlBuilder.push("<img class='map-legend-icon' src='", field, "' alt='' />");
             }
             
-            field = item[that.option.textField];
+            field = item[this.option.textField];
             if(ui.core.isFunction(field)) {
-                htmlBuilder.push(field.call(that, item, index));
+                htmlBuilder.push(field.call(this, item, index));
             } else {
                 htmlBuilder.push("<span class='map-legend-text'>", field, "</span>");
             }

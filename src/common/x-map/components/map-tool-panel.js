@@ -21,7 +21,6 @@ export default defineXMapComponent("MapToolPanel", {
         return ["showing", "shown", "hiding", "hidden"];
     },
     _create() {
-        var that = this;
         this.container = this.option.container || body;
         if(!ui.core.isJQueryObject(this.container)) {
             this.container = $(this.container);
@@ -34,11 +33,11 @@ export default defineXMapComponent("MapToolPanel", {
         });
         this._isShow = false;
 
-        this.onShown = function() {
-            that.fire("shown");
+        this.onShown = () => {
+            this.fire("shown");
         };
-        this.onHidden = function() {
-            that.fire("hidden");
+        this.onHidden = () => {
+            this.fire("hidden");
         };
 
         this.animator = ui.animator({
@@ -85,21 +84,15 @@ export default defineXMapComponent("MapToolPanel", {
         this.container.append(this.toolPanel);
     },
     _preShow(targetPosition) {
-        var targetLeft = targetPosition.left,
-            left,
-            top,
-            containerOffset,
-            clientWidth,
-            clientHeight;
-        
+        let targetLeft = targetPosition.left;
         if(!ui.core.isNumeric(targetLeft)) {
             return;
         }
 
-        clientWidth = document.documentElement.clientWidth;
-        clientHeight = document.documentElement.clientHeight;
+        let clientWidth = document.documentElement.clientWidth;
+        let clientHeight = document.documentElement.clientHeight;
 
-        containerOffset = this.container.offset();
+        const containerOffset = this.container.offset();
         containerOffset.width = this.container.width();
         containerOffset.height = this.container.height();
 
@@ -112,21 +105,17 @@ export default defineXMapComponent("MapToolPanel", {
         }
 
         this.width = this.option.width;
-        left = targetLeft || 0;
-
+        let left = targetLeft || 0;
         if(left + this.width > clientWidth) {
             left = left - ((left + this.width) - clientWidth);
         }
 
         this.toolPanel.css({
-            "left": left + "px",
-            "right": "auto"
+            left: left + "px",
+            right: "auto"
         });
     },
     show(animation, targetPosition) {
-        var option,
-            toolPanel;
-
         if(ui.core.isPlainObject(animation)) {
             targetPosition = animation;
             animation = true;
@@ -138,6 +127,7 @@ export default defineXMapComponent("MapToolPanel", {
             return;
         }
 
+        let toolPanel;
         while(showedToolPanelArray.length) {
             toolPanel = showedToolPanelArray.shift();
             if(toolPanel) {
@@ -159,7 +149,7 @@ export default defineXMapComponent("MapToolPanel", {
 
         this.animator.stop();
 
-        option = this.animator[0];
+        let option = this.animator[0];
         option.ease = ui.AnimationStyle.easeTo;
         option.begin = parseFloat(option.target.css("top")) || 0;
         option.end = this.option.top;
@@ -179,8 +169,6 @@ export default defineXMapComponent("MapToolPanel", {
         this.animator.start();
     },
     hide(animation) {
-        var option;
-
         if(!this.isShow()) {
             return;
         }
@@ -200,7 +188,7 @@ export default defineXMapComponent("MapToolPanel", {
 
         this.animator.stop();
 
-        option = this.animator[0];
+        let option = this.animator[0];
         option.ease = ui.AnimationStyle.easeTo;
         option.begin = parseFloat(option.target.css("top")) || this.option.top;
         option.end = 0;

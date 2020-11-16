@@ -35,7 +35,7 @@ defineXMapComponent("MapLayerPanel", MapToolPanel, {
             multiple: true
         }, this.treeViewPanel);
         this.treeView.changed((e, eventData) => {
-            var layerIdList = [];
+            const layerIdList = [];
 
             if (eventData.isNode) {
                 this.treeView.selectChildNode(eventData.element, eventData.isSelection);
@@ -67,11 +67,10 @@ defineXMapComponent("MapLayerPanel", MapToolPanel, {
         this.setViewData(this.option.viewData);
     },
     setViewData(data) {
-        var checkedList;
         if(Array.isArray(data)) {
             this.treeView.setViewData(data);
 
-            checkedList = [];
+            let checkedList = [];
             ui.trans.treeEach(data, "subLayers", function(item) {
                 if(item.check || item.checked) {
                     checkedList.push(item.layerId);
@@ -89,13 +88,12 @@ defineXMapComponent("MapLayerPanel", MapToolPanel, {
         this.treeView.setSelection(layerId);
     },
     uncheckLayer(layerId) {
-        var i, elem, nodeData;
         if(Array.isArray(layerId)) {
             layerId = layerId[0];
         }
-        for(i = this.treeView._selectList.length - 1; i >= 0; i--) {
-            elem = $(this.treeView._selectList[i]);
-            nodeData = this.treeView._getNodeData(elem);
+        for(let i = this.treeView._selectList.length - 1; i >= 0; i--) {
+            let elem = $(this.treeView._selectList[i]);
+            let nodeData = this.treeView._getNodeData(elem);
 
             if(this.treeView._equalValue(nodeData, layerId)) {
                 this.treeView._selectItem(elem, nodeData, false);

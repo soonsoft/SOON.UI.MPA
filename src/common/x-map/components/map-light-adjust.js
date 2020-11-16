@@ -21,29 +21,23 @@ defineXMapComponent("MapLightAdjust", MapToolPanel, {
         return ["changed"];
     },
     _render() {
-        var content,
-            adjust,
-            valueText,
-            that;
-
-        content = $("<div class='map-light-ctrl' />");
+        const content = $("<div class='map-light-ctrl' />");
         content.append("<i class='map-light-icon fa fa-adjust' title='" + this.option.title + "'></i>");
-        adjust = $("<div class='map-light-adjust' />");
+        const adjust = $("<div class='map-light-adjust' />");
         content.append(adjust);
-        valueText = $("<div class='map-light-value'>0%</div>");
+        const valueText = $("<div class='map-light-value'>0%</div>");
         content.append(valueText);
 
         this._super();
         this.toolPanel.append(content);
 
-        that = this;
         this.adjuster = adjust.slidebar();
-        this.adjuster.changed(function(e, percent) {
+        this.adjuster.changed((e, percent) => {
             valueText.html(percent + "%");
-            if(that.option.map) {
-                that.option.map.setOpacity(percent / 100);
+            if(this.option.map) {
+                this.option.map.setOpacity(percent / 100);
             }
-            that.fire("changed", percent);
+            this.fire("changed", percent);
         });
         this._isFirstShow = true;
     },

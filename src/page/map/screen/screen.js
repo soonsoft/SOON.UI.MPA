@@ -3,7 +3,7 @@ import "./screen.css";
 import ui from "soonui";
 import "../../../common/x-map/x-map";
 import { createLayout } from "../../../common/screen/screen";
-import { createElement, css } from "../../../common/html/html-utils";
+import { append, createElement, css, text } from "../../../common/html/html-utils";
 import { pageSettings, pageInit, bodyAppend } from "../../../common/layout/screen-layout";
 
 pageSettings({
@@ -198,15 +198,32 @@ function createChartLinePanel(panelManager) {
 } 
 
 function createDevicePanel(panelManager) {
+    function createTabBody(name) {
+        let tabBody = createElement("div");
+        let tabName = createElement("div");
+        text(tabName, name);
+        css(tabName, {
+            width: "100%",
+            height: "40px",
+            lineHeight: "40px",
+            position: "absolute",
+            top: "50%",
+            marginTop: "-20px",
+            textAlign: "center"
+        });
+        append(tabBody, tabName);
+        return tabBody;
+    }
+
     ui.page.devicePanel = ui.screen.module.LayoutTabPanel({
         panelManager: panelManager,
         name: "DevicePanel",
         group: "Left",
         flexibleHeight: 1,
         tabs: [
-            { title: "Tab1", body: createElement("div") },
-            { title: "Tab2", body: createElement("div") },
-            { title: "Tab3", body: createElement("div") }
+            { title: "Tab1", body: createTabBody("Tab1") },
+            { title: "Tab2", body: createTabBody("Tab2") },
+            { title: "Tab3", body: createTabBody("Tab3") }
         ]
     });
 }
