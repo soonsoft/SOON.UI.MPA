@@ -134,6 +134,7 @@ a:active {
     display: none;
     -webkit-backdrop-filter: blur(10px) saturate(150%);
     backdrop-filter: blur(10px) saturate(150%);
+    overflow: hidden;
 }
 .map-contains .toolbar {
     width: 100%;

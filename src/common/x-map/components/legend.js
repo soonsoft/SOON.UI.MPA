@@ -1,6 +1,8 @@
 import ui from "soonui";
 import { defineXMapComponent } from "../util/define";
 
+const $ = ui.$;
+
 defineXMapComponent("Legend", {
     _defineOption() {
         return {
@@ -21,7 +23,7 @@ defineXMapComponent("Legend", {
         });
         this.animator.duration = 300;
 
-        this.onCloseButtonClickHandler = (function(e) {
+        this.onCloseButtonClickHandler = e => {
             let icon = this.closeButton.children("i");
             if(this.isShow()) {
                 this.option.isShow = false;
@@ -32,7 +34,7 @@ defineXMapComponent("Legend", {
                 icon.removeClass("fa-angle-up").addClass("fa-angle-down");
                 this.show();
             }
-        }).bind(this);
+        };
     },
     _render() {
         if(this.option.closeButton) {
@@ -49,11 +51,11 @@ defineXMapComponent("Legend", {
         this.content = $("<ul class='map-legend-content font-highlight' />");
         this.element.append(this.content);
         this.parent = this.element.parent();
-        const resizeFn = (function() {
+        const resizeFn = () => {
             const clientWidth = this.parent.width();
             this.element.css("left", (clientWidth - this.element.width()) / 2 + "px");
 
-        }).bind(this);
+        };
         resizeFn();
         ui.page.resize(resizeFn, ui.eventPriority.elementResize);
 

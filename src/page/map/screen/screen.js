@@ -3,8 +3,8 @@ import "./screen.css";
 import ui from "soonui";
 import "../../../common/x-map/x-map";
 import { createLayout } from "../../../common/screen/screen";
-import { append, createElement, css, text } from "../../../common/html/html-utils";
-import { pageSettings, pageInit, bodyAppend } from "../../../common/layout/screen-layout";
+import { append, createElement, css, text, removeClass } from "../../../common/html/html-utils";
+import { pageSettings, pageInit, toolPanelResize } from "../../../common/layout/screen-layout";
 
 pageSettings({
     title: "SCREEN",
@@ -16,7 +16,7 @@ pageSettings({
             text: "图层控制",
             icon: "<i class='fas fa-th-large'></i>",
             toggle: true,
-            handler: checked => ui.messageShow(["mapLayer", checked])
+            handler: (checked, action) => action(ui.page.layerManager)
         },
         {
             id: "mapChange",
@@ -52,7 +52,7 @@ pageSettings({
             text: "导航",
             icon: "<i class='fas fa-bars'></i>",
             toggle: true,
-            handler: checked => ui.messageShow(["navigator", checked])
+            handler: (checked, action) => action(ui.page.navigator)
         }
     ]
 });
@@ -60,7 +60,9 @@ pageSettings({
 pageInit({
     created() {
         // 创建地图图层面板
-        //this.layerManager = createLayerManager(this.map);
+        this.layerManager = createLayerManager();
+        // 创建导航菜单
+        this.navigator = createPageNavigator();
 
         this.centerPanel = createCenterPanel();
         this.panelManager = createPanelManager();
@@ -73,6 +75,8 @@ pageInit({
         this.panelManagerResizeFlag = true;
 
         this.centerPanel.restore();
+
+        toolPanelResize();
     },
     load() {
         this.panelManager.show();
@@ -80,9 +84,72 @@ pageInit({
     }
 });
 
-function createLayerManager() {
+//#region 工具栏
 
+function createLayerManager() {
+    const layerManager = new ui.xmap.MapLayerPanel({
+        container: ui.page.body,
+        top: ui.page.panelMarginValue,
+        left: 0,
+        height: 300,
+        viewData: [
+            { layerId: "restaurant", layerName: "美食", checked: true },
+            { layerId: "cinema", layerName: "电影院", checked: true },
+            { layerId: "ktv", layerName: "KTV", checked: true }
+        ]
+    });
+    layerManager.hiding(e => {
+        removeClass(document.getElementById("mapLayer"), ui.page.mapButtonActive);
+    });
+    layerManager.checked((e, layers) => {
+        ui.messageShow(layers[0] + "，显示");
+    });
+    layerManager.unchecked((e, layers) => {
+        ui.messageShow(layers[0] + "，隐藏");
+    });
+
+    return layerManager;
 }
+
+function createPageNavigator() {
+    const menuList = new ui.xmap.MapMenuList({
+        container: ui.page.body,
+        top: ui.page.panelMarginValue,
+        width: 120,
+        height: 152,
+        menus: [
+            {
+                icon: "fa-map-signs",
+                text: "电子地图",
+                handler: function() {
+                    location.href = "javascript:void(0)";
+                }
+            },
+            {
+                icon: "fa-map-marker",
+                text: "要素管理",
+                handler: function() {
+                    location.href = "javascript:void(0)";
+                }
+            },
+            {
+                icon: "fa-thumbs-up",
+                text: "应急指挥",
+                handler: function() {
+                    location.href = "javascript:void(0)";
+                }
+            }
+        ]
+    });
+    menuList.hiding(function(e) {
+        removeClass(document.getElementById("navigator"), ui.page.mapButtonActive);
+    });
+    return menuList;
+}
+
+//#endregion
+
+//#region 布局容器
 
 function createCenterPanel() { 
     const element = createElement("div");
@@ -136,7 +203,8 @@ function createPanelManager() {
     // 左边
     createChartPiePanel(panelManager);
     createChartLinePanel(panelManager);
-    createDevicePanel(panelManager);
+    createTabPanel(panelManager);
+    //createTabListPanel(panelManager);
 
     // 右边
     createChartBarPanel(panelManager);
@@ -197,7 +265,7 @@ function createChartLinePanel(panelManager) {
     });
 } 
 
-function createDevicePanel(panelManager) {
+function createTabPanel(panelManager) {
     function createTabBody(name) {
         let tabBody = createElement("div");
         let tabName = createElement("div");
@@ -217,13 +285,60 @@ function createDevicePanel(panelManager) {
 
     ui.page.devicePanel = ui.screen.module.LayoutTabPanel({
         panelManager: panelManager,
-        name: "DevicePanel",
+        name: "TabPanel",
         group: "Left",
         flexibleHeight: 1,
         tabs: [
             { title: "Tab1", body: createTabBody("Tab1") },
             { title: "Tab2", body: createTabBody("Tab2") },
             { title: "Tab3", body: createTabBody("Tab3") }
+        ]
+    });
+}
+
+function createTabListPanel(panelManager) {
+    ui.page.devicePanel = ui.screen.module.LayoutTabListPanel({
+        panelManager: panelManager,
+        name: "DevicePanel",
+        group: "Left",
+        flexibleHeight: 1,
+        listOptions: [
+            {
+                title: "美食",
+                icon: "fa-home",
+                nameField: "name",
+                listName: "restaurant",
+                selectedHandler: (eventData, list) => {
+                    list.setHeadText(eventData.itemData.name);
+                },
+                loadHandler: list => {
+                    list.setViewData([
+                        { name: "肯德基" },
+                        { name: "麦当劳" },
+                        { name: "必胜客" },
+                        { name: "赛百味" },
+                        { name: "赛百味" }
+                    ]);
+                }
+            },
+            {
+                title: "美食2",
+                icon: "fa-home",
+                nameField: "name",
+                listName: "restaurant2",
+                selectedHandler: (eventData, list) => {
+                    list.setHeadText(eventData.itemData.name);
+                },
+                loadHandler: list => {
+                    list.setViewData([
+                        { name: "肯德基" },
+                        { name: "麦当劳" },
+                        { name: "必胜客" },
+                        { name: "赛百味" },
+                        { name: "赛百味" }
+                    ]);
+                }
+            }
         ]
     });
 }
@@ -298,3 +413,5 @@ function createAlarmPanel(panelManager) {
         alert([item.message, item.level, item.id]);
     });
 }
+
+//#endregion

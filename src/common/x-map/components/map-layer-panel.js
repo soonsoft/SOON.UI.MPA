@@ -2,6 +2,8 @@ import ui from "soonui";
 import { defineXMapComponent } from "../util/define";
 import MapToolPanel from "./map-tool-panel";
 
+const $ = ui.$;
+
 defineXMapComponent("MapLayerPanel", MapToolPanel, {
     _defineOption() {
         return {
@@ -21,7 +23,7 @@ defineXMapComponent("MapLayerPanel", MapToolPanel, {
         this._super();
         this.toolPanel.addClass("layer-list");
 
-        this.contextMenu = new CloudAtlas.ctrls.MapContextMenu({
+        this.contextMenu = new ui.xmap.MapContextMenu({
             container: this.option.container
         });
 

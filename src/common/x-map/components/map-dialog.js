@@ -2,8 +2,8 @@ import ui from "soonui";
 import echarts from "echarts";
 import { defineXMapComponent } from "../util/define";
 
-const body = document.body;
 const $ = ui.$;
+const body = document.body;
 const noop = function() {};
 
 ui.ctrls.DialogBox.setShowStyle("rightShow", function () {

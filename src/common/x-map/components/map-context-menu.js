@@ -2,6 +2,8 @@ import ui from "soonui";
 import { defineXMapComponent } from "../util/define";
 import MapToolPanel from "./map-tool-panel";
 
+const $ = ui.$;
+
 defineXMapComponent("MapContextMenu", MapToolPanel, {
     _defineOption() {
         return {

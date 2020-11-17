@@ -33,7 +33,7 @@ defineScreenComponent("OperateList", {
         this._detailHead = $("<div class='ui-operate-detail-head' />");
         this._detailBody = $("<div class='ui-operate-detail-body' />");
 
-        this._backButton = $("<a class='ui-operate-detail-back'><i class='fa fa-angle-left' /></a>");
+        this._backButton = $("<a class='ui-operate-detail-back'><i class='far fa-chevron-left' /></a>");
         this._detailText = $("<span class='ui-operate-detail-text' />");
         this._detailHead
             .append(this._backButton)

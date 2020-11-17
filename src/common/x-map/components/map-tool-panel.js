@@ -1,6 +1,7 @@
 import ui from "soonui";
 import { defineXMapComponent } from "../util/define";
 
+const $ = ui.$;
 const showedToolPanelArray = [];
 const body = document.body;
 
@@ -57,9 +58,9 @@ export default defineXMapComponent("MapToolPanel", {
 
         if(this.option.isFocusOutHide) {
             // 注册全局点击事件
-            ui.page.htmlclick(function () {
-                if(that.isShow()) {
-                    that.hide();
+            ui.page.htmlclick(e => {
+                if(this.isShow()) {
+                    this.hide();
                 }
             });
         }

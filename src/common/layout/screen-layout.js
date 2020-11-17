@@ -11,6 +11,7 @@ ui.theme.setHighlight({
 
 const headerHeight = 64;
 const $ = ui.$;
+const toolPanelResizeHandlers = new ui.KeyArray();
 
 ui.page.get("master").setHandler(function(arg) {
     this.head = $("#head");
@@ -176,6 +177,7 @@ function initToolButton(isLeft, marginValue, buttons) {
 function getClickHandler(li, a, buttonSettings) {
     if(buttonSettings.toggle) {
         return e => {
+            e.stopPropagation();
             const checked = !hasClass(a, "map-button-active");
             if(checked) {
                 addClass(a, "map-button-active");
@@ -183,12 +185,42 @@ function getClickHandler(li, a, buttonSettings) {
                 removeClass(a, "map-button-active");
             }
 
-            buttonSettings.handler.call(null, checked, buttonSettings.id);
+            buttonSettings.handler.call(null, checked, (toolPanel) => {
+                const id = buttonSettings.id;
+                if(checked) {
+                    let rect = a.getBoundingClientRect();
+                    const location = {
+                        top: rect.top,
+                        left: rect.left
+                    };
+                    toolPanel.show(location);
+                    if(id) {
+                        if(!toolPanelResizeHandlers.containsKey(id)) {
+                            toolPanelResizeHandlers.set(id, () => {
+                                if(toolPanel.isShow()) {
+                                    let rect = a.getBoundingClientRect();
+                                    const location = {
+                                        top: rect.top,
+                                        left: rect.left
+                                    };
+                                    toolPanel.show(location);
+                                }
+                            });
+                        }
+                    }
+                } else {
+                    if(id) {
+                        toolPanelResizeHandlers.set(id, null);
+                    }
+                    toolPanel.hide();
+                }
+            });
         };
     } else if(buttonSettings.change) {
         let change = buttonSettings.change;
         if(Array.isArray(change)) {
             return e => {
+                e.stopPropagation();
                 let icon = a.getElementsByTagName("i");
                 if(icon.length === 0) {
                     return;
@@ -219,6 +251,7 @@ function getClickHandler(li, a, buttonSettings) {
 
         if(ui.core.isFunction(change)) {
             return e => {
+                e.stopPropagation();
                 change.call(null, e, handler);
             };
         }
@@ -226,6 +259,7 @@ function getClickHandler(li, a, buttonSettings) {
         throw new TypeError("no support change model.");
     } else {
         return e => {
+            e.stopPropagation();
             buttonSettings.handler.call(null, e);
         };
     }
@@ -252,8 +286,21 @@ function bodyAppend(element) {
     append(ui.page.body, element);
 }
 
+function toolPanelResize() {
+    toolPanelResizeHandlers.forEach(item => {
+        if(ui.core.isFunction(item)) {
+            try {
+                item();
+            } catch(e) {
+                console.error(e);
+            }
+        }
+    });
+}
+
 export {
     pageSettings,
     pageInit,
-    bodyAppend
+    bodyAppend,
+    toolPanelResize
 };

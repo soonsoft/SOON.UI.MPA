@@ -10,11 +10,12 @@ defineScreenModule("LayoutTabListPanel", LayoutBaseModule, {
     },
     _render(option) {
         /*
-            listOption: { 
+            listOptions: { 
                 title: "tabName", 
                 icon: "listItemIcon", 
                 nameField: "listItemNameField", 
                 listName: listName, 
+                loadHandler: load data handler,
                 selectedHandler: selected event handler,
                 enterHandler: enter event handler,
                 backHandler: back event handler
@@ -60,7 +61,7 @@ defineScreenModule("LayoutTabListPanel", LayoutBaseModule, {
             return this.fire("tabchanging", eventData);
         });
         panel.tab.changed((e, index) => {
-            panel.tab.loadList(index);
+            this.loadList(index);
 
             const eventData = {
                 index: index,
@@ -89,10 +90,11 @@ defineScreenModule("LayoutTabListPanel", LayoutBaseModule, {
                 height: this.panel.contentHeight,
                 itemFormatter(item, index) {
                     let name = "未知名称";
+                    let icon = listOption.icon;
                     if(item) {
                         name = ui.core.isString(item) 
                             ? item 
-                            : (ui.core.isFunction(nameField) ? nameField(item) : item[nameField]);
+                            : (ui.core.isFunction(listOption.nameField) ? nameField(item) : item[listOption.nameField]);
                     }
                     return [
                         "<i class='ui-list-view-item-icon fa ", icon, "' />",
@@ -137,9 +139,9 @@ defineScreenModule("LayoutTabListPanel", LayoutBaseModule, {
         if(needLoad) {
             this.listStates[index] = false;
         }
-        if(!this.listStates) {
+        if(!this.listStates[index]) {
             this.listStates[index] = true;
-            if(listOption.loadHandler) {
+            if(ui.core.isFunction(listOption.loadHandler)) {
                 listOption.loadHandler(list, this);
             }
         }
@@ -164,7 +166,7 @@ defineScreenModule("LayoutTabListPanel", LayoutBaseModule, {
             this.panel.tab.showIndex(index);
         }
         if(!list) {
-            list = this.panel.tab.loadList(index);
+            list = this.loadList(index);
         }
 
         return list;

@@ -1,10 +1,12 @@
 import { defineXMapComponent } from "../util/define";
 import MapToolPanel from "./map-tool-panel";
 
+const $ = ui.$;
+
 defineXMapComponent("MapTrack", MapToolPanel, {
     _defineOption() {
         return {
-            // CloudAtlas对象
+            // 云图Map对象
             map: null,
             width: 160,
             height: 48,

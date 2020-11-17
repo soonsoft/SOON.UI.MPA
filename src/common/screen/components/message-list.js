@@ -152,15 +152,14 @@ defineScreenComponent("MessageList", {
             return;
         }
 
-        let eventData = {
-            removeItems: this.option.viewData.splice(maxLength, count - maxLength),
-            removeLenght: eventData.removeItems.length
-        };
+        const eventData = {};
+        eventData.removeItems = this.option.viewData.splice(maxLength, count - maxLength);
+        eventData.removeLenght = eventData.removeItems.length;
 
         let groups = this.messageContainer.children();
         let size = 0;
         for(let i = 0, len = groups.length; i < len; i++) {
-            group = $(groups[i]);
+            let group = $(groups[i]);
             if(size > maxLength) {
                 group.remove();
             } else {
