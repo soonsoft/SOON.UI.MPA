@@ -2,6 +2,8 @@ import ui from "soonui";
 import { defineScreenModule } from "../../util/define";
 import LayoutBaseModule from "./layout-base-module";
 
+const $ = ui.$;
+
 defineScreenModule("LayoutListPanel", LayoutBaseModule, {
     _init(option) {
         const events = ["selected", "back", "enter"];

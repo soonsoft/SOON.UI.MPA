@@ -198,7 +198,6 @@ class Layout {
     }
 
     _addPanel(name, group, option, fenceIndex) {
-        let panel;
         let content = option.content;
         let flexibleHeight = option.flexibleHeight;
         let flexibleMaxHeight = option.flexibleMaxHeight;
@@ -219,11 +218,11 @@ class Layout {
         option.resizeable = false;
         option.autoPosition = false;
 
-        panel = new ui.xmap.MapDialog(option, content);
         if(this.container) {
-            panel.parent = this.container;
-            panel.parent.append(panel.box);
+            option.parent = this.container;
         }
+
+        const panel = new ui.xmap.MapDialog(option, content);
         panel.positionLeft = panel.positionTop = 0;
         panel.fenceIndex = fenceIndex;
         panel.overflow = false;

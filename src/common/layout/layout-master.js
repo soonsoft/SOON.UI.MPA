@@ -1,6 +1,6 @@
 import ui from "soonui";
 import { createElement, text, append, addClass, prop, remove } from "../html/html-utils";
-import { initTitle } from "./common";
+import { initTitle, masterLoaded } from "./common";
 
 let pageSettingsOption = {
     title: "TITLE",
@@ -12,29 +12,15 @@ let pageSettingsOption = {
 const masterInitConfig = {
     master() {
         this.loaded(function() {
-            let pageProgress = document.getElementsByClassName("page-progress");
-            if(pageProgress.length > 0) {
-                pageProgress = pageProgress[0];
-                remove(pageProgress);
-            }
-
-            this.body.css({
-                "visibility": "visible",
-                "opacity": 0
-            });
-            ui.animator.fadeIn(this.body, 500);
-
-            ui.ajax.global.start(function() {
-                ui.loadingShow();
-            });
-            ui.ajax.global.complete(function() {
-                ui.loadingHide();
-            });
+            masterLoaded();
         });
     },
     userPanel() {
         initHighlight();
         return {
+            name: "Admin",
+            department: "总裁办",
+            position: "CEO",
             changeHighlightUrl(highlight) {
                 let url = parseHighlightStyleUrl((url, arr) => {
                     arr[arr.length - 2] = highlight.Id;

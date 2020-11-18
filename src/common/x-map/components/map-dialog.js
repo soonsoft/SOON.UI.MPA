@@ -106,11 +106,6 @@ defineXMapComponent("MapDialog", ui.ctrls.DialogBox, {
             this.tab = tabFn.call(this);
         }
 
-        this.parent = this.option.parent || body;
-        if(this.option.parent) {
-            this.parent.append(this.box);
-        }
-
         this.isMaximize = false;
 
         // 自适应

@@ -34,5 +34,11 @@ module.exports = [
          url: "",
          layout: "screen-layout.ejs",
          js: "map/screen/screen.js"
+      },
+      {
+         name: "tradition",
+         url: "",
+         layout: "map-layout.ejs",
+         js: "map/tradition/tradition.js"
       }
  ];

@@ -204,7 +204,6 @@ function createPanelManager() {
     createChartPiePanel(panelManager);
     createChartLinePanel(panelManager);
     createTabPanel(panelManager);
-    //createTabListPanel(panelManager);
 
     // 右边
     createChartBarPanel(panelManager);
@@ -283,7 +282,7 @@ function createTabPanel(panelManager) {
         return tabBody;
     }
 
-    ui.page.devicePanel = ui.screen.module.LayoutTabPanel({
+    ui.page.tabPanel = ui.screen.module.LayoutTabPanel({
         panelManager: panelManager,
         name: "TabPanel",
         group: "Left",
@@ -292,53 +291,6 @@ function createTabPanel(panelManager) {
             { title: "Tab1", body: createTabBody("Tab1") },
             { title: "Tab2", body: createTabBody("Tab2") },
             { title: "Tab3", body: createTabBody("Tab3") }
-        ]
-    });
-}
-
-function createTabListPanel(panelManager) {
-    ui.page.devicePanel = ui.screen.module.LayoutTabListPanel({
-        panelManager: panelManager,
-        name: "DevicePanel",
-        group: "Left",
-        flexibleHeight: 1,
-        listOptions: [
-            {
-                title: "美食",
-                icon: "fa-home",
-                nameField: "name",
-                listName: "restaurant",
-                selectedHandler: (eventData, list) => {
-                    list.setHeadText(eventData.itemData.name);
-                },
-                loadHandler: list => {
-                    list.setViewData([
-                        { name: "肯德基" },
-                        { name: "麦当劳" },
-                        { name: "必胜客" },
-                        { name: "赛百味" },
-                        { name: "赛百味" }
-                    ]);
-                }
-            },
-            {
-                title: "美食2",
-                icon: "fa-home",
-                nameField: "name",
-                listName: "restaurant2",
-                selectedHandler: (eventData, list) => {
-                    list.setHeadText(eventData.itemData.name);
-                },
-                loadHandler: list => {
-                    list.setViewData([
-                        { name: "肯德基" },
-                        { name: "麦当劳" },
-                        { name: "必胜客" },
-                        { name: "赛百味" },
-                        { name: "赛百味" }
-                    ]);
-                }
-            }
         ]
     });
 }

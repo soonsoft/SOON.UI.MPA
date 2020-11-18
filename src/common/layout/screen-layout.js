@@ -1,6 +1,6 @@
 import ui from "soonui";
 import { createElement, css, text, append, addClass, remove, prop, on, hasClass, removeClass, html } from "../html/html-utils";
-import { initTitle } from "./common";
+import { initTitle, masterLoaded } from "./common";
 
 ui.theme.currentTheme = "Galaxy";
 ui.theme.backgroundColor = "#1A2637";
@@ -62,24 +62,7 @@ const masterInitConfig = {
 
         // 注册loaded事件
         this.loaded(() => {
-            let pageProgress = document.getElementsByClassName("page-progress");
-            if(pageProgress.length > 0) {
-                pageProgress = pageProgress[0];
-                remove(pageProgress);
-            }
-
-            css(this.body, {
-                visibility: "visible",
-                opacity: 0
-            });
-            ui.animator.fadeIn(this.body, 500);
-
-            ui.ajax.global.start(function() {
-                ui.loadingShow();
-            });
-            ui.ajax.global.complete(function() {
-                ui.loadingHide();
-            });
+            masterLoaded();
         });
 
         // 添加主题Tag颜色 

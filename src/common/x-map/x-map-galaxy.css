@@ -870,8 +870,9 @@ a:active {
 
 .layer-group-title {
     width: 100%;
-    height: 30px;
-    line-height: 30px;
+    height: 40px;
+    line-height: 40px;
+    overflow: hidden;
 }
 
 .layer-group-text {
