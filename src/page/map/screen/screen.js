@@ -243,7 +243,7 @@ function createChartPiePanel(panelManager) {
         name: "chartPiePanel",
         group: "Left",
         title: "饼图",
-        flexibleHeight: 2,
+        height: 300,
         categoryColumn: "name",
         valueColumn: "value",
         chartColors: ["#4BD9FF", "#FE5A3E"],
@@ -271,7 +271,7 @@ function createChartLinePanel(panelManager) {
         name: "chartLinePanel",
         group: "Left",
         title: "折线图",
-        flexibleHeight: 2,
+        height: 200,
         categoryColumn: "name",
         groupColumn: "group",
         valueColumn: "value",
@@ -326,7 +326,7 @@ function createChartBarPanel(panelManager) {
         name: "chartBarPanel",
         group: "Right",
         title: "柱状图",
-        flexibleHeight: 2,
+        height: 320,
         categoryColumn: "name",
         valueColumn: "value",
         viewData: value
@@ -360,7 +360,7 @@ function createAlarmPanel(panelManager) {
         group: "Right",
         title: "实时信息列表",
         itemKey: "id",
-        flexibleHeight: 8,
+        flexibleHeight: 1,
         maxLength: 50
     });
 

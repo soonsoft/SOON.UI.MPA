@@ -189,9 +189,8 @@ function createCtrlPanel(panelManager) {
         title: "控制面板",
         name: "CtrlPanel",
         group: "Right",
-        flexibleHeight: 1,
         width: 240,
-        height: 180,
+        height: 248,
         buttons: [
             {
                 id: "temperature",
