@@ -1,3 +1,5 @@
+import "./tradition.css";
+
 import ui from "soonui";
 import "../../../common/x-map/x-map";
 import { createLayout } from "../../../common/screen/screen";
@@ -57,6 +59,17 @@ pageSettings({
                     icon: "<i class='far fa-adjust'></i>",
                     toggle: true,
                     handler: (checked, action) => action(ui.page.lightAdjuster)
+                }
+            ]
+        },
+        {
+            isrRight: false,
+            buttons: [
+                {
+                    id: "tableBox",
+                    text: "表格",
+                    icon: "<i class='fas fa-table></i>",
+                    handler: e => {}
                 }
             ]
         }
