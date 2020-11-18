@@ -1,6 +1,6 @@
 import ui from "soonui";
-import { createElement, css, text, append, addClass, remove, prop, on, hasClass, removeClass, html } from "../html/html-utils";
-import { initTitle, masterLoaded } from "./common";
+import { createElement, css, text, append, addClass, prop, on, html } from "../html/html-utils";
+import { initTitle, masterLoaded, toolButtonClickHandler  } from "./common";
 
 ui.theme.currentTheme = "Galaxy";
 ui.theme.backgroundColor = "#1A2637";
@@ -129,6 +129,10 @@ function initToolButton(isLeft, marginValue, buttons) {
         });
     }
     buttons.forEach(buttonSettings => {
+        if(!buttonSettings) {
+            return;
+        }
+        
         const li = createElement("li");
         addClass(li, "tool-item");
         if(buttonSettings.toggle) {
@@ -148,104 +152,13 @@ function initToolButton(isLeft, marginValue, buttons) {
         }
 
         if(ui.core.isFunction(buttonSettings.handler)) {
-            on(li, "click", getClickHandler(li, a, buttonSettings));
+            on(li, "click", toolButtonClickHandler(li, a, buttonSettings, toolPanelResizeHandlers));
         }
         
         append(li, a);
         append(ul, li);
     });
     append(toolPanel, ul);
-}
-
-function getClickHandler(li, a, buttonSettings) {
-    if(buttonSettings.toggle) {
-        return e => {
-            e.stopPropagation();
-            const checked = !hasClass(a, "map-button-active");
-            if(checked) {
-                addClass(a, "map-button-active");
-            } else {
-                removeClass(a, "map-button-active");
-            }
-
-            buttonSettings.handler.call(null, checked, (toolPanel) => {
-                const id = buttonSettings.id;
-                if(checked) {
-                    let rect = a.getBoundingClientRect();
-                    const location = {
-                        top: rect.top,
-                        left: rect.left
-                    };
-                    toolPanel.show(location);
-                    if(id) {
-                        if(!toolPanelResizeHandlers.containsKey(id)) {
-                            toolPanelResizeHandlers.set(id, () => {
-                                if(toolPanel.isShow()) {
-                                    let rect = a.getBoundingClientRect();
-                                    const location = {
-                                        top: rect.top,
-                                        left: rect.left
-                                    };
-                                    toolPanel.show(location);
-                                }
-                            });
-                        }
-                    }
-                } else {
-                    if(id) {
-                        toolPanelResizeHandlers.set(id, null);
-                    }
-                    toolPanel.hide();
-                }
-            });
-        };
-    } else if(buttonSettings.change) {
-        let change = buttonSettings.change;
-        if(Array.isArray(change)) {
-            return e => {
-                e.stopPropagation();
-                let icon = a.getElementsByTagName("i");
-                if(icon.length === 0) {
-                    return;
-                }
-
-                icon = icon[0];
-                const states = change;
-                let state = -1;
-
-                for(let i = 0; i < states.length; i++) {
-                    if(hasClass(icon, states[i])) {
-                        removeClass(icon, states[i]);
-                        state = i;
-                        break;
-                    }
-                }
-
-                if(state > -1) {
-                    state++;
-                    if(state >= states.length) {
-                        state = 0;
-                    }
-                    addClass(icon, states[state]);
-                    buttonSettings.handler.call(null, state);
-                }
-            };
-        }
-
-        if(ui.core.isFunction(change)) {
-            return e => {
-                e.stopPropagation();
-                change.call(null, e, handler);
-            };
-        }
-
-        throw new TypeError("no support change model.");
-    } else {
-        return e => {
-            e.stopPropagation();
-            buttonSettings.handler.call(null, e);
-        };
-    }
 }
 
 //#endregion

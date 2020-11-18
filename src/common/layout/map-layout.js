@@ -1,6 +1,6 @@
 import ui from "soonui";
-import { createElement, css, text, append, addClass, remove, prop, on, hasClass, removeClass, html } from "../html/html-utils";
-import { initTitle, masterLoaded } from "./common";
+import { createElement, css, text, append, addClass, prop, on, html } from "../html/html-utils";
+import { initTitle, masterLoaded, toolButtonClickHandler } from "./common";
 
 ui.theme.currentTheme = "Galaxy";
 ui.theme.backgroundColor = "#1A2637";
@@ -12,8 +12,11 @@ ui.theme.setHighlight({
 let pageSettingsOption = {
     title: "TITLE",
     header: "HEADER",
-    showHomeButton: false
+    showHomeButton: false,
+    tools: []
 };
+
+const toolPanelResizeHandlers = new ui.KeyArray();
 
 const masterInitConfig = {
     master() {
@@ -97,8 +100,24 @@ function initMapDiv() {
     });
     css(mapDiv, {
         width: "100%",
-        height: "100%"
+        height: "100%",
+        overflow: "hidden",
+        position: "position"
     });
+
+    const div = createElement("div");
+    text(div, "地图");
+    css(div, {
+        fontSize: "18px",
+        width: "100%",
+        height: "40px",
+        lineHeight: "40px",
+        position: "absolute",
+        textAlign: "center",
+        top: "50%",
+        marginTop: "-20px"
+    });
+    append(mapDiv, div);
 
     bodyAppend(mapDiv);
 }
@@ -107,7 +126,68 @@ function initMapTools() {
     const mapToolbar = createElement("div");
     addClass(mapToolbar, "toolbar", "clear");
 
+    const tools = pageSettingsOption.tools;
+    if(Array.isArray(tools)) {
+        tools.forEach(tool => {
+            if(tool) {
+                createTool(mapToolbar, tool.buttons, !!tool.isRight);
+            }
+        });
+    }
+
     bodyAppend(mapToolbar);
+}
+
+function createTool(toolPanel, buttons, isRight) {
+    if(!Array.isArray(buttons) || buttons.length === 0) {
+        return;
+    }
+
+    const ul = createElement("ul");
+    addClass(ul, "tools");
+    if(isRight) {
+        css(ul, {
+            float: "right"
+        });
+    }
+
+    buttons.forEach(buttonSettings => {
+        if(!buttonSettings) {
+            return;
+        }
+
+        const li = createElement("li");
+        addClass(li, "tool-item");
+
+        if(ui.core.isFunction(buttonSettings)) {
+            append(li, buttonSettings());
+        } else {
+            if(buttonSettings.toggle) {
+                addClass(li, "toggle-item");
+            }
+    
+            const a = createElement("a");
+            addClass(a, "map-element", "map-button");
+            if(buttonSettings.text) {
+                prop(a, "title", buttonSettings.text);
+            }
+            if(buttonSettings.id) {
+                prop(a, "id", buttonSettings.id);
+            }
+            if(buttonSettings.icon) {
+                html(a, buttonSettings.icon);
+            }
+    
+            if(ui.core.isFunction(buttonSettings.handler)) {
+                on(li, "click", toolButtonClickHandler(li, a, buttonSettings, toolPanelResizeHandlers));
+            }
+            
+            append(li, a);
+        }
+
+        append(ul, li);
+    });
+    append(toolPanel, ul);
 }
 
 //#endregion
@@ -132,8 +212,21 @@ function bodyAppend(element) {
     append(ui.page.mapContainer, element);
 }
 
+function toolPanelResize() {
+    toolPanelResizeHandlers.forEach(item => {
+        if(ui.core.isFunction(item)) {
+            try {
+                item();
+            } catch(e) {
+                console.error(e);
+            }
+        }
+    });
+}
+
 export {
     pageSettings,
     pageInit,
-    bodyAppend
+    bodyAppend,
+    toolPanelResize
 };

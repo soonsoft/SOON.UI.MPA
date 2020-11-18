@@ -1,17 +1,78 @@
 import ui from "soonui";
 import "../../../common/x-map/x-map";
 import { createLayout } from "../../../common/screen/screen";
-import { pageSettings, pageInit, bodyAppend } from "../../../common/layout/map-layout";
+import { removeClass } from "../../../common/html/html-utils";
+import { pageSettings, pageInit, bodyAppend, toolPanelResize } from "../../../common/layout/map-layout";
 
 pageSettings({
     title: "X-MAP",
     header: "SOON.UI X-MAP",
-    showHomeButton: true
+    showHomeButton: true,
+    tools: [
+        {
+            isRight: false,
+            buttons: [
+                {
+                    id: "home",
+                    text: "回到原点",
+                    icon: "<i class='fas fa-home'></i>",
+                    handler: e => ui.messageShow("home")
+                },
+                {
+                    id: "fullScreen",
+                    text: "全屏",
+                    icon: "<i class='fas fa-arrows-alt'></i>",
+                    toggle: true,
+                    handler: checked => ui.messageShow(["fullScreen", checked])
+                },
+                {
+                    id: "switchMap",
+                    text: "底图切换",
+                    icon: "<i class='fas fa-map'></i>",
+                    change: ["fa-map", "fa-plus"],
+                    handler: e => {}
+                }
+            ]
+        },
+        {
+            isRight: false,
+            buttons: [
+                {
+                    id: "mapLayer",
+                    text: "图层控制",
+                    icon: "<i class='fas fa-list-ul'></i>",
+                    toggle: true,
+                    handler: (checked, action) => action(ui.page.layerManager)
+                },
+                {
+                    id: "mapTools",
+                    text: "工具",
+                    icon: "<i class='fas fa-cogs'></i>",
+                    toggle: true,
+                    handler: (checked, action) => action(ui.page.toolMenuList)
+                },
+                {
+                    id: "lightAdjuster",
+                    text: "亮度调节",
+                    icon: "<i class='far fa-adjust'></i>",
+                    toggle: true,
+                    handler: (checked, action) => action(ui.page.lightAdjuster)
+                }
+            ]
+        }
+    ]
 });
 
 pageInit({
     menu: true,
     created() {
+        // 创建地图图层面板
+        this.layerManager = createLayerManager();
+        // 创建地图工具菜单
+        this.toolMenuList  = createToolMenuList();
+        // 创建底图亮度调节器
+        this.lightAdjuster = createMapLightAdjust(this.map);
+        // 地图浮动面板
         this.panelManager = createPanelManager();
     },
     layout() {
@@ -20,12 +81,89 @@ pageInit({
 
         this.panelManager.arrange(width, height, this.panelManagerResizeFlag);
         this.panelManagerResizeFlag = true;
+
+        toolPanelResize();
     },
     load() {
         loadMenuData();
         this.panelManager.show();
     }
 });
+
+//#region 工具栏
+
+/** 创建图层管理 */
+function createLayerManager() {
+    const layerManager = new ui.xmap.MapLayerPanel({
+        container: ui.page.body,
+        top: ui.page.panelMarginValue,
+        left: 0,
+        height: 300,
+        viewData: [
+            { layerId: "restaurant", layerName: "美食", checked: true },
+            { layerId: "cinema", layerName: "电影院", checked: true },
+            { layerId: "ktv", layerName: "KTV", checked: true }
+        ]
+    });
+    layerManager.hiding(e => {
+        removeClass(document.getElementById("mapLayer"), ui.page.mapButtonActive);
+    });
+    layerManager.checked((e, layers) => {
+        ui.messageShow(layers[0] + "，显示");
+    });
+    layerManager.unchecked((e, layers) => {
+        ui.messageShow(layers[0] + "，隐藏");
+    });
+
+    return layerManager;
+}
+
+/** 创建地图工具菜单 */
+function createToolMenuList() {
+    var menuList = new ui.xmap.MapMenuList({
+        height: 152,
+        right: 152,
+        container: ui.page.mapContainer,
+        menus: [{
+                icon: "fa-magic",
+                text: "测距",
+                handler: function() {
+                }
+            },
+            {
+                icon: "fa-retweet",
+                text: "测面",
+                handler: function() {
+                }
+            },
+            {
+                icon: "fa-eraser",
+                text: "清除",
+                handler: function() {
+                }
+            }
+        ]
+    });
+    menuList.hiding(function(e) {
+        removeClass(document.getElementById("mapTools"), ui.page.mapButtonActive);
+    });
+    return menuList;
+}
+
+/** 创建底图亮度调节器 */
+function createMapLightAdjust(map) {
+    var adjuster = new ui.xmap.MapLightAdjust({
+        value: 100,
+        container: ui.page.mapContainer,
+        map: map
+    });
+    adjuster.hiding(function(e) {
+        removeClass(document.getElementById("lightAdjuster"), ui.page.mapButtonActive);
+    });
+    return adjuster;
+}
+
+//#endregion
 
 //#region 地图浮动元素
 

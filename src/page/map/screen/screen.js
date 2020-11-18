@@ -157,8 +157,23 @@ function createCenterPanel() {
     css(element, {
         width: "100%",
         height: "100%",
-        overflow: "hidden"
+        overflow: "hidden",
+        position: "position"
     });
+
+    const span = createElement("span");
+    text(span, "地图");
+    css(span, {
+        fontSize: "18px",
+        width: "100%",
+        height: "40px",
+        lineHeight: "40px",
+        position: "absolute",
+        textAlign: "center",
+        top: "50%",
+        marginTop: "-20px"
+    });
+    append(element, span);
     
     const panel = new ui.xmap.MapDialog({
         parent: ui.page.body,

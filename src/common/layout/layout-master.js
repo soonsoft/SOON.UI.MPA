@@ -1,5 +1,5 @@
 import ui from "soonui";
-import { createElement, text, append, addClass, prop, remove } from "../html/html-utils";
+import { createElement, text, append, addClass, prop } from "../html/html-utils";
 import { initTitle, masterLoaded } from "./common";
 
 let pageSettingsOption = {

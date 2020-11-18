@@ -156,10 +156,18 @@ a:active {
     list-style: none;
     height: 100%;
     line-height: 40px;
-    margin-right: 20px;
+    margin-right: 10px;
 }
 .map-contains .tool-item .map-button {
     margin-top: 6px;
+    text-align: center;
+}
+
+.map-contains .tool-item .map-button .fa,
+.map-contains .tool-item .map-button .far,
+.map-contains .tool-item .map-button .fas {
+    font-size: 16px;
+    line-height: 36px;
 }
 
 /* 通用遮罩层 */
@@ -914,7 +922,9 @@ a:active {
     background-color: rgba(0, 204, 204, 1);
 }
 
-.layer-button .fa {
+.layer-button .fa,
+.layer-button .far,
+.layer-button .fas {
     color: #fff;
     font-size: 16px;
 }

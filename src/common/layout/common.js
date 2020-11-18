@@ -1,5 +1,5 @@
 import ui from "soonui";
-import { text, append, remove, css } from "../html/html-utils";
+import { text, append, remove, css, addClass, removeClass, hasClass } from "../html/html-utils";
 
 function initTitle(titleText) {
     let title = document.getElementsByTagName("title");
@@ -34,7 +34,99 @@ function masterLoaded() {
     });
 }
 
+function toolButtonClickHandler(li, a, buttonSettings, toolPanelResizeHandlers) {
+    if(buttonSettings.toggle) {
+        return e => {
+            e.stopPropagation();
+            const checked = !hasClass(a, "map-button-active");
+            if(checked) {
+                addClass(a, "map-button-active");
+            } else {
+                removeClass(a, "map-button-active");
+            }
+
+            buttonSettings.handler.call(null, checked, (toolPanel) => {
+                const id = buttonSettings.id;
+                if(checked) {
+                    let rect = a.getBoundingClientRect();
+                    const location = {
+                        top: rect.top,
+                        left: rect.left
+                    };
+                    toolPanel.show(location);
+                    if(id) {
+                        if(!toolPanelResizeHandlers.containsKey(id)) {
+                            toolPanelResizeHandlers.set(id, () => {
+                                if(toolPanel.isShow()) {
+                                    let rect = a.getBoundingClientRect();
+                                    const location = {
+                                        top: rect.top,
+                                        left: rect.left
+                                    };
+                                    toolPanel.show(location);
+                                }
+                            });
+                        }
+                    }
+                } else {
+                    if(id) {
+                        toolPanelResizeHandlers.set(id, null);
+                    }
+                    toolPanel.hide();
+                }
+            });
+        };
+    } else if(buttonSettings.change) {
+        let change = buttonSettings.change;
+        if(Array.isArray(change)) {
+            return e => {
+                e.stopPropagation();
+                let icon = a.getElementsByTagName("i");
+                if(icon.length === 0) {
+                    return;
+                }
+
+                icon = icon[0];
+                const states = change;
+                let state = -1;
+
+                for(let i = 0; i < states.length; i++) {
+                    if(hasClass(icon, states[i])) {
+                        removeClass(icon, states[i]);
+                        state = i;
+                        break;
+                    }
+                }
+
+                if(state > -1) {
+                    state++;
+                    if(state >= states.length) {
+                        state = 0;
+                    }
+                    addClass(icon, states[state]);
+                    buttonSettings.handler.call(null, state);
+                }
+            };
+        }
+
+        if(ui.core.isFunction(change)) {
+            return e => {
+                e.stopPropagation();
+                change.call(null, e, handler);
+            };
+        }
+
+        throw new TypeError("no support change model.");
+    } else {
+        return e => {
+            e.stopPropagation();
+            buttonSettings.handler.call(null, e);
+        };
+    }
+}
+
 export {
     initTitle,
-    masterLoaded
+    masterLoaded,
+    toolButtonClickHandler
 };

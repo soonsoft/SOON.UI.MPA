@@ -24,7 +24,7 @@ defineXMapComponent("MapLightAdjust", MapToolPanel, {
     },
     _render() {
         const content = $("<div class='map-light-ctrl' />");
-        content.append("<i class='map-light-icon fa fa-adjust' title='" + this.option.title + "'></i>");
+        content.append("<i class='map-light-icon far fa-adjust' title='" + this.option.title + "'></i>");
         const adjust = $("<div class='map-light-adjust' />");
         content.append(adjust);
         const valueText = $("<div class='map-light-value'>0%</div>");
