@@ -3,7 +3,7 @@ import "./tradition.css";
 import ui from "soonui";
 import "../../../common/x-map/x-map";
 import { createLayout } from "../../../common/screen/screen";
-import { removeClass } from "../../../common/html/html-utils";
+import { addClass, append, createElement, on, removeClass, text } from "../../../common/html/html-utils";
 import { pageSettings, pageInit, bodyAppend, toolPanelResize } from "../../../common/layout/map-layout";
 
 pageSettings({
@@ -67,9 +67,17 @@ pageSettings({
             buttons: [
                 {
                     id: "tableBox",
-                    text: "表格",
-                    icon: "<i class='fas fa-table></i>",
-                    handler: e => {}
+                    text: "表格对话框",
+                    icon: "<i class='far fa-table'></i>",
+                    toggle: true,
+                    handler: checked => checked ? ui.page.tableBox.show() : ui.page.tableBox.hide()
+                },
+                {
+                    id: "pictureBox",
+                    text: "图片对话框",
+                    icon: "<i class='far fa-image'></i>",
+                    toggle: true,
+                    handler: checked => checked ? ui.page.pictureBox.show() : ui.page.pictureBox.hide()
                 }
             ]
         }
@@ -85,8 +93,15 @@ pageInit({
         this.toolMenuList  = createToolMenuList();
         // 创建底图亮度调节器
         this.lightAdjuster = createMapLightAdjust(this.map);
+        
         // 地图浮动面板
         this.panelManager = createPanelManager();
+
+        // 表格对话框
+        this.tableBox = createGridDialog();
+        // 图片对话框
+        this.pictureBox = createPictureDialog();
+
     },
     layout() {
         const width = this.contentBodyWidth;
@@ -280,6 +295,99 @@ function createTabListPanel(panelManager) {
             }
         ]
     });
+}
+
+//#endregion
+
+//#region 对话框
+
+function createButton(buttonText, clickHandler) {
+    const button = createElement("button");
+    addClass(button, "button");
+    text(button, buttonText);
+    on(button, "click", clickHandler);
+
+    return button;
+}
+
+function createGridDialog() {
+    const content = createElement("div");
+
+    let dialog = null;
+
+    const okButton = createButton("确 定", e => dialog.done());
+    const noButton = createButton("取 消", e => dialog.hide());
+
+    dialog = new ui.xmap.MapDialog({
+        parent: ui.page.mapContainer,
+        title: "表格对话框",
+        width: 480,
+        height: 360,
+        buttons: [okButton, noButton]
+    }, content);
+    dialog.initGridView(content, {
+        columns: [
+            { text: "", align: "center", len: 40, formatter: ui.ColumnStyle.cfn.rowNumber },
+            { text: "名称", column: "name", align: "left", len: 100 },
+            { text: "地址", column: "address", align: "left", len: 240 },
+            { text: "类型", column: "category", align: "center", len: 60 },
+            { formatter: ui.ColumnStyle.empty }
+        ],
+        pager: {
+            pageIndex: 1,
+            pageSize: 30
+        },
+        viewData: [
+            { name: "南京新百", address: "南京市白下区南京中心1号", category: "购物" },
+            { name: "总统府", address: "南京市白下区南京图书馆旁边", category: "景点" },
+            { name: "南京大排档", address: "南京市湖南路狮子桥", category: "美食" },
+            { name: "德基广场", address: "南京新街口", category: "购物" },
+            { name: "中山陵", address: "南京紫金山", category: "景点" },
+            { name: "玄武湖", address: "南京玄武区玄武门内", category: "景点" },
+            { name: "牛首山", address: "南京江宁区牛首山景区", category: "景点" }
+        ]
+    });
+    dialog.hiding(e => removeClass(document.getElementById("tableBox"), ui.page.mapButtonActive));
+
+    return dialog;
+}
+
+function createPictureDialog() {
+    const imagePreview = createElement("div");
+    addClass(imagePreview, "image-preview");
+    const viewPanel = createElement("div");
+    addClass(viewPanel, "image-view-panel");
+    const chooser = createElement("div");
+    addClass(chooser, "image-preview-chooser");
+    append(imagePreview, viewPanel, chooser);
+
+    let dialog = null;
+
+    const okButton = createButton("确 定", e => dialog.done());
+    const noButton = createButton("取 消", e => dialog.hide());
+
+    dialog = new ui.xmap.MapDialog({
+        parent: ui.page.mapContainer,
+        title: "图片对话框",
+        width: 480,
+        height: 412,
+        buttons: [okButton, noButton]
+    }, imagePreview);
+    dialog.showing(e => {
+        dialog.initImageView(imagePreview, {
+            chooserSize: 48,
+            images: [
+                "/content/image/picture/1.jpg",
+                "/content/image/picture/5.jpg",
+                "/content/image/picture/12.jpg",
+                "/content/image/picture/20.jpg",
+                "/content/image/picture/27.jpg"
+            ]
+        });
+    });
+    dialog.hiding(e => removeClass(document.getElementById("pictureBox"), ui.page.mapButtonActive));
+
+    return dialog;
 }
 
 //#endregion

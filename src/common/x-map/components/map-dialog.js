@@ -49,16 +49,16 @@ ui.ctrls.DialogBox.setShowStyle("leftShow", function () {
 defineXMapComponent("MapDialog", ui.ctrls.DialogBox, {
     _defineOption() {
         return {
-            show: "rightShow",
-            done: "right",
-            hide: "right",
+            show: "up",
+            done: "up",
+            hide: "down",
             top: 48,
             width: 480,
             height: 360,
             maskable: false,
             suitable: false,
             resizeable: false,
-            autoPosition: true,
+            autoPosition: false,
             titleHeight: 30,
             tabs: null,
             style: {
@@ -329,9 +329,40 @@ defineXMapComponent("MapDialog", ui.ctrls.DialogBox, {
         if(!container) {
             throw new TypeError("在地图对话框中初始化图片视图时必须要传递容器。");
         }
+
         if(!option) {
             option = {};
         }
+
+        if(!option.chooserSize) {
+            option.chooserSize = 48;
+        }
+
+        let viewPanel = this.element.children(".image-view-panel");
+        let chooserPanel = this.element.children(".image-preview-chooser");
+        if(chooserPanel.length > 0) {
+            if(option.direction === "vertical") {
+                chooserPanel.css({
+                    width: option.chooserSize + "px"
+                });
+            } else {
+                chooserPanel.css({
+                    height: option.chooserSize + "px"
+                });
+            }
+        }
+        if(viewPanel.length > 0) {
+            if(option.direction === "vertical") {
+                viewPanel.css({
+                    width: (this.contentWidth - option.chooserSize - 18) + "px"
+                });
+            } else {
+                viewPanel.css({
+                    height: (this.contentHeight - option.chooserSize - 18) + "px"
+                });
+            }
+        }
+
         option.imageMargin = 4;
         option.interval = false;
         this.imageView = container.imagePreview(option);
@@ -359,9 +390,9 @@ defineXMapComponent("MapDialog", ui.ctrls.DialogBox, {
         option.height = option.height || this.contentHeight;
 
         container.css({
-            "width": option.width + "px",
-            "height": option.height + "px",
-            "overflow": "hidden"
+            width: option.width + "px",
+            height: option.height + "px",
+            overflow: "hidden"
         });
         this.chartView = echarts.init(container.get(0));
 
@@ -382,9 +413,9 @@ defineXMapComponent("MapDialog", ui.ctrls.DialogBox, {
         }
 
         let provider = option.provider || "HikVision";
-        provider = CloudAtlas.media[provider];
+        provider = ui.media[provider];
         if(!ui.core.isFunction(provider)) {
-            provider = CloudAtlas.media.HikVision;
+            provider = ui.media.HikVision;
         }
 
         this.videoView = new provider(option, container);

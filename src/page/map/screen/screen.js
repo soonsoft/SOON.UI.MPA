@@ -243,7 +243,7 @@ function createChartPiePanel(panelManager) {
         name: "chartPiePanel",
         group: "Left",
         title: "饼图",
-        height: 300,
+        height: 240,
         categoryColumn: "name",
         valueColumn: "value",
         chartColors: ["#4BD9FF", "#FE5A3E"],
@@ -326,7 +326,7 @@ function createChartBarPanel(panelManager) {
         name: "chartBarPanel",
         group: "Right",
         title: "柱状图",
-        height: 320,
+        height: 260,
         categoryColumn: "name",
         valueColumn: "value",
         viewData: value
