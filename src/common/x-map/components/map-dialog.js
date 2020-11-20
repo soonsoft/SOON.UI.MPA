@@ -205,7 +205,12 @@ defineXMapComponent("MapDialog", ui.ctrls.DialogBox, {
             title.text.push("<i class='dialog-tab-button-pointer'></i>");
             title.text.push("</a>");
 
-            let tabBody = ui.getJQueryElement(tab.body);
+            let tabBody = null;
+            if(ui.core.isJQueryObject(tab.body)) {
+                tabBody = tab.body;
+            } else if(ui.core.isDomObject(tab.body)) {
+                tabBody = $(tab.body);
+            }
             if(!tabBody) {
                 if(ui.core.isString(tabBody)) {
                     tabBody = $(tab.body);
@@ -288,16 +293,14 @@ defineXMapComponent("MapDialog", ui.ctrls.DialogBox, {
             option.formatter = {};
         }
 
-        option.bindData = function(data) {
-            if(!this.builder || !data) {
-                this.clear();
+        option.bindData = data => {
+            if(!option.builder || !data) {
+                option.clear();
                 return;
             }
-            container.html(this.builder.bind(data, this.formatter));
+            container.html(option.builder.bind(data, option.formatter));
         };
-        option.clear = function() {
-            container.empty();
-        };
+        option.clear = () => container.empty();
         this.templateView = option;
 
         return this.templateView;

@@ -78,6 +78,13 @@ pageSettings({
                     icon: "<i class='far fa-image'></i>",
                     toggle: true,
                     handler: checked => checked ? ui.page.pictureBox.show() : ui.page.pictureBox.hide()
+                },
+                {
+                    id: "tabBox",
+                    text: "选项卡对话框",
+                    icon: "<i class='far fa-window'></i>",
+                    toggle: true,
+                    handler: checked => checked ? ui.page.tabBox.show() : ui.page.tabBox.hide()
                 }
             ]
         }
@@ -101,6 +108,8 @@ pageInit({
         this.tableBox = createGridDialog();
         // 图片对话框
         this.pictureBox = createPictureDialog();
+        // 选项卡对话框
+        this.tabBox = createTabDialog();
 
     },
     layout() {
@@ -375,7 +384,7 @@ function createPictureDialog() {
     }, imagePreview);
     dialog.showing(e => {
         dialog.initImageView(imagePreview, {
-            chooserSize: 48,
+            chooserSize: 44,
             images: [
                 "/content/image/picture/1.jpg",
                 "/content/image/picture/5.jpg",
@@ -388,6 +397,150 @@ function createPictureDialog() {
     dialog.hiding(e => removeClass(document.getElementById("pictureBox"), ui.page.mapButtonActive));
 
     return dialog;
+}
+
+function createTabDialog() {
+
+    function createProperties(dialog) {
+        const template = 
+        `
+        <div class='property-panel'>
+            <table class='property-table'>
+                <tbody>
+                    <tr>
+                        <th><span>名称</span></th>
+                        <td>{name}</td>
+                        <th><span>位置</span></th>
+                        <td>{location}</td>
+                    </tr>
+                    <tr>
+                        <th><span>类型</span></th>
+                        <td>{type}</td>
+                        <th><span>所属单位</span></th>
+                        <td>{department}</td>
+                    </tr>
+                    <tr>
+                        <th><span>建立时间</span></th>
+                        <td colspan='3'>{buildTime|formatDate}</td>
+                    </tr>
+                    <tr>
+                        <th><span>地址</span></th>
+                        <td colspan='3'>{address}</td>
+                    </tr>
+                    <tr>
+                        <th><span>描述</span></th>
+                        <td colspan='3'>{description}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        `;
+
+        const content = dialog.tab.getBody(0);
+        dialog.initTemplateView(content, {
+            template: template,
+            formatter: {
+                // 格式化器
+                formatDate: function(date) {
+                    return ui.date.format(date, "yyyy-MM-dd hh:mm:ss");
+                }
+            }
+        });
+    }
+
+    function createChart(dialog) {
+        const content = dialog.tab.getBody(1);
+        dialog.initChartView(content);
+    }
+
+    const tabDialog = new ui.xmap.MapDialog({
+        parent: ui.page.mapContainer,
+        width: 480,
+        height: 360,
+        tabs: [
+            {
+                title: "属性信息",
+                body: "<div></div>"
+            },
+            {
+                title: "图表",
+                body: "<div></div>"
+            }
+        ]
+    });
+
+    createProperties(tabDialog);
+    createChart(tabDialog);
+
+    tabDialog.showing(e => {
+        tabDialog.templateView.clear();
+        tabDialog.loadedStates = [];
+        tabDialog.tab.model.currentIndex = null;
+        tabDialog.tab.showIndex(0, false)
+    });
+    tabDialog.tab.changed((e, index) => {
+        if(tabDialog.loadedStates[index]) {
+            return;
+        }
+
+        if(index === 0) {
+            tabDialog.templateView.bindData({
+                name: "点位名称",
+                location: "位置信息",
+                type: "大型淡水湖",
+                department: "武汉市水利局",
+                buildTime: new Date(),
+                address: "武汉市某某区某某镇某某某街道解放路198号",
+                description: "描述信息描述信息描述信息描述信息描述信息描述信息描述信息描述信息描述信息描述信息描述信息"
+            });
+        } else if(index === 1) {
+            tabDialog.chartView.setOption({
+                title: {
+                    text: "各湖泊雨量分析",
+                    textStyle: {
+                        color: "#fff"
+                    },
+                    left: "center",
+                    top: 16
+                },
+                tooltip: {},
+                legend: {
+                    show: false
+                },
+                xAxis: {
+                    axisLine: {
+                        lineStyle: {
+                            color: "#fff"
+                        }
+                    },
+                    axisLabel: {
+                        rotate: 60
+                    },
+                    data: ["曲背湖","武湖","涨渡湖","安仁湖","汪湖汊","朱家湖","三宝湖","鄢家湖","七湖","陶家大湖","兑公咀湖","柴泊湖"]
+                },
+                yAxis: {
+                    axisLine: {
+                        lineStyle: {
+                            color: "#fff"
+                        }
+                    }
+                },
+                series: [{
+                    name: '雨量',
+                    type: 'bar',
+                    itemStyle: {
+                        color: "rgba(0, 204, 204, .7)"
+                    },
+                    data: [5, 20, 36, 10, 10, 20, 11, 23, 44, 24, 19, 17]
+                }]
+            });
+        }
+
+        tabDialog.loadedStates[index] = true;
+    });
+    tabDialog.hiding(e => removeClass(document.getElementById("tabBox"), ui.page.mapButtonActive));
+
+    return tabDialog;
 }
 
 //#endregion
