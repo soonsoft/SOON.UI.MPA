@@ -13,7 +13,7 @@ npm install
 // 构建dll和外部依赖（只需执行一次）
 npm run build-soonui;
 // 启动调试
-npm run run;
+npm run dev;
 ```
 
 ## 构建发布
