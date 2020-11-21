@@ -3,6 +3,7 @@ import "./login.css";
 import ui from "soonui";
 import Parallax from "./parallax";
 import { append, createElement, css, text } from "../../../common/html/html-utils";
+import { ajaxPostJson, ajaxPost } from "../../../common/components/ajax-extend";
 
 const $ = ui.$;
 
@@ -253,5 +254,17 @@ const loginWindow = {
 
 ui.page.ready(() => {
     loginWindow.initial();
-    loginWindow.showError();
+    //loginWindow.showError();
+
+    loadMenu();
 });
+
+function loadMenu() {
+    ajaxPost("http://localhost:8080/account/menus")
+        .then(data => {
+
+        })
+        .catch(e => {
+            ui.messageShow(e.message);
+        });
+}

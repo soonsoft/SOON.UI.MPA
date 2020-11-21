@@ -33,5 +33,6 @@
   "dependencies": {
     "core-js": "^3.6.5",
     "echarts": "^4.9.0"
-  }
+  },
+  "proxy": "http://localhost:8080"
 }

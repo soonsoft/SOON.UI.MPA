@@ -6,11 +6,11 @@ const _rhtml = /<(\S*?)[^>]*>.*?<\/\1>|<.*? \/>/i;
 
 function unauthorized(ajaxRequest, context) {
     let json = null;
-    if(ajaxRequest.status == 401) {
+    if(ajaxRequest.status === 401) {
         return unauthorizedHandler(context);
-    } else if(ajaxRequest.status == 403) {
+    } else if(ajaxRequest.status === 403) {
         return forbiddenHandler(context);
-    } else if(ajaxRequest.status == 200) {
+    } else if(ajaxRequest.status === 200) {
         json = ajaxRequest.getResponseHeader(responsedJson);
         if(!ui.str.isEmpty(json)) {
             try {
@@ -19,9 +19,9 @@ function unauthorized(ajaxRequest, context) {
                 json = null;
             }
             if(json) {
-                if(json.status == 401)
+                if(json.status === 401)
                     return unauthorizedHandler(context);
-                else if (json.status == 403)
+                else if (json.status === 403)
                     return forbiddenHandler(context);
             }
         }
@@ -31,15 +31,17 @@ function unauthorized(ajaxRequest, context) {
 
 function unauthorizedHandler(context) {
     alert("由于您长时间未操作，需要重新登录");
+
+    //location.href = "/login.html";
     
-    let index = url.indexOf("#");
-    if(index > 0) {
-        let url = location.href;
-        url = url.substring(0, index);
-        location.href = url;
-    } else {
-        location.replace();
-    }
+    // let index = url.indexOf("#");
+    // if(index > 0) {
+    //     let url = location.href;
+    //     url = url.substring(0, index);
+    //     location.href = url;
+    // } else {
+    //     location.replace();
+    // }
     return false;
 }
 
@@ -92,13 +94,16 @@ function ajaxCall(method, url, args, successFn, errorFn, option) {
         errorFn = null;
     }
 
-    const ajaxOption = {
+    let ajaxOption = {
         type: method.toUpperCase() === "GET" ? "GET" : "POST",
         dataType: "json",
         url: url,
         async: true,
         // 如果是生产环境，则需要设置一个超时时间
         timeout: 0,
+        headers: {
+            "Access-Control-Allow-Origin": "*"
+        },
         data: args
     };
     const context = {
