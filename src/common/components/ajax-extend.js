@@ -1,5 +1,11 @@
 import ui from "soonui";
 
+const formContent = "application/x-www-form-urlencoded; charset=UTF-8";
+const jsonContent = "application/json; charset=utf-8";
+const fileContent = "multipart/form-data";
+
+const sessionIdHeader = "X-AUTH-URANUS-SID";
+
 // ajax 扩展，加入身份验证和权限验证的相关处理逻辑
 const responsedJson = "X-Responded-JSON";
 const _rhtml = /<(\S*?)[^>]*>.*?<\/\1>|<.*? \/>/i;
@@ -30,9 +36,9 @@ function unauthorized(ajaxRequest, context) {
 }
 
 function unauthorizedHandler(context) {
-    alert("由于您长时间未操作，需要重新登录");
+    //alert("由于您长时间未操作，需要重新登录");
 
-    //location.href = "/login.html";
+    location.href = "/login.html";
     
     // let index = url.indexOf("#");
     // if(index > 0) {
@@ -60,7 +66,7 @@ function successHandler(context, data, textStatus, ajaxRequest) {
     if(result === false) {
         return;
     }
-    context.successFn(data);
+    context.successFn(data, ajaxRequest, textStatus);
 }
 
 function errorHandler(context, ajaxRequest, textStatus, errorThrown) {
@@ -79,7 +85,7 @@ function errorHandler(context, ajaxRequest, textStatus, errorThrown) {
             context.error.message = ajaxRequest.responseText;
         }
     }
-    context.errorFn(context.error);
+    context.errorFn(context.error,);
 }
 
 function ajaxCall(method, url, args, successFn, errorFn, option) {
@@ -101,9 +107,6 @@ function ajaxCall(method, url, args, successFn, errorFn, option) {
         async: true,
         // 如果是生产环境，则需要设置一个超时时间
         timeout: 0,
-        headers: {
-            "Access-Control-Allow-Origin": "*"
-        },
         data: args
     };
     const context = {
@@ -120,7 +123,7 @@ function ajaxCall(method, url, args, successFn, errorFn, option) {
     if (ui.core.isFunction(successFn)) {
         context.successFn = successFn;
         ajaxOption.success = function(ajaxResult) {
-            successHandler(context, ajaxResult.data, ajaxResult.statusText, ajaxResult.ajaxRequest);
+            successHandler(context, ajaxResult.response, ajaxResult.statusText, ajaxResult.ajaxRequest);
         };
     }
     if (ui.core.isFunction(errorFn)) {
@@ -143,7 +146,34 @@ function defaultErrorHandler(e) {
     ui.errorShow(message);
 }
 
-//#region API
+function getUrl(baseUrl, url) {
+    if(!baseUrl) {
+        return url;
+    }
+
+    if(!baseUrl.endsWith("/") && !url.startsWith("/")) {
+        return baseUrl + "/" + url;
+    }
+
+    return baseUrl + url;
+}
+
+function setSessionHeader(request, option) {
+    let headers = option.headers;
+    if(!headers) {
+        headers = option.headers = {};
+    }
+
+    let sessionId = request.sessionId;
+    if(!sessionId) {
+        sessionId = ui.cookie.get(sessionIdHeader);
+    }
+
+    if(sessionId) {
+        request.sessionId = sessionId;
+        headers[sessionIdHeader] = sessionId;
+    }
+}
 
 /**
  * HttpRequest Method方式共有15种
@@ -163,120 +193,117 @@ function defaultErrorHandler(e) {
  * Wrapped
  * Extension-method
  */
+class AjaxRequest {
 
-/** get方式 */
-function ajaxGet(url, params, success, failure, option) {
-    if(!option) option = {};
-    option.contentType = "application/x-www-form-urlencoded; charset=UTF-8";
-    return ajaxCall("GET", url, params, success, failure, option);
-}
-
-/** post方式 */
-function ajaxPost(url, params, success, failure, option) {
-    if(!option) option = {};
-    option.contentType = "application/x-www-form-urlencoded; charset=UTF-8";
-    return ajaxCall("POST", url, params, success, failure, option);
-}
-
-/** post方式，提交数据为为Json格式 */
-function ajaxPostJson(url, params, success, failure, option) {
-    return ajaxCall("POST", url, params, success, failure, option);
-}
-
-/** post方式，提交数据为Json格式，在请求期间会禁用按钮，避免多次提交 */
-function ajaxPostOnce (btn, url, params, success, failure, option) {
-    var text,
-        textFormat,
-        fn;
-    btn = ui.getJQueryElement(btn);
-    if(!btn) {
-        throw new TypeError("没有正确设置要禁用的按钮");
+    constructor(option) {
+        this.baseUrl = option.baseUrl || "";
+        this.isAuth = !!option.isAuth;
     }
 
-    if(ui.core.isPlainObject(failure)) {
-        option = failure;
-        failure = null;
-    }
-
-    if(!option) {
-        option = {};
-    }
-
-    textFormat = "正在{0}...";
-    if(option.textFormat) {
-        textFormat = option.textFormat;
-        delete option.textFormat;
-    }
-    btn.attr("disabled", "disabled");
-    fn = function() {
-        btn.removeAttr("disabled");
-    };
-    if(btn.isNodeName("input")) {
-        text = btn.val();
-        if(text.length > 0) {
-            btn.val(ui.str.format(textFormat, text));
-        } else {
-            btn.val(ui.str.format(textFormat, "处理"));
+    _ensureOption(option, contentType) {
+        if(!option) option = {};
+        option.contentType = contentType;
+        if(this.isAuth) {
+            setSessionHeader(this, option);
         }
-        fn = function() {
-            btn.val(text);
-            btn.removeAttr("disabled");
+        return option;
+    }
+
+    login(url, username, password, success) {
+        return this.post(
+            url, 
+            {
+                username: username,
+                password: password
+            },
+            (result, request) => {
+                let sessionId = request.getResponseHeader(sessionIdHeader.toLowerCase());
+                if(sessionId) {
+                    this.sessionId = sessionId;
+                    ui.cookie.set(sessionIdHeader, sessionId);
+                }
+                if(ui.core.isFunction(success)) {
+                    success(result);
+                }
+            },
+            e => {
+                ui.errorShow("用户名或密码错误");
+            }
+        );
+    }
+
+    /** get方式 */
+    get(url, params, success, failure, option) {
+        return ajaxCall("GET", getUrl(this.baseUrl, url), params, success, failure, this._ensureOption(option, formContent));
+    }
+
+    /** post方式 */
+    post(url, params, success, failure, option) {
+        return ajaxCall("POST", getUrl(this.baseUrl, url), params, success, failure, this._ensureOption(option, formContent));
+    }
+
+    /** post方式，提交数据为为Json格式 */
+    postJson(url, params, success, failure, option) {
+        return ajaxCall("POST", getUrl(this.baseUrl, url), params, success, failure, this._ensureOption(option, jsonContent));
+    }
+
+    /** put方式 */
+    put(url, params, success, failure, option) {
+        return ajaxCall("PUT", getUrl(this.baseUrl, url), params, success, failure, this._ensureOption(option, formContent));
+    }
+
+    /** put方式，提交数据为为Json格式 */
+    putJson(url, params, success, failure, option) {
+        return ajaxCall("PUT", getUrl(this.baseUrl, url), params, success, failure, this._ensureOption(option, jsonContent));
+    }
+
+    /** delete方式 */
+    delete(url, params, success, failure, option) {
+        return ajaxCall("DELETE", getUrl(this.baseUrl, url), params, success, failure, this._ensureOption(option, formContent));
+    }
+
+    /** delete方式，提交数据为为Json格式 */
+    deleteJson(url, params, success, failure, option) {
+        return ajaxCall("DELETE", getUrl(this.baseUrl, url), params, success, failure, this._ensureOption(option, jsonContent));
+    }
+
+    all() {
+        let promises;
+        if (arguments.length == 1) {
+            if(Array.isArray(arguments[0])) {
+                promises = arguments[0];
+            } else {
+                promises = [arguments[0]];
+            }
+        } else if (arguments.length > 1) {
+            promises = [].slice.call(arguments, 0);
+        } else {
+            return;
+        }
+        let promise = Promise.all(promises);
+        promise._then_old = promise.then;
+
+        promise.then = function (resolve, reject) {
+            if (ui.core.isFunction(reject)) {
+                let context = {
+                    error: {},
+                    errorFn: reject
+                };
+                reject = function(xhr) {
+                    errorHandler(context, xhr);
+                };
+            }
+            return this._then_old.call(this, resolve, reject);
         };
-    } else {
-        text = btn.html();
-        if(!_rhtml.test(text)) {
-            btn.text(ui.str.format(textFormat, text));
-            fn = function() {
-                btn.text(text);
-                btn.removeAttr("disabled");
-            };
-        }
+        return promise;
     }
-    
-    option.complete = fn;
-    return ajaxCall("POST", url, params, success, failure, option);
+
 }
 
-/** 将多组ajax请求一起发送，待全部完成后才会执行后续的操作 */
-function ajaxAll () {
-    var promises,
-        promise;
-    if (arguments.length == 1) {
-        if(Array.isArray(arguments[0])) {
-            promises = arguments[0];
-        } else {
-            promises = [arguments[0]];
-        }
-    } else if (arguments.length > 1) {
-        promises = [].slice.call(arguments, 0);
-    } else {
-        return;
-    }
-    promise = Promise.all(promises);
-    promise._then_old = promise.then;
-
-    promise.then = function (resolve, reject) {
-        var context;
-        if (ui.core.isFunction(reject)) {
-            context = {
-                error: {},
-                errorFn: reject
-            };
-            reject = function(xhr) {
-                errorHandler(context, xhr);
-            };
-        }
-        return this._then_old.call(this, resolve, reject);
-    };
-    return promise;
+function createAjaxRequest(option) {
+    return new AjaxRequest(option);
 }
-
-//#endregion
 
 export {
-    ajaxGet,
-    ajaxPost,
-    ajaxPostJson,
-    ajaxPostOnce,
-    ajaxAll
+    createAjaxRequest
 };

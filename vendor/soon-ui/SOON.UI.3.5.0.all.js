@@ -8143,9 +8143,9 @@ httpRequestMethods = {
         that = this;
         if(isSuccess) {
             this._resolve({
-                data: this.response, 
+                ajaxRequest: this,
                 statusText: statusText, 
-                ajaxRequest: this
+                response: this.response
             });
             ui.setTask(function() {
                 ui.ajax.global.fire("success", that, that.option, statusText);

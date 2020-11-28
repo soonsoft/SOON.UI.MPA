@@ -2,13 +2,18 @@ import "./login.css";
 
 import ui from "soonui";
 import Parallax from "./parallax";
-import { append, createElement, css, text } from "../../../common/html/html-utils";
-import { ajaxPostJson, ajaxPost } from "../../../common/components/ajax-extend";
+import { append, createElement, css, on, text } from "../../../common/html/html-utils";
+import { createAjaxRequest } from "../../../common/components/ajax-extend";
 
 const $ = ui.$;
 
 const header = "SOON.UI LOGIN";
 const imageName = "SOON.UI by SoonSoft";
+
+const ajax = createAjaxRequest({
+    baseUrl: "http://10.0.0.5:8080",
+    isAuth: true
+});
 
 const windowSize = {
     tiny: {
@@ -56,6 +61,7 @@ const loginWindow = {
         this.bgImg = this.loginWindow.children(".bgImage");
         this.logo = this.loginPanel.find(".logo");
         this.loginContent = this.loginPanel.find(".form-content");
+        this.loginButton = document.getElementById("loginButton");
 
         this.parallax = new Parallax(this.loginWindow, this.bgImg);
         this.initFocus();
@@ -77,7 +83,16 @@ const loginWindow = {
             this.onResize();
         }, ui.eventPriority.bodyResize);
 
-        //$("#username").focus();
+        on(this.loginButton, "click", e => {
+            let username = document.getElementById("username").value;
+            let password = document.getElementById("password").value;
+            text(this.loginButton, "正在登录...");
+            ajax
+                .login("/account/login", username, password, result => ui.messageShow("登录成功"))
+                    .finally(() => {
+                        text(this.loginButton, "登 录");
+                    });
+        });
     },
     initFocus() {
         this.onSpotlightHandle = null;
@@ -254,17 +269,4 @@ const loginWindow = {
 
 ui.page.ready(() => {
     loginWindow.initial();
-    //loginWindow.showError();
-
-    loadMenu();
 });
-
-function loadMenu() {
-    ajaxPost("http://localhost:8080/account/menus")
-        .then(data => {
-
-        })
-        .catch(e => {
-            ui.messageShow(e.message);
-        });
-}
