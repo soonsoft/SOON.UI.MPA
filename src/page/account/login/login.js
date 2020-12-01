@@ -14,6 +14,7 @@ const ajax = createAjaxRequest({
     baseUrl: "http://10.0.0.5:8080",
     isAuth: true
 });
+const LoginURL = "/account/login";
 
 const windowSize = {
     tiny: {
@@ -88,7 +89,7 @@ const loginWindow = {
             let password = document.getElementById("password").value;
             text(this.loginButton, "正在登录...");
             ajax
-                .login("/account/login", username, password, result => ui.messageShow("登录成功"))
+                .login(LoginURL, username, password, result => ui.messageShow("登录成功"))
                     .finally(() => {
                         text(this.loginButton, "登 录");
                     });
@@ -254,16 +255,6 @@ const loginWindow = {
         option.begin = Math.floor(parseFloat(css(option.target, "opacity")) * 100) || 0;
         option.end = 0;
         this.spotlightAnimator.start();
-    },
-    showError() {
-        let url = location.href;
-        let index = url.indexOf("?");
-        if(index > -1) {
-            let queryString = url.substring(index + 1);
-            if(queryString.indexOf("error") > -1) {
-                ui.errorShow("用户名或密码错误。");
-            }
-        }
     }
 };
 

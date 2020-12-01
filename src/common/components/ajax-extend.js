@@ -5,49 +5,20 @@ const jsonContent = "application/json; charset=utf-8";
 const fileContent = "multipart/form-data";
 
 const sessionIdHeader = "X-AUTH-URANUS-SID";
-
-// ajax 扩展，加入身份验证和权限验证的相关处理逻辑
-const responsedJson = "X-Responded-JSON";
 const _rhtml = /<(\S*?)[^>]*>.*?<\/\1>|<.*? \/>/i;
 
 function unauthorized(ajaxRequest, context) {
-    let json = null;
     if(ajaxRequest.status === 401) {
         return unauthorizedHandler(context);
     } else if(ajaxRequest.status === 403) {
         return forbiddenHandler(context);
-    } else if(ajaxRequest.status === 200) {
-        json = ajaxRequest.getResponseHeader(responsedJson);
-        if(!ui.str.isEmpty(json)) {
-            try {
-                json = JSON.parse(json);
-            } catch(e) {
-                json = null;
-            }
-            if(json) {
-                if(json.status === 401)
-                    return unauthorizedHandler(context);
-                else if (json.status === 403)
-                    return forbiddenHandler(context);
-            }
-        }
     }
     return true;
 }
 
 function unauthorizedHandler(context) {
-    //alert("由于您长时间未操作，需要重新登录");
-
+    alert("由于您长时间未操作，需要重新登录");
     location.href = "/login.html";
-    
-    // let index = url.indexOf("#");
-    // if(index > 0) {
-    //     let url = location.href;
-    //     url = url.substring(0, index);
-    //     location.href = url;
-    // } else {
-    //     location.replace();
-    // }
     return false;
 }
 
@@ -175,6 +146,10 @@ function setSessionHeader(request, option) {
     }
 }
 
+function isPromise(promise) {
+    return promise && ui.core.isFunction(promise.then);
+}
+
 /**
  * HttpRequest Method方式共有15种
  * Get URL传参
@@ -280,6 +255,13 @@ class AjaxRequest {
         } else {
             return;
         }
+
+        promises.forEach(p => {
+            if(!isPromise(p)) {
+                throw new TypeError("the arguments must be Promise.");
+            }
+        });
+
         let promise = Promise.all(promises);
         promise._then_old = promise.then;
 
