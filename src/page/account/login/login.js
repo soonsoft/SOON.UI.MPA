@@ -177,7 +177,7 @@ const loginWindow = {
         });
     },
     setSize(size) {
-        this.loginWindow.css({
+        css(this.loginWindow, {
             width: this.panelWidth + "px",
             height: this.panelHeight + "px"
         });
