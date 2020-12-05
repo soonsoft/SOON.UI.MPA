@@ -37,6 +37,12 @@ function successHandler(context, data, textStatus, ajaxRequest) {
     if(result === false) {
         return;
     }
+    // update token
+    let sessionId = ajaxRequest.getResponseHeader(sessionIdHeader.toLowerCase());
+    if(!sessionId) {
+        sessionId = ui.cookie.get(sessionIdHeader);
+    }
+    
     context.successFn(data, ajaxRequest, textStatus);
 }
 
@@ -191,8 +197,8 @@ class AjaxRequest {
                 username: username,
                 password: password
             },
-            (result, request) => {
-                let sessionId = request.getResponseHeader(sessionIdHeader.toLowerCase());
+            result => {
+                let sessionId = result.token;
                 if(sessionId) {
                     this.sessionId = sessionId;
                     ui.cookie.set(sessionIdHeader, sessionId);
