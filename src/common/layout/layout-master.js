@@ -1,11 +1,17 @@
 import ui from "soonui";
 import { createElement, text, append, addClass, prop } from "../html/html-utils";
 import { initTitle, masterLoaded } from "./common";
+import { createAjaxRequest } from "../components/ajax-extend";
+
+const ajax = createAjaxRequest({
+    baseUrl: "http://10.0.0.5:8080",
+    isAuth: true
+});
 
 let pageSettingsOption = {
     title: "TITLE",
     header: "HEADER",
-    haederTabs: [],
+    headerTabs: [],
     showHomeButton: false
 };
 
@@ -32,10 +38,10 @@ const masterInitConfig = {
                 }
             },
             operateList: [
-                { text: "登录", url: "./login.html" },
-                { text: "个性化", url: "javascript:void(0)" },
-                { text: "修改密码", url: "javascript:void(0)" }, 
-                { text: "退出", url: "javascript:void(0)" }
+                { text: "登录", handler: "./login.html" },
+                { text: "个性化" },
+                { text: "修改密码" }, 
+                { text: "退出", handler: () => ajax.logout("/logout") }
             ]
         };
     }

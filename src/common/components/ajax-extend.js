@@ -37,12 +37,6 @@ function successHandler(context, data, textStatus, ajaxRequest) {
     if(result === false) {
         return;
     }
-    // update token
-    let sessionId = ajaxRequest.getResponseHeader(sessionIdHeader.toLowerCase());
-    if(!sessionId) {
-        sessionId = ui.cookie.get(sessionIdHeader);
-    }
-    
     context.successFn(data, ajaxRequest, textStatus);
 }
 
@@ -211,6 +205,13 @@ class AjaxRequest {
                 ui.errorShow("用户名或密码错误");
             }
         );
+    }
+
+    logout(url) {
+        return this.get(url, result => {
+            this.sessionId = null;
+            ui.cookie.remove(sessionIdHeader);
+        });
     }
 
     /** get方式 */
