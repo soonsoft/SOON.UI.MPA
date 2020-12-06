@@ -3,10 +3,10 @@ import { createElement, text, append, addClass, prop } from "../html/html-utils"
 import { initTitle, masterLoaded } from "./common";
 import { createAjaxRequest } from "../components/ajax-extend";
 
-const ajax = createAjaxRequest({
-    baseUrl: "http://10.0.0.5:8080",
-    isAuth: true
-});
+// ui.page.ajax = createAjaxRequest({
+//     baseUrl: "http://10.0.0.5:8080",
+//     isAuth: true
+// });
 
 let pageSettingsOption = {
     title: "TITLE",
@@ -41,7 +41,7 @@ const masterInitConfig = {
                 { text: "登录", handler: "./login.html" },
                 { text: "个性化" },
                 { text: "修改密码" }, 
-                { text: "退出", handler: () => ajax.logout("/logout") }
+                { text: "退出" }
             ]
         };
     }

@@ -3,18 +3,18 @@ import "./login.css";
 import ui from "soonui";
 import Parallax from "./parallax";
 import { append, createElement, css, on, text } from "../../../common/html/html-utils";
-import { createAjaxRequest } from "../../../common/components/ajax-extend";
+// import { createAjaxRequest } from "../../../common/components/ajax-extend";
 
 const $ = ui.$;
 
 const header = "SOON.UI LOGIN";
 const imageName = "SOON.UI by SoonSoft";
 
-const ajax = createAjaxRequest({
-    baseUrl: "http://10.0.0.5:8080",
-    isAuth: true
-});
-const LoginURL = "/account/login";
+// const ajax = createAjaxRequest({
+//     baseUrl: "http://10.0.0.5:8080",
+//     isAuth: true
+// });
+// const LoginURL = "/account/login";
 
 const windowSize = {
     tiny: {
@@ -87,12 +87,13 @@ const loginWindow = {
         on(this.loginButton, "click", e => {
             let username = document.getElementById("username").value;
             let password = document.getElementById("password").value;
-            text(this.loginButton, "正在登录...");
-            ajax
-                .login(LoginURL, username, password, result => ui.messageShow("登录成功"))
-                    .finally(() => {
-                        text(this.loginButton, "登 录");
-                    });
+            ui.messageShow("登录成功");
+            // text(this.loginButton, "正在登录...");
+            // ajax
+            //     .login(LoginURL, username, password, result => ui.messageShow("登录成功"))
+            //         .finally(() => {
+            //             text(this.loginButton, "登 录");
+            //         });
         });
     },
     initFocus() {
