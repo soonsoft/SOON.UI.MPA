@@ -8,8 +8,7 @@ import { dateChooser, switchButton } from "../../common/ctrl/ctrl-utils";
 
 pageSettings({
     title: "MANAGE",
-    header: "SOON.UI MANAGE",
-    showHomeButton: true
+    header: "SOON.UI MANAGE"
 });
 
 pageInit({

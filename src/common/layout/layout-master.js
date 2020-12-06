@@ -59,10 +59,13 @@ function initHead() {
     }
 
     if(pageSettingsOption.showHomeButton) {
-        let homeButton = createElement("a");
-        addClass(homeButton, "ui-home-button");
-        prop(homeButton, "javascript:void(0)");
-        append(header, homeButton);
+        let homeButton = document.getElementsByClassName("ui-home-button");
+        if(homeButton.length === 0) {
+            homeButton = createElement("a");
+            addClass(homeButton, "ui-home-button");
+            prop(homeButton, "javascript:void(0)");
+            append(header, homeButton);
+        }
     }
 
     let headerSpan = head.getElementsByClassName("head-system-title-text");
